@@ -1,0 +1,11 @@
+Import('*')
+
+List = [
+Glob('*.cpp')
+]
+
+Obj = env.Object(List)
+Return('Obj')
+
+
+

@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "archmind", "archmind.vcproj", "{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Lib|Win32 = Lib|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}.Debug|Win32.Build.0 = Debug|Win32
+		{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}.Lib|Win32.ActiveCfg = Lib|Win32
+		{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}.Lib|Win32.Build.0 = Lib|Win32
+		{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}.Release|Win32.ActiveCfg = Release|Win32
+		{F2B6F349-2B88-46EC-BC6C-7B6EDE887957}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

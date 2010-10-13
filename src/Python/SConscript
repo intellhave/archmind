@@ -1,0 +1,15 @@
+Import('*')
+
+List = [
+Glob('*.cpp')
+]
+
+if pythonlib:
+    Obj = env.SharedObject(List)
+else:
+    Obj = env.Object(List)
+
+Return('Obj')
+
+
+
