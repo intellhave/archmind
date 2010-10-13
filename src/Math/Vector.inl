@@ -1,4 +1,5 @@
 /*
+  Archmind Non-manifold Geometric Kernel
   Copyright (C) 2010 Athanasiadis Theodoros
 
   This software is provided 'as-is', without any express or implied
