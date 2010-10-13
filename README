@@ -1,0 +1,4 @@
+Archmind is a geometric kernel that provides basic topological operators on non-manifold meshes. 
+The goal of this project is to provide an easy to use tool for fast prototyping mesh algorithms in python and c++. 
+The Library is free for commercial use and open source under the Zlib Licence. 
+

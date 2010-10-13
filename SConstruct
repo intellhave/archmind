@@ -38,7 +38,7 @@ objs = []
 objs.append(SConscript('src/Python/SConscript', exports='env'))
 
 if pythonlib:
-    env.SharedLibrary(target = './Lib/melina',source = objs)
+    env.SharedLibrary(target = './Lib/archmind',source = objs)
 else:
     objs.append(SConscript('src/App/SConscript', exports='env'))
     env.Program(target = './Release/app',source = objs)
