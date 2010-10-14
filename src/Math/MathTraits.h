@@ -25,16 +25,19 @@
 #include <cmath>
 #include <cfloat>
 
+namespace arch
+{
+
 namespace math
 {
 
 template<typename Real>
 struct traits
 {
-	static const Real pi;
-	static const Real zero_tol;
-	static const Real epsilon;
-	static const Real max_real;
+    static const Real pi;
+    static const Real zero_tol;
+    static const Real epsilon;
+    static const Real max_real;
 };
 
 template<typename Real> const Real traits<Real>::pi(4.0f*atan(4.0f));
@@ -47,6 +50,8 @@ template<typename Real> const Real traits<Real>::max_real(FLT_MAX);
 //inline template<> const double traits<double>::epsilon(DBL_EPSILON);
 //inline template<> const double traits<double>::max_real(DBL_MAX);
 
-};
+}
+
+}
 
 #endif

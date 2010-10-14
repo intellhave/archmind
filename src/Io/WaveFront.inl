@@ -66,7 +66,7 @@ bool WaveFront<mesh_t>::load(mesh_t &mesh)
         getline(Stream, Line);
         split(tokens,Line,is_any_of(" "),token_compress_on);
 
-        if( tokens[0] == "v" )		//Vertex     
+        if( tokens[0] == "v" )      //Vertex     
         {
             real_t x,y,z;
 
@@ -120,7 +120,7 @@ bool WaveFront<mesh_t>::load(mesh_t &mesh)
                     //uv
                     if( indextokens.size() > 1 )
                     {
-                        //lexical_cast<int>(indextokens[1])-1	
+                        //lexical_cast<int>(indextokens[1])-1   
                     }
                 }
             }

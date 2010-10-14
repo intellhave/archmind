@@ -24,12 +24,16 @@
 
 //#include <cln/float.h>
 
+namespace arch
+{
 namespace python
 {
-    //typedef cln::cl_F real_t; 
-    typedef float real_t; 
 
-    void export_types();
+//typedef cln::cl_F real_t; 
+typedef float real_t; 
+
+void export_types();
+}
 }
 
 #endif

@@ -1,0 +1,15 @@
+Archmind Geometric Kernel
+
+** Important **
+The c++ interface is a header only library. Nevertheless, the boost library is required.
+In addition, for building the python interface, python is also required.
+
+** Windows Python Library Compilation **
+
+There is a Microsoft Visual Studio solution in msvc
+
+** Linux Python Library Compilation **
+
+There is a Scons file to build under Linux:
+    scons pythonlib=1 
+

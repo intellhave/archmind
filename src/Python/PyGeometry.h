@@ -22,9 +22,14 @@
 #ifndef PYTHON_GEOMETRY_H
 #define PYTHON_GEOMETRY_H
 
+namespace arch
+{
+
 namespace python
 {
 void export_geometry();
+}
+
 }
 
 #endif

@@ -62,60 +62,60 @@ vertex<Traits>::~vertex()
 template<typename Traits>
 typename vertex<Traits>::edge_iterator_t vertex<Traits>::edges_begin()const
 {
-	return Edges.begin();
+    return Edges.begin();
 }
 
 template<typename Traits>
 typename vertex<Traits>::edge_iterator_t vertex<Traits>::edges_end()const
 {
-	return Edges.end();
+    return Edges.end();
 }
 
 template<typename Traits>
 typename vertex<Traits>::vertex_iterator_t vertex<Traits>::vertices_begin()const
 {
-	return vertex_iterator_t( Edges.begin(), unique_id() );
+    return vertex_iterator_t( Edges.begin(), unique_id() );
 }
 
 template<typename Traits>
 typename vertex<Traits>::vertex_iterator_t vertex<Traits>::vertices_end()const
 {
-	return vertex_iterator_t( Edges.end(), NO_ID );
+    return vertex_iterator_t( Edges.end(), NO_ID );
 }
 
 template<typename Traits>
 std::size_t vertex<Traits>::edges_size()const
 {
-	return Edges.size();
+    return Edges.size();
 }
 
 template<typename Traits>
 std::size_t vertex<Traits>::vertices_size()const
 {
-	std::size_t count = 0;
-	
+    std::size_t count = 0;
+    
     for( vertex_iterator_t v = vertices_begin(); v != vertices_end(); ++v )
-		++count;
+        ++count;
 
-	return count;
+    return count;
 }
 
 template<typename Traits>
 typename vertex<Traits>::vertex_range_t vertex<Traits>::vertices()const
 {
-	return vertex_range_t( vertices_begin(), vertices_end() );
+    return vertex_range_t( vertices_begin(), vertices_end() );
 }
 
 template<typename Traits>
 typename vertex<Traits>::face_iterator_t vertex<Traits>::faces_begin()const
 {
-	return face_iterator_t( Edges.begin(), Edges.end() );
+    return face_iterator_t( Edges.begin(), Edges.end() );
 }
 
 template<typename Traits>
 typename vertex<Traits>::face_iterator_t vertex<Traits>::faces_end()const
 {
-	return face_iterator_t( Edges.end(), Edges.end() );
+    return face_iterator_t( Edges.end(), Edges.end() );
 }
 
 template<typename Traits>
@@ -140,19 +140,19 @@ uid_t vertex<Traits>::unique_id()const
 template< typename Traits >
 bool vertex<Traits>::operator==( const vertex<Traits> &other )
 {
-	return m_UniqueID == other.m_UniqueID;
+    return m_UniqueID == other.m_UniqueID;
 }
 
 template< typename Traits >
 bool vertex<Traits>::operator!=( const vertex<Traits> &other )
 {
-	return m_UniqueID != other.m_UniqueID;
+    return m_UniqueID != other.m_UniqueID;
 }
 
 template< typename Traits >
 typename vertex<Traits>::point_t vertex<Traits>::point()const
 {
-	return Point;
+    return Point;
 }
 
 //Edge
@@ -207,68 +207,68 @@ uid_t edge<Traits>::unique_id()const
 template<typename Traits>
 typename edge<Traits>::vertex_iterator_t edge<Traits>::vertices_begin()const
 {
-	return Vertices.begin();
+    return Vertices.begin();
 }
 
 template<typename Traits>
 typename edge<Traits>::vertex_iterator_t edge<Traits>::vertices_end()const
 {
-	return Vertices.end();
+    return Vertices.end();
 }
 
 template<typename Traits>
 std::size_t edge<Traits>::vertices_size()const
 {
-	return Vertices.size();
+    return Vertices.size();
 }
 
 template<typename Traits>
 typename edge<Traits>::vertex_range_t edge<Traits>::vertices()const
 {
-	return vertex_range_t( vertices_begin(), vertices_end() );
+    return vertex_range_t( vertices_begin(), vertices_end() );
 }
 
 template<typename Traits>
 typename edge<Traits>::vertex_ptr_t edge<Traits>::vertices_front()const
 {
-	return Vertices[0];
+    return Vertices[0];
 }
 
 template<typename Traits>
 typename edge<Traits>::vertex_ptr_t edge<Traits>::vertices_back()const
 {
-	return Vertices[1];
+    return Vertices[1];
 }
 
 template<typename Traits>
 typename edge<Traits>::face_iterator_t edge<Traits>::faces_begin()const
 {
-	return Faces.begin();
+    return Faces.begin();
 }
 
 template<typename Traits>
 typename edge<Traits>::face_iterator_t edge<Traits>::faces_end()const
 {
-	return Faces.end();
+    return Faces.end();
 }
 
 template<typename Traits>
 std::size_t edge<Traits>::faces_size()const
 {
-	return Faces.size();
+    return Faces.size();
 }
 
 //Edge operators
 template< typename Traits >
 bool edge<Traits>::operator==( const edge<Traits> &other )
 {
-	return m_UniqueID == other.m_UniqueID;
+    return m_UniqueID == other.m_UniqueID;
 }
 
 template< typename Traits >
 bool edge<Traits>::operator!=( const edge<Traits> &other )
 {
-	return m_UniqueID != other.m_UniqueID;
+    return m_UniqueID != other.m_UniqueID;
 }
 
 //Face
@@ -303,143 +303,143 @@ typename face<Traits>::point_iterator_t face<Traits>::points_end()const
 template<typename Traits>
 std::size_t face<Traits>::points_size()const
 {
-	return Edges.size();
+    return Edges.size();
 }
 
 template<typename Traits>
 typename face<Traits>::point_range_t face<Traits>::points()const
 {
-	return point_range_t( points_begin(), points_end() );
+    return point_range_t( points_begin(), points_end() );
 }
 
 template<typename Traits>
 typename face<Traits>::vertex_iterator_t face<Traits>::vertices_begin()const
 {
-	return vertex_iterator_t( Edges.begin(), EdgesOrientation);
+    return vertex_iterator_t( Edges.begin(), EdgesOrientation);
 }
 
 template<typename Traits>
 typename face<Traits>::vertex_iterator_t face<Traits>::vertices_end()const
 {
-	return vertex_iterator_t( Edges.end(), EdgesOrientation );
+    return vertex_iterator_t( Edges.end(), EdgesOrientation );
 }
 
 template<typename Traits>
 std::size_t face<Traits>::vertices_size()const
 {
-	return Edges.size();
+    return Edges.size();
 }
 
 template<typename Traits>
 typename face<Traits>::vertex_range_t face<Traits>::vertices()const
 {
-	return vertex_range_t( vertices_begin(), vertices_end() );
+    return vertex_range_t( vertices_begin(), vertices_end() );
 }
 
 template<typename Traits>
 typename face<Traits>::edge_iterator_t face<Traits>::edges_begin()const
 {
-	return Edges.begin();
+    return Edges.begin();
 }
 
 template<typename Traits>
 typename face<Traits>::edge_iterator_t face<Traits>::edges_end()const
 {
-	return Edges.end();
+    return Edges.end();
 }
 
 template<typename Traits>
 std::size_t face<Traits>::edges_size()const
 {
-	return Edges.size();
+    return Edges.size();
 }
 
 template<typename Traits>
 typename face<Traits>::face_iterator_t face<Traits>::faces_begin()const
 {
-	return face_iterator_t( Edges.begin(), Edges.end(), m_UniqueID );
+    return face_iterator_t( Edges.begin(), Edges.end(), m_UniqueID );
 }
 
 template<typename Traits>
 typename face<Traits>::face_iterator_t face<Traits>::faces_end()const
 {
-	return face_iterator_t( Edges.end(), Edges.end(), m_UniqueID );
+    return face_iterator_t( Edges.end(), Edges.end(), m_UniqueID );
 }
 
 //Face operators
 template< typename Traits >
 bool face<Traits>::operator==( const face<Traits> &other )
 {
-	return m_UniqueID == other.m_UniqueID;
+    return m_UniqueID == other.m_UniqueID;
 }
 
 template< typename Traits >
 bool face<Traits>::operator!=( const face<Traits> &other )
 {
-	return m_UniqueID != other.m_UniqueID;
+    return m_UniqueID != other.m_UniqueID;
 }
 
 template<typename Traits>
 bool face<Traits>::edge_cw( edge_ptr_t e )
 {
-	typename edge_array_t::iterator ei;
-	unsigned pos = 0;
+    typename edge_array_t::iterator ei;
+    unsigned pos = 0;
 
-	for( ei = Edges.begin(); ei != Edges.end(); ++ei, ++pos )
-	{
-		//Correct orientation
-		if( *ei == e ) return EdgesOrientation[pos];
-	}
+    for( ei = Edges.begin(); ei != Edges.end(); ++ei, ++pos )
+    {
+        //Correct orientation
+        if( *ei == e ) return EdgesOrientation[pos];
+    }
 
-	return false;
+    return false;
 }
 
 template<typename Traits>
 typename face<Traits>::point_t face<Traits>::normal()const
 {
 
-	//return math::normal( 
-		//Edges[0]->vertices()[EdgesOrientation[0] ? 0 : 1]->point(),
-		//Edges[1]->vertices()[EdgesOrientation[1] ? 0 : 1]->point(),
-		//Edges[2]->vertices()[EdgesOrientation[2] ? 0 : 1]->point());
+    //return math::normal( 
+        //Edges[0]->vertices()[EdgesOrientation[0] ? 0 : 1]->point(),
+        //Edges[1]->vertices()[EdgesOrientation[1] ? 0 : 1]->point(),
+        //Edges[2]->vertices()[EdgesOrientation[2] ? 0 : 1]->point());
 
-	point_t v0 = Edges[0]->vertices()[EdgesOrientation[0]]->point();
+    point_t v0 = Edges[0]->vertices()[EdgesOrientation[0]]->point();
 
-	//calculate N = E1 x E0
-	point_t n = 
-		math::cross( 
-		Edges[2]->vertices()[EdgesOrientation[2]]->point() - v0, 
-		Edges[1]->vertices()[EdgesOrientation[1]]->point() - v0 );
+    //calculate N = E1 x E0
+    point_t n = 
+        math::cross( 
+        Edges[2]->vertices()[EdgesOrientation[2]]->point() - v0, 
+        Edges[1]->vertices()[EdgesOrientation[1]]->point() - v0 );
 
-	//for n-gons, n > 3 use the other points too
-	for( std::size_t i = 2; (i+1) < Edges.size(); ++i )
-		n += math::cross( 
-			Edges[i+1]->vertices()[EdgesOrientation[i+1]]->point() - v0, 
-			Edges[i]->vertices()[EdgesOrientation[i]]->point() - v0 );
+    //for n-gons, n > 3 use the other points too
+    for( std::size_t i = 2; (i+1) < Edges.size(); ++i )
+        n += math::cross( 
+            Edges[i+1]->vertices()[EdgesOrientation[i+1]]->point() - v0, 
+            Edges[i]->vertices()[EdgesOrientation[i]]->point() - v0 );
 
-	return normalize( n );
+    return normalize( n );
 }
 
 template<typename Traits>
 bool face<Traits>::edge_ccw( edge_ptr_t e )
 {
-	return !edge_cw( e );
+    return !edge_cw( e );
 }
 
 template<typename Traits>
 void face<Traits>::set_id(const uid_t &id)
 {
-	m_ID = id;
+    m_ID = id;
 }
 
 template<typename Traits>
 uid_t face<Traits>::unique_id() const
 { 
-	return m_UniqueID; 
+    return m_UniqueID; 
 }
 
 template<typename Traits>
 uid_t face<Traits>::get_id() const
 {
-	return m_ID;
+    return m_ID;
 }

@@ -26,6 +26,9 @@
 #include <boost/python.hpp>
 #include "PyTypes.h"
 
+namespace arch
+{
+
 namespace python
 {
 
@@ -43,6 +46,8 @@ private:
     boost::python::object m_MainNamespace;
 };
     
+}
+
 }
 
 #endif

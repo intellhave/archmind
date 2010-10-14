@@ -23,24 +23,25 @@
 #include "../Geometry/Algorithms.h"
 #include "../Python/PyInterface.h"
 
-typedef geometry::mesh<> mesh_t;
+using namespace arch::geometry;
+
+typedef mesh<> mesh_t;
 typedef mesh_t::vertex_t vertex_t;
 typedef mesh_t::vertex_ptr_t vertex_ptr_t;
 typedef mesh_t::face_t face_t;
 typedef mesh_t::face_ptr_t face_ptr_t;
 
-#include <deque>
-
 int main(int argc, char **argv)
 {
-	using boost::shared_ptr;
-    using namespace geometry;
+    using boost::shared_ptr;
+    using namespace arch::geometry;
+    using namespace arch::python;
 
-	mesh_t mesh;
+    mesh_t mesh;
 
-	if(argc > 1)
+    if(argc > 1)
     {
-        python::Interface pyEngine(argc,argv);
+        Interface pyEngine(argc,argv);
 
         if( !pyEngine.run_script(argv[1]) )
         {
@@ -48,5 +49,5 @@ int main(int argc, char **argv)
         }
     }
 
-	return 0;
+    return 0;
 }

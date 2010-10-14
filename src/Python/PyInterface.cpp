@@ -26,29 +26,29 @@
 
 //#define BOOST_PYTHON_STATIC_LIB
 
-using namespace python;
+using namespace arch::python;
 
 BOOST_PYTHON_MODULE(archmind)
 {
-	using namespace boost::python;
+    using namespace boost::python;
 
-	//specify that this module is actually a package
+    //specify that this module is actually a package
     object package = scope();
-	package.attr("__path__") = "archmind";
+    package.attr("__path__") = "archmind";
 
-	export_types();
-	export_geometry();
-	export_loader();
+    export_types();
+    export_geometry();
+    export_loader();
 }
 
 Interface::Interface(int argc, char **argv)
 {
-	using namespace boost::python;
+    using namespace boost::python;
 
     Py_Initialize();
     PySys_SetArgv(argc,argv);
 
-	object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
+    object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
     m_MainNamespace = main_module.attr("__dict__");
 }
 
@@ -64,13 +64,13 @@ std::string Interface::last_error()const
 
 bool Interface::run_script(const std::string &filename)
 {
-	using namespace boost::python;
+    using namespace boost::python;
 
     m_ErrorString = "";
 
     try
     {
-		initarchmind();
+        initarchmind();
 
         PyRun_SimpleString("import cStringIO");
         PyRun_SimpleString("import sys");

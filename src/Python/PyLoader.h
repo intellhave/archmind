@@ -22,9 +22,12 @@
 #ifndef PYTHON_MISC_H
 #define PYTHON_MISC_H
 
+namespace arch
+{
 namespace python
 {
 void export_loader();
+}
 }
 
 #endif

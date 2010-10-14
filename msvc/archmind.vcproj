@@ -237,14 +237,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Geometry"
-				>
-			</Filter>
-			<Filter
-				Name="Loader"
-				>
-			</Filter>
-			<Filter
 				Name="Python"
 				>
 				<File
@@ -321,22 +313,26 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Loader"
+				Name="Io"
 				>
 				<File
-					RelativePath="..\src\Loaders\Loader.h"
+					RelativePath="..\src\Io\Loader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Loaders\Loader.inl"
+					RelativePath="..\src\Io\Loader.inl"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Loaders\WaveFront.h"
+					RelativePath="..\src\Io\SConscript"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Loaders\WaveFront.inl"
+					RelativePath="..\src\Io\WaveFront.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Io\WaveFront.inl"
 					>
 				</File>
 			</Filter>

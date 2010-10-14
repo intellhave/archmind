@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef LOADER_WAVEFRONT_H
-#define LOADER_WAVEFRONT_H
+#ifndef IO_WAVEFRONT_H
+#define IO_WAVEFRONT_H
 
 
 #include "Loader.h"
@@ -34,7 +34,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-namespace loader 
+namespace arch
+{
+
+namespace io 
 {
 
 template<typename mesh_t>
@@ -43,15 +46,17 @@ class WaveFront
 public:
     WaveFront(const std::string &fileName);
 
-	virtual bool load(mesh_t &m);
-	virtual bool save(mesh_t &m);
+    virtual bool load(mesh_t &m);
+    virtual bool save(mesh_t &m);
 
-	static bool can_read(const std::string &filename); 
+    static bool can_read(const std::string &filename); 
 private:
     std::string m_FileName;
 };
 
 #include "WaveFront.inl"
+
+}
 
 }
 

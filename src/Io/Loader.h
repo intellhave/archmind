@@ -19,23 +19,30 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef LOADER_LOADER_H
-#define LOADER_LOADER_H
+#ifndef IO_LOADER_H
+#define IO_LOADER_H
 
 #include <string>
+#include <iterator>
+
 #include "WaveFront.h"
 
-namespace loader
+namespace arch
 {
 
-template<typename Traits>
-bool load_from_file(const std::string &filename,typename Traits::mesh_ptr_t &mesh);
+namespace io
+{
 
-template<typename Traits>
-bool save_to_file(const std::string &filename,typename Traits::mesh_ptr_t &mesh); 
+template<typename mesh_t>
+bool load_from_file(const std::string &filename,mesh_t &mesh);
+
+template<typename mesh_t>
+bool save_to_file(const std::string &filename,mesh_t &mesh); 
 
 #include "Loader.inl"
 
-};
+}
+
+}
 
 #endif

@@ -24,6 +24,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+namespace arch
+{
+
 namespace geometry
 {
 
@@ -53,13 +56,13 @@ struct traits
 
     typedef boost::shared_ptr< mesh_t > mesh_ptr_t;
  
-	typedef boost::shared_ptr< face_t > face_ptr_t;
+    typedef boost::shared_ptr< face_t > face_ptr_t;
     typedef boost::shared_ptr< edge_t > edge_ptr_t;
     typedef boost::shared_ptr< vertex_t > vertex_ptr_t;
 
-	static const std::size_t max_poly_pts = 128;
+    static const std::size_t max_poly_pts = 128;
 
-	static uid_t CounterID;
+    static uid_t CounterID;
 };
 
 template< typename Real, typename Vertex, typename Edge, typename Face, typename Mesh > 
@@ -86,6 +89,8 @@ struct default_traits :
 {
 };
 
-};
+}
+
+}
 
 #endif

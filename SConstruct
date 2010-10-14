@@ -6,13 +6,13 @@ SetOption('num_jobs', num_cpu+1)
 #Build options
 vars = Variables()
 vars.Add('puthonlib', 'Set to 1 to build a python lib', 0)
-vars.Add('debug', 'Set to 1 to build with multi precision', 0)
+vars.Add('debug', 'Set to 1 to build for debug', 0)
 
 env = Environment( 
           variables = vars,
-          SHLIBPREFIX = '',	#do not prefix the library with lib
-	  LIBS = Split('boost_python python2.6'),
-	  LIBPATH = Split('#/lib /usr/lib'),
+          SHLIBPREFIX = '', #do not prefix the library with lib
+          LIBS = Split('boost_python python2.6'),
+          LIBPATH = Split('#/lib /usr/lib'),
           CPPPATH = Split('#/include /usr/include /usr/include/python2.6'),
         )
 

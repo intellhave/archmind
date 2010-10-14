@@ -27,6 +27,9 @@
 #include <cmath>        //for sqrt
 #include <iostream>
 
+namespace arch
+{
+
 namespace math
 {
 
@@ -35,7 +38,7 @@ class vector2
 {
 public:
     //typedef Real value_type;
-	typedef Real real_t;
+    typedef Real real_t;
 
     // constructors
     vector2<Real>( const vector2<Real> &v );
@@ -57,7 +60,7 @@ public:
     Real &operator[](unsigned int index);
     Real operator[](unsigned int index)const;
     
-	std::size_t size()const;
+    std::size_t size()const;
 
     // variables
     Real x, y;
@@ -81,14 +84,14 @@ template< typename Real >
 class vector3
 {
 public:
-	typedef Real real_t;
+    typedef Real real_t;
 
-	template< typename T >
-	vector3<Real>( const vector3<T> &v ) : 
+    template< typename T >
+    vector3<Real>( const vector3<T> &v ) : 
         x(v.x), y(v.y), z(v.z)
-	{ 
-		x = Real(v.x); y = Real(v.y); z = Real(v.z);
-	}
+    { 
+        x = Real(v.x); y = Real(v.y); z = Real(v.z);
+    }
 
     template< typename T >
     vector3<Real>( const T &x_, const Real &y_, const Real &z_) :
@@ -97,7 +100,7 @@ public:
     }
    
     vector3<Real>( void );
-	vector3<Real>( const Real *ptr ); 
+    vector3<Real>( const Real *ptr ); 
     vector3<Real>( const Real &x_, const Real &y_, const Real &z_);
     vector3<Real>( const Real &v );
 
@@ -106,7 +109,7 @@ public:
 
     vector3<Real> &operator=( const Real *ptr ); 
 
-	void operator+=( const vector3<Real> &v );
+    void operator+=( const vector3<Real> &v );
     void operator-=( const vector3<Real> &v);
     void operator/=(const Real &v);
     void operator*=(const Real &v);
@@ -119,7 +122,7 @@ public:
     Real &operator[](unsigned int index);
     Real operator[](unsigned int index)const;
     
-	std::size_t size()const;
+    std::size_t size()const;
 
     // variables
     Real x, y, z;
@@ -153,7 +156,7 @@ class vector4
 {
 public:
     //typedef Real value_type;
-	typedef Real real_t;
+    typedef Real real_t;
     
     // constructors
     vector4<Real>( const vector4<Real> &v );
@@ -175,7 +178,7 @@ public:
     Real &operator[](unsigned int index);
     Real operator[](unsigned int index)const;
     
-	std::size_t size()const;
+    std::size_t size()const;
 
     // variables
     Real x, y, z, w;
@@ -193,28 +196,28 @@ template< typename Real >
 Real clip_line_to_plane
 (const vector3<Real> &lp, const vector3<Real> &ld, const vector3<Real> &pn, const Real &pd)
 {
-	using std::abs;
+    using std::abs;
 
-	Real dotND = dot(pn,ld);
+    Real dotND = dot(pn,ld);
 
-	//check if the line is parallel to the plane
-	if( abs( dotND ) < traits<Real>::zero_tol )
-		return traits<Real>::max_real;
+    //check if the line is parallel to the plane
+    if( abs( dotND ) < traits<Real>::zero_tol )
+        return traits<Real>::max_real;
 
-	return (+pd -dot(lp,pn)) / dotND;
+    return (+pd -dot(lp,pn)) / dotND;
 }
 
 template< typename Real >
 bool point_in_triangle
 (const vector3<Real> &point, const vector3<Real> &v1, const vector3<Real> &v2, const vector3<Real> &v3)
 {
-	vector3<Real> E0, E1, Q;
+    vector3<Real> E0, E1, Q;
     Real e00, e01, e11, Delta, q0, q1, s0, s1;
 
     E0 = v2 - v1;
     E1 = v3 - v1;
     
-	Q = point - v1;
+    Q = point - v1;
 
     e00 = dot(E0,E0);
     e01 = dot(E0,E1);
@@ -227,7 +230,7 @@ bool point_in_triangle
     s1 = e00 * q1 - e01 * q0;
     Delta = e00 * e11 - (e01 * e01);
 
-	if( (s0 >= -traits<Real>::zero_tol && s1 >= -traits<Real>::zero_tol) && ((s0 + s1) / Delta) <= (1.0 + traits<Real>::zero_tol) )
+    if( (s0 >= -traits<Real>::zero_tol && s1 >= -traits<Real>::zero_tol) && ((s0 + s1) / Delta) <= (1.0 + traits<Real>::zero_tol) )
         return true;
     else
         return false;
@@ -257,6 +260,8 @@ typedef vector4<unsigned short> vector4us;
 typedef vector4<unsigned char> vector4ub;
 
 #include "Vector.inl"
+
+}
 
 }
 

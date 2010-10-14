@@ -63,11 +63,11 @@ def mesh_to_blender(mymesh,hasuv=False):
             faces.append( face_list )
     
     scene = bpy.data.scenes.active
-    newmesh = bpy.data.meshes.new('Mind')
+    newmesh = bpy.data.meshes.new('ArchMind')
     newmesh.faceUV = hasuv 
     newmesh.verts.extend(vertices)
     newmesh.faces.extend(faces)
-    newobj = scene.objects.new(newmesh, 'MindObject')
+    newobj = scene.objects.new(newmesh, 'ArchMindObject')
 
 def write_2Dmesh_plot_file(m,filename):
     '''Can write a suitable file that can be converted to postscript in gnuplot, only for 2D (x,y) meshes'''
@@ -159,6 +159,7 @@ def angles(f):
     return [a0,a1,a2]
 
 def mesh_check(m, angle_needle, angle_skew, angle_max):
+    '''Check the mesh and return stats''' 
     stats = {}
     stats['mesh_quality'] = 0.0
     stats['faces_total'] = m.faces_size
