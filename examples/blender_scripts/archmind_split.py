@@ -7,7 +7,6 @@ Group: 'Object'
 Tooltip: 'Split mesh edges'
 """
 from archmind_utils import *
-from collections import deque
 from heapq import *
 
 def split(epsilon,maxsplits):
@@ -16,7 +15,8 @@ def split(epsilon,maxsplits):
     mymesh = blender_to_mesh()
     
     heap = []
-    
+   
+    #build a heap with edge lengths
     for e in mymesh.edges:
         heappush( heap, [1.0 / distance(e.v0.point,e.v1.point), e] )
 
@@ -26,15 +26,18 @@ def split(epsilon,maxsplits):
 
     splits = 0
     while heap:
+        #pop the largest edge
         [l,e] = heappop( heap )
 
         if l >= me or splits > maxsplits:
             break
 
+        #split the edge and return the vertex created
         v = mymesh.split_edge(e,0.5,True)
         
         splits += 1
 
+        #add the new edges to the heap
         for e in v.edges:
             heappush( heap, [1.0 / distance(e.v0.point,e.v1.point), e] )
 
