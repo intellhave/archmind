@@ -22,7 +22,7 @@
 #include "PyInterface.h"
 #include "PyLoader.h"
 
-#include "../Io/Loader.h"
+#include "../Io/Io.h"
 #include "../Geometry/Geometry.h"
 
 void arch::python::export_loader()

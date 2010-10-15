@@ -18,31 +18,6 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
-#if 0
-template<typename mesh_t>
-struct default_reader_traits
-{
-    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
-};
-
-template<typename mesh_t>
-struct default_writer_traits
-{
-    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
-};
-#endif
-
-template<typename mesh_t>
-struct reader_traits
-{
-    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
-};
-
-template<typename mesh_t>
-struct writer_traits
-{
-    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
-};
 
 template<typename mesh_t>
 class reader_dispatch

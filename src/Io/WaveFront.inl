@@ -20,11 +20,6 @@
 */
 
 template<typename mesh_t>
-WaveFront<mesh_t>::WaveFront() 
-{
-}
-
-template<typename mesh_t>
 bool WaveFront<mesh_t>::can_read(const std::string &filename)const
 {
     using namespace std;
@@ -81,8 +76,8 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             }
             catch(bad_lexical_cast &)
             {
-                cerr << "WaveFront : Can not safely cast vertex" << endl;
-                cerr << "Token : " <<  tokens[1] << "," << tokens[2] << "," << tokens[3] << endl;
+                cerr << "wavefront : Can not safely cast vertex" << endl;
+                cerr << "token : " <<  tokens[1] << "," << tokens[2] << "," << tokens[3] << endl;
             }
         }
         else if( tokens[0] == "vt" )
@@ -92,8 +87,8 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
         {
             if( tokens.size() < 4 )
             {
-                cerr << "WaveFront : two few face indices!" << endl;
-                cerr << "Token : " << Line << endl;
+                cerr << "wavefront : two few face indices!" << endl;
+                cerr << "token : " << Line << endl;
                 break;
             }
 
@@ -126,7 +121,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             }
             catch(bad_lexical_cast &)
             {
-                cerr << "WaveFront : Can not safely cast face indices" << endl;
+                cerr << "wavefront : Can not safely cast face indices" << endl;
                 break;
             }
 

@@ -19,13 +19,12 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef IO_LOADER_H
-#define IO_LOADER_H
+#ifndef IO_IO_H
+#define IO_IO_H
 
-#include <string>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/for_each.hpp>
-#include "WaveFront.h"
+#include "Base.h"
+#include "WaveFront.h"      //Wavefront file importer/exporter
+#include "OFF.h"            //OFF file exporter
 
 namespace arch
 {
@@ -33,15 +32,22 @@ namespace arch
 namespace io
 {
 
-//!load a model from a file
 template<typename mesh_t>
-bool load_from_file(const std::string &filename,mesh_t &mesh);
+struct reader_traits
+{
+    typedef boost::mpl::vector< 
+        WaveFront<mesh_t>          //register Wavefront importer
+    > type;
+};
 
-//!save the model to a file
 template<typename mesh_t>
-bool save_to_file(const std::string &filename,mesh_t &mesh);
-
-#include "Loader.inl"
+struct writer_traits
+{
+    typedef boost::mpl::vector< 
+        WaveFront<mesh_t>,          //register Wavefront exporter
+        OFF<mesh_t>                 //register Off exporter
+    > type;
+};
 
 }
 

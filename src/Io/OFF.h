@@ -19,16 +19,14 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef IO_WAVEFRONT_H
-#define IO_WAVEFRONT_H
+#ifndef IO_OFF_H
+#define IO_OFF_H
 
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <vector>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 namespace arch
 {
@@ -36,17 +34,15 @@ namespace arch
 namespace io 
 {
 
-//!Wavefront (*.obj) importer/exporter
+//!OFF (*.off) exporter
 template<typename mesh_t>
-struct WaveFront 
+struct OFF 
 {
-    bool read(const std::string &fileName, mesh_t &m);
     bool write(const std::string &fileName, mesh_t &m);
-
     bool can_read(const std::string &filename)const; 
 };
 
-#include "WaveFront.inl"
+#include "OFF.inl"
 
 }
 

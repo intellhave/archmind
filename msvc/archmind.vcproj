@@ -311,7 +311,7 @@
 				Name="App"
 				>
 				<File
-					RelativePath="..\src\App\Parser.cpp"
+					RelativePath="..\src\App\Main.cpp"
 					>
 				</File>
 			</Filter>
@@ -395,11 +395,23 @@
 				Name="Io"
 				>
 				<File
-					RelativePath="..\src\Io\Loader.h"
+					RelativePath="..\src\Io\Base.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Io\Loader.inl"
+					RelativePath="..\src\Io\Base.inl"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Io\Io.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Io\OFF.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Io\OFF.inl"
 					>
 				</File>
 				<File

@@ -19,34 +19,28 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef IO_WAVEFRONT_H
-#define IO_WAVEFRONT_H
+#ifndef IO_BASE_H
+#define IO_BASE_H
 
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <vector>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/for_each.hpp>
 
 namespace arch
 {
 
-namespace io 
+namespace io
 {
 
-//!Wavefront (*.obj) importer/exporter
+//!load a model from a file
 template<typename mesh_t>
-struct WaveFront 
-{
-    bool read(const std::string &fileName, mesh_t &m);
-    bool write(const std::string &fileName, mesh_t &m);
+bool load_from_file(const std::string &filename,mesh_t &mesh);
 
-    bool can_read(const std::string &filename)const; 
-};
+//!save the model to a file
+template<typename mesh_t>
+bool save_to_file(const std::string &filename,mesh_t &mesh);
 
-#include "WaveFront.inl"
+#include "Base.inl"
 
 }
 
