@@ -23,8 +23,8 @@
 #define IO_LOADER_H
 
 #include <string>
-#include <iterator>
-
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/for_each.hpp>
 #include "WaveFront.h"
 
 namespace arch
@@ -33,11 +33,13 @@ namespace arch
 namespace io
 {
 
+//!load a model from a file
 template<typename mesh_t>
 bool load_from_file(const std::string &filename,mesh_t &mesh);
 
+//!save the model to a file
 template<typename mesh_t>
-bool save_to_file(const std::string &filename,mesh_t &mesh); 
+bool save_to_file(const std::string &filename,mesh_t &mesh);
 
 #include "Loader.inl"
 

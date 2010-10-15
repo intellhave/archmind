@@ -22,6 +22,8 @@
 #ifndef PYTHON_INTERFACE_H
 #define PYTHON_INTERFACE_H
 
+//#define BOOST_PYTHON_STATIC_LIB //Moved to project options to build static python lib
+
 #include <string>
 #include <boost/python.hpp>
 #include "PyTypes.h"

@@ -3,7 +3,7 @@
 """
 Name: 'MeshCheck'
 Blender: 249
-Group: 'Object'
+Group: 'Mesh'
 Tooltip: 'Check the mesh and print stats'
 """
 from archmind_utils import *
@@ -35,9 +35,26 @@ def check(askew, amax,dfilename, pfilename):
 
     out = open(pfilename, 'w')
     
+    #for f in mymesh.faces:
+    #    for v in f.verts:
+    #        out.write('%f %f %f\n' % (v.point.x, v.point.y,v.point.z) )
+    #    out.write('\n')
+
+    #for e in mymesh.edges:
+    #    out.write('%f %f %f\n' % (e.v0.point.x, e.v0.point.y,e.v0.point.z) )
+    #    out.write('%f %f %f\n\n\n' % (e.v1.point.x, e.v1.point.y,e.v1.point.z) )
+
     for e in mymesh.edges:
-        out.write('%f %f %f\n' % (e.v0.point.x, e.v0.point.y,e.v0.point.z) )
+        if e.v0.point.y >= -0.05:
+            out.write('%f %f %f\n' % (-e.v0.point.x, e.v0.point.y, -e.v0.point.z) )
+            #out.write('%f %f %f\n' % (e.v0.point.x, -e.v0.point.y, e.v0.point.z) )
+    
+        if e.v1.point.y >= -0.05:
+            out.write('%f %f %f\n' % (-e.v1.point.x, e.v1.point.y, -e.v1.point.z) )
+            #out.write('%f %f %f\n' % (e.v1.point.x, -e.v1.point.y, e.v1.point.z) )
+
         out.write('\n\n')
+
     
     out.close()
 

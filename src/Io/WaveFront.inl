@@ -20,12 +20,12 @@
 */
 
 template<typename mesh_t>
-WaveFront<mesh_t>::WaveFront(const std::string &filename) : m_FileName(filename)
+WaveFront<mesh_t>::WaveFront() 
 {
 }
 
 template<typename mesh_t>
-bool WaveFront<mesh_t>::can_read(const std::string &filename)
+bool WaveFront<mesh_t>::can_read(const std::string &filename)const
 {
     using namespace std;
 
@@ -34,7 +34,7 @@ bool WaveFront<mesh_t>::can_read(const std::string &filename)
 }
 
 template<typename mesh_t>
-bool WaveFront<mesh_t>::load(mesh_t &mesh)
+bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 {
     using namespace boost;
     using namespace std;
@@ -47,11 +47,11 @@ bool WaveFront<mesh_t>::load(mesh_t &mesh)
 
     typedef typename mesh_t::real_t real_t;
 
-    ifstream Stream(m_FileName.c_str());
+    ifstream Stream(filename.c_str());
 
     if( !Stream )
     {
-        cerr << "Can not open : " << m_FileName << " for parsing" << endl;
+        cerr << "Can not open : " << filename << " for parsing" << endl;
         return false;
     }
 
@@ -139,18 +139,18 @@ bool WaveFront<mesh_t>::load(mesh_t &mesh)
 }
 
 template<typename mesh_t>
-bool WaveFront<mesh_t>::save(mesh_t &mesh)
+bool WaveFront<mesh_t>::write(const std::string &filename, mesh_t &mesh)
 {
     using namespace std;
     using boost::str;
     using boost::format;
 
     string Line;
-    ofstream Stream(m_FileName.c_str());
+    ofstream Stream(filename.c_str());
 
     if( !Stream )
     {
-        cerr << "wavefront : failed to open : " << m_FileName << " for writing" << endl;
+        cerr << "wavefront : failed to open : " << filename << " for writing" << endl;
         return false;
     }
 

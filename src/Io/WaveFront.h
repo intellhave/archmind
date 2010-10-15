@@ -22,9 +22,6 @@
 #ifndef IO_WAVEFRONT_H
 #define IO_WAVEFRONT_H
 
-
-#include "Loader.h"
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -44,14 +41,12 @@ template<typename mesh_t>
 class WaveFront 
 {
 public:
-    WaveFront(const std::string &fileName);
+    WaveFront();
 
-    virtual bool load(mesh_t &m);
-    virtual bool save(mesh_t &m);
+    bool read(const std::string &fileName, mesh_t &m);
+    bool write(const std::string &fileName, mesh_t &m);
 
-    static bool can_read(const std::string &filename); 
-private:
-    std::string m_FileName;
+    bool can_read(const std::string &filename)const; 
 };
 
 #include "WaveFront.inl"

@@ -3,24 +3,18 @@
 """
 Name: 'MeshDecimate'
 Blender: 249
-Group: 'Object'
-Tooltip: 'Quadric-Based Decimation tool'
+Group: 'Mesh'
+Tooltip: 'Quadric Decimation tool'
 """
-
-#Quadric-Based decimation tool
-#See 'Quadric-Based Polygonal Surface Simplification' by Michael Garland for the background theory
-#TODO: edge contraction does not correctly update the affected edges
-#TODO: can_move function is not efficiently implemented since it is reevaluated all the time
 
 from heapq import *
 from archmind_utils import *
 
-NODE_EQUIV = 0.001      #node equivalence limit 
-DECIMATE_NUM = 1000     #decimation target limit
+NODE_EQUIV = 0.001
+DECIMATE_NUM = 1000
 FEATURE_ANGLE = cos( radians(60.0) )   #dihedral angle between faces that define features
 
 def matrix_zeros(row,col):
-    '''Matrix set'''
     return [0.0 for i in range(0,row*col)]
 
 def matrix_add(a,b): 
@@ -67,7 +61,7 @@ def evaluate(q,v,p):
                                                               +         v[3]
           
 def init_qv(v):
-    '''Calculate the sum of quadratics for a vertex v'''
+    '''Calculate the sum of quadratics for a vertex'''
     v.q = matrix_zeros( 3, 3 )
     v.v = matrix_zeros( 4, 1 )
    
@@ -84,7 +78,7 @@ def init_qv(v):
         v.v = matrix_add( v.v, [r*a*d, r*b*d, r*c*d, r*d*d] )
   
 def find_opt(v0,v1):
-    '''Finds the quadratic error optimized point of the edge v0,v1'''
+    '''Finds the quadratic error optimized point'''
     q = matrix_add( v0.q, v1.q )
     v = matrix_add( v0.v, v1.v )
 
@@ -109,7 +103,7 @@ def find_opt(v0,v1):
     return [evaluate(q,v,opt),opt]
   
 def can_move(v):
-    '''Returns false if the vertex is a feature'''
+    '''Returns true if the vertex is the endpoint of a boundary edge'''
     for e in v.edges:
         if is_feature( e ):
             return False
@@ -130,8 +124,6 @@ def is_feature(e):
     return False
 
 def decimate(m,target):
-    '''Decimate a mesh m until a certain face threshold is reached'''
-
     #calculate quadrics
     for v in m.verts:
         init_qv(v)
@@ -198,10 +190,10 @@ def decimate(m,target):
 def popup():
     EVT_EXIT = 0
 
-	#Default values
+    #Default values
     epsilon = Draw.Create(NODE_EQUIV)
     target = Draw.Create(DECIMATE_NUM)
-	
+    
     block = []
     block.append( ('Epsilon', epsilon, 0.0, 1.0, 'Epsilon' ) )
     block.append( ('Target faces', target, 0.0, 100000, 'Target faces' ) )

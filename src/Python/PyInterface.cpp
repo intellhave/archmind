@@ -24,8 +24,6 @@
 #include "PyLoader.h"
 #include <Python.h>
 
-//#define BOOST_PYTHON_STATIC_LIB
-
 using namespace arch::python;
 
 BOOST_PYTHON_MODULE(archmind)
@@ -82,7 +80,6 @@ bool Interface::run_script(const std::string &filename)
     {
         PyErr_Print();
 
-        //SiCrane trick (gamedev.net) to extract the error message
         object sys(handle<>(PyImport_ImportModule("sys")));
         
         object err = sys.attr("stderr");

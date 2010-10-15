@@ -351,7 +351,8 @@ inline bool operator==(const vector3<Real> &a, const vector3<Real> &b )
 template<typename Real>
 inline std::ostream &operator << (std::ostream &output, const vector3<Real> &v)
 {
-    output << v.x << ',' << v.y << ',' << v.z;
+    //output << v.x << ',' << v.y << ',' << v.z;
+    output << v.x << ' ' << v.y << ' ' << v.z;
     
     return output;
 }

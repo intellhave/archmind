@@ -25,19 +25,9 @@
 
 using namespace arch::geometry;
 
-typedef mesh<> mesh_t;
-typedef mesh_t::vertex_t vertex_t;
-typedef mesh_t::vertex_ptr_t vertex_ptr_t;
-typedef mesh_t::face_t face_t;
-typedef mesh_t::face_ptr_t face_ptr_t;
-
 int main(int argc, char **argv)
 {
-    using boost::shared_ptr;
-    using namespace arch::geometry;
     using namespace arch::python;
-
-    mesh_t mesh;
 
     if(argc > 1)
     {

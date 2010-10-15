@@ -18,27 +18,83 @@
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 */
+#if 0
+template<typename mesh_t>
+struct default_reader_traits
+{
+    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
+};
+
+template<typename mesh_t>
+struct default_writer_traits
+{
+    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
+};
+#endif
+
+template<typename mesh_t>
+struct reader_traits
+{
+    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
+};
+
+template<typename mesh_t>
+struct writer_traits
+{
+    typedef boost::mpl::vector< WaveFront<mesh_t> > type;
+};
+
+template<typename mesh_t>
+class reader_dispatch
+{
+public:
+    reader_dispatch(const std::string &filename, mesh_t &mesh, bool &finish) : 
+        m_filename(filename), m_mesh(mesh), m_finish(finish) {}
+    
+    template< typename U > void operator()(U &x)
+    {
+        if( !m_finish && x.can_read(m_filename) )
+            m_finish = x.read(m_filename,m_mesh);
+    }
+
+private:
+    std::string m_filename;
+    mesh_t &m_mesh;
+    bool &m_finish;
+};
+
+template<typename mesh_t>
+class writer_dispatch
+{
+public:
+    writer_dispatch(const std::string &filename, mesh_t &mesh, bool &finish) : 
+        m_filename(filename), m_mesh(mesh), m_finish(finish) {}
+    
+    template< typename U > void operator()(U &x)
+    {
+        if( !m_finish && x.can_read(m_filename) )
+            m_finish = x.write(m_filename,m_mesh);
+    }
+
+private:
+    std::string m_filename;
+    mesh_t &m_mesh;
+    bool &m_finish;
+};
 
 template<typename mesh_t>
 bool load_from_file(const std::string &filename, mesh_t &mesh)
 {
-    if( WaveFront<mesh_t>::can_read(filename) )
-    {
-        WaveFront<mesh_t> mesh_loader(filename);
-        return mesh_loader.load( mesh );
-    } 
-
-    return false;
+    bool success = false;
+    boost::mpl::for_each<reader_traits<mesh_t>::type>( reader_dispatch<mesh_t>(filename,mesh,success) );
+    return success;
 }
 
 template<typename mesh_t>
 bool save_to_file(const std::string &filename, mesh_t &mesh)
 {
-    if( WaveFront<mesh_t>::can_read(filename) )
-    {
-        WaveFront<mesh_t> mesh_loader(filename);
-        return mesh_loader.save( mesh );
-    } 
-
-    return false;
+    bool success = false;
+    boost::mpl::for_each<writer_traits<mesh_t>::type>( writer_dispatch<mesh_t>(filename,mesh,success) );
+    return success;
 }
+

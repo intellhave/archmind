@@ -3,7 +3,7 @@
 """
 Name: 'MeshSplit'
 Blender: 249
-Group: 'Object'
+Group: 'Mesh'
 Tooltip: 'Split mesh edges'
 """
 from archmind_utils import *
