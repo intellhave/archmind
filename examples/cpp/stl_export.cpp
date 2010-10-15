@@ -21,14 +21,14 @@
 
 //Custom stl exporter example
 
-#include "../Geometry/Geometry.h"
-#include "../Io/Loader.h"
+#include <Archmind/Geometry/Geometry.h>
+#include <Archmind/Io/Loader.h>
 
 using namespace arch::geometry;
 
 typedef mesh<> mesh_t;
 
-//Stl
+//Stl exporter class
 template<typename mesh_t>
 struct Stl
 {
@@ -67,7 +67,7 @@ struct Stl
     }
 };
 
-//Register custom stl exporter
+//Register custom stl exporter, classes are expected to implement can_read,write
 namespace arch{ namespace io{
 template<> struct writer_traits<mesh_t>
 {

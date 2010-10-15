@@ -311,7 +311,7 @@
 				Name="App"
 				>
 				<File
-					RelativePath="..\src\App\Main.cpp"
+					RelativePath="..\src\App\Parser.cpp"
 					>
 				</File>
 			</Filter>

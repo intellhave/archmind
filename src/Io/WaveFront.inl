@@ -142,10 +142,7 @@ template<typename mesh_t>
 bool WaveFront<mesh_t>::write(const std::string &filename, mesh_t &mesh)
 {
     using namespace std;
-    using boost::str;
-    using boost::format;
-
-    string Line;
+   
     ofstream Stream(filename.c_str());
 
     if( !Stream )
@@ -154,24 +151,19 @@ bool WaveFront<mesh_t>::write(const std::string &filename, mesh_t &mesh)
         return false;
     }
 
-    Line = "#Exported from Archmind\n";
-    Stream.write( Line.c_str(), Line.size() );
-    
+    Stream << "#Exported from Archmind\n";
+
     for( typename mesh_t::vertex_iterator_t v = mesh.vertices_begin(); v != mesh.vertices_end(); ++v )
-    {
-        Line = str( format( "v %f %f %f\n" ) % (*v)->point().x % (*v)->point().y % (*v)->point().z );
-        Stream.write( Line.c_str(), Line.size() );
-    }
+        Stream << "v " << (*v)->point() << "\n";
 
     for( typename mesh_t::face_iterator_t f = mesh.faces_begin(); f != mesh.faces_end(); ++f )
-    {
-        //write vertices
-        Line = "f";
+    {     
+        Stream << "f";
+       
         for( typename mesh_t::face_t::vertex_iterator_t fv = (*f)->vertices_begin(); fv != (*f)->vertices_end(); ++fv )
-            Line += str( format(" %d") % ((*fv)->get_id()+1) );
-
-        Line += "\n";
-        Stream.write( Line.c_str(), Line.size() );
+            Stream << " " << ((*fv)->get_id()+1);
+     
+        Stream << "\n";       
     }
 
     return true;
