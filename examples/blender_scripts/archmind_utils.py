@@ -224,4 +224,102 @@ def mesh_check(m, angle_needle, angle_skew, angle_max):
         if len( list( v.edges ) ) == 0:
             stats['verts_free'] += 1
 
-    return stats 
+    return stats
+
+
+#binary heap
+class bheap:
+    def __init__(self):
+        self.Array = []
+        self.Index = {}
+
+    def __len__(self):
+        return len(self.Index)
+
+    def push(self,x):
+        pos = len(self.Array)
+        self.Index[x] = pos
+        self.Array.append(x)
+        self._percolate_up(pos)
+
+    def clear(self):
+        self.Array = []
+        self.Index = {}
+   
+    def pop(self):
+        minitem = self.Array[0]
+        if len(self.Array) > 1:
+            self.Array[0] = self.Array[-1]
+            self.Array.pop()
+
+            #update index
+            self.Index[self.Array[0]] = 0
+            del self.Index[minitem]
+            self._percolate_down(0)
+        else:
+            self.clear()
+
+        return minitem
+
+    def index(self, key):
+        return self.Index[key]
+   
+    def remove_key(self, pos):
+        if pos != 0:
+            self.change_key(pos,self.Array[0])
+
+        self.pop()
+
+    def change_key(self, pos, newkey):
+        oldkey = self.Array[pos]
+        del self.Index[oldkey]
+        self.Index[newkey] = pos
+        self.Array[pos] = newkey
+
+        if oldkey < newkey:
+            self._percolate_down(pos)
+        elif newkey < oldkey:
+            self._percolate_up(pos)
+
+    def remove(self,key):
+        try:
+            self.remove_key(self.Index[key])
+        except KeyError:
+            return
+
+    def change(self,key,newkey):
+        try:
+            self.change_key(self.Index[key],newkey)
+        except KeyError:
+            return
+
+    def _swap(self,i,j):
+        #swap data
+        self.Array[i], self.Array[j] = self.Array[j], self.Array[i]
+        self.Index[self.Array[i]] = i
+        self.Index[self.Array[j]] = j
+
+    def _percolate_up(self,pos):
+        while pos >= 0 and self.Array[pos] < self.Array[int(pos / 2)]:
+            self._swap(pos,int(pos / 2))
+            pos = int(pos / 2)
+    
+    def _percolate_down(self,pos):
+        tmp = self.Array[pos]
+        while ((pos * 2) + 1) < len(self.Array):
+            child = (pos * 2) + 1
+            #find minimun child
+            if child < len(self.Array)-1 and self.Array[child+1] < self.Array[child]:
+                child += 1
+            
+            if self.Array[child] < tmp:
+                child_item = self.Array[child]
+                self.Array[pos] = child_item
+                self.Index[child_item] = pos
+            else:
+                break
+
+            pos = child
+
+        self.Array[pos] = tmp
+        self.Index[tmp] = pos

@@ -26,6 +26,8 @@ Tooltip: 'Quadric Decimation tool'
 #     misrepresented as being the original software.
 #  3. This notice may not be removed or altered from any source distribution.
 
+#Quadric mesh simplification : see 'Quadric-Based Polygonal Surface Simplification' of Michael Garland 
+
 from heapq import *
 from archmind_utils import *
 
@@ -121,24 +123,12 @@ def find_opt(v0,v1):
     opt = -vec3(nv[0],nv[1],nv[2])
     return [evaluate(q,v,opt),opt]
   
-def can_move(v):
+def is_locked(e):
     '''Returns true if the vertex is the endpoint of a boundary edge'''
-    for e in v.edges:
-        if is_feature( e ):
-            return False
-    return True
-
-def is_feature(e):
-    '''Returns true if the edge is a feature edge'''
-    e_faces = list(e.faces)
-    if len(e_faces) != 2:
-        return True
-    
-    f0 = e_faces[0]
-    f1 = e_faces[1]
-
-    if dot(f0.normal,f1.normal) < FEATURE_ANGLE:
-        return True
+    for v in e.verts:
+        for e in v.edges:
+            if is_free( e ):
+                return True
 
     return False
 
@@ -147,23 +137,25 @@ def decimate(m,target):
     for v in m.verts:
         init_qv(v)
    
-    edges = []
+    #build a binary heap
+    edges = bheap()
+
     #calculate quadrics errors
     for e in m.edges:
-        if can_move(e.v0) and can_move(e.v1):
+        if not is_locked(e):
             #find optimized point and add it to the heap
-            heappush( edges, [find_opt(e.v0,e.v1)[0], e] )
+            [cost,opt] = find_opt(e.v0,e.v1)
+            e.cost, e.opt = cost, opt
+            edges.push( e )
 
     while edges and m.faces_size > target:
         #pop the min  
-        [err,e] = heappop(edges)
-       
+        e = edges.pop()
+
         #check if the edge has been invalidated
         if not is_valid(e):
             continue
 
-        #find the optimized point
-        opt = find_opt(e.v0,e.v1)[1]
         fail = False
 
         #calculate the planes around the two points to check for element inversion
@@ -178,7 +170,7 @@ def decimate(m,target):
         for p in ne:
             #calculate distance from plane
             s = dot( p[0], p[1] ) - p[2]
-            sn = dot( opt, p[1] ) - p[2]
+            sn = dot( e.opt, p[1] ) - p[2]
 
             #detect element inversion
             if s*sn <= 0.0:
@@ -186,25 +178,28 @@ def decimate(m,target):
                 break
 
         if not fail:
-            #move the points of the edge to the optimized point
-            m.set_point(e.v0,opt)
-            m.set_point(e.v1,opt)
-
-            #new point
+            #move the one end point to the optimized point
+            m.set_point(e.v0,e.opt)
             np = e.v0
 
+            #remove affected edges
+            for ne in np.edges:
+                edges.remove( ne )
+
             #update quadric matrices
-            np.q = matrix_add(e.v0.q, e.v1.q )
-            np.v = matrix_add(e.v0.v, e.v1.v )
-          
-            #collapse the degenerated edge to its first endpoint
+            e.v0.q = matrix_add(e.v0.q, e.v1.q )
+            e.v0.v = matrix_add(e.v0.v, e.v1.v )
+         
+            #collapse the edge to its endpoint
             m.join_edge(e,e.v0 )
 
-            #add new edges to the heap
+            #add updated edges to the heap
             for ne in np.edges:
-                if can_move(ne.v0) and can_move(ne.v1):
-                    #find optimized point and add it to the heap
-                    heappush( edges, [find_opt(ne.v0,ne.v1)[0], ne] )
+                if not is_locked(ne):
+                    [cost,opt] = find_opt(ne.v0,ne.v1)
+                    #update cost
+                    ne.cost, ne.opt = cost, opt
+                    edges.push( ne )
 
 def popup():
     EVT_EXIT = 0
@@ -226,6 +221,13 @@ def main():
     #extend vertices to contain quadratic data
     vertex.q = matrix_zeros( 3, 3 )
     vertex.v = matrix_zeros( 4, 1 )
+
+    #extend edge to hold the contraction cost and the optimun point
+    edge.cost = 0.0
+    edge.opt = vec3(0.0)
+
+    #make the sorting of edges to be based on contraction cost
+    edge.__lt__ = lambda e0,e1 : e0.cost < e1.cost
 
     mymesh = blender_to_mesh()
     decimate(mymesh,DECIMATE_NUM)
