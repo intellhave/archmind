@@ -46,7 +46,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
     if( !Stream )
     {
-        cerr << "Can not open : " << filename << " for parsing" << endl;
+        cerr << "wavefront : failed to open : " << filename << " for parsing" << endl;
         return false;
     }
 
@@ -67,16 +67,16 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
             try
             {
-                x = lexical_cast<double>(tokens[1]);
-                y = lexical_cast<double>(tokens[2]);
-                z = lexical_cast<double>(tokens[3]);
+                x = real_t(lexical_cast<float>(tokens[1]));
+                y = real_t(lexical_cast<float>(tokens[2]));
+                z = real_t(lexical_cast<float>(tokens[3]));
             
                 mesh_vertices.push_back( 
                     vertex_ptr_t( new vertex_t(x,y,z) ) );
             }
             catch(bad_lexical_cast &)
             {
-                cerr << "wavefront : Can not safely cast vertex" << endl;
+                cerr << "wavefront : failed to safely cast vertex" << endl;
                 cerr << "token : " <<  tokens[1] << "," << tokens[2] << "," << tokens[3] << endl;
             }
         }
@@ -121,7 +121,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             }
             catch(bad_lexical_cast &)
             {
-                cerr << "wavefront : Can not safely cast face indices" << endl;
+                cerr << "wavefront : failed to safely cast face indices" << endl;
                 break;
             }
 

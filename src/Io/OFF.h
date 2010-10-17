@@ -27,6 +27,8 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace arch
 {
@@ -38,6 +40,7 @@ namespace io
 template<typename mesh_t>
 struct OFF 
 {
+    bool read(const std::string &filename, mesh_t &m);
     bool write(const std::string &fileName, mesh_t &m);
     bool can_read(const std::string &filename)const; 
 };

@@ -133,10 +133,8 @@ public:
     face_face_iterator(EdgeIter iter, EdgeIter end, uid_t id) : 
         m_EdgeIter(iter), m_EdgeIterEnd(end), m_VID(id)
     {   
-        //printf("face_face_iterator()\n");
         while( m_EdgeIter != m_EdgeIterEnd )
-        {
-            //printf("While\n");
+        {          
             m_FaceIter = (*m_EdgeIter)->faces_begin();
             m_FaceIterEnd = (*m_EdgeIter)->faces_end();       
 
@@ -144,18 +142,15 @@ public:
             {
                 //Check if this is not the original
                 if( (*m_FaceIter)->unique_id() != m_VID)
-                {
-                    //printf("found valid face\n");
+                {                    
                     return;
                 }
                 else
-                {
-                    //printf("++f\n");
+                {                    
                     ++m_FaceIter;   //go to the next
                 }
             }
-
-            //printf("++e\n");
+     
             ++m_EdgeIter;       //go to the next edge
         }
     }

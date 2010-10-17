@@ -71,7 +71,7 @@ area(const PointVectorType &poly)
     for( std::size_t i = 2; (i+1) < poly.size(); ++i )
         rf += math::cross( poly[i+1] - v0, poly[i] - v0 );
 
-    return 0.5 * dot( n, rf );
+    return real_t(0.5) * dot( n, rf );
 }
 
 template<typename PointIterator>
@@ -152,7 +152,7 @@ circum_radius(const PointVectorType &poly)
 
     //for edges
     if( poly.size() == 2 )
-        return 0.5 * a;
+        return real_t(0.5) * a;
 
     real_t b = math::distance( poly[1], poly[2] );
     real_t c = math::distance( poly[2], poly[0] );
@@ -184,7 +184,7 @@ circum_center(const PointVectorType &poly)
     real_t e2 = math::distance( poly[2], poly[0] );
 
     real_t den = math::magnitude( math::cross(poly[0] - poly[1], poly[1] - poly[2] ) );
-    den = 2.0 * den * den;
+    den = real_t(2.0) * den * den;
 
     real_t a = (e1 * e1 * math::dot( poly[0] - poly[1], poly[0] - poly[2] )) / den;
     real_t b = (e2* e2 * math::dot( poly[1] - poly[0], poly[1] - poly[2] )) / den;

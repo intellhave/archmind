@@ -29,6 +29,135 @@ bool OFF<mesh_t>::can_read(const std::string &filename)const
 }
 
 template<typename mesh_t>
+bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
+{
+    using namespace boost;
+    using namespace std;
+
+    typedef typename mesh_t::vertex_ptr_t vertex_ptr_t;
+    typedef typename mesh_t::vertex_t vertex_t;
+
+    typedef typename mesh_t::face_ptr_t face_ptr_t;
+    typedef typename mesh_t::face_t face_t;
+
+    typedef typename mesh_t::real_t real_t;
+
+    ifstream Stream(filename.c_str());
+
+    if( !Stream )
+    {
+        cerr << "off : failed to open : " << filename << " for parsing" << endl;
+        return false;
+    }
+
+    string Line;
+
+    getline(Stream, Line);
+    
+    if( Line != "OFF" )
+    {
+        cerr << "off : failed read OFF tag : " << filename << '\n';
+        return false;
+    }
+
+    std::size_t vertices, faces;
+
+    //skip comments and read vertices and faces
+    while( !Stream.eof() ) 
+    {
+        vector<string> tokens;
+        getline(Stream, Line);
+        split(tokens,Line,is_any_of(" "),token_compress_on);
+
+        if( !tokens.empty() && tokens[0] == "#" )
+            continue;
+
+        else if( tokens.size() == 3 )
+        {
+            try
+            {
+                vertices = lexical_cast<size_t>(tokens[0]);
+                faces = lexical_cast<size_t>(tokens[1]);
+            }
+            catch(bad_lexical_cast &)
+            {
+                cerr << "off : failed to safely cast vertex : " << Line << '\n';     
+                return false;
+            }
+
+            break;
+        }
+        else
+        {
+            cerr << "off : failed to read faces and vertices : " << Line << '\n';
+            return false;
+        }
+    }
+
+    while( !Stream.eof() ) 
+    {
+        vector<string> tokens;
+        getline(Stream, Line);
+        split(tokens,Line,is_any_of(" "),token_compress_on);
+
+        if( vertices > 0 && tokens.size() == 3 )      //Read Vertex     
+        {
+            real_t x,y,z;
+
+            try
+            {
+                x = real_t(lexical_cast<float>(tokens[0]));
+                y = real_t(lexical_cast<float>(tokens[1]));
+                z = real_t(lexical_cast<float>(tokens[2]));
+            
+                mesh.add_vertex( vertex_ptr_t( new vertex_t(x,y,z) ) );               
+            }
+            catch(bad_lexical_cast &)
+            {
+                cerr << "off : failed to safely cast vertex" << endl;
+                cerr << "token : " <<  tokens[0] << "," << tokens[1] << "," << tokens[2] << endl;
+            }
+
+            vertices--;
+        }
+        else if( faces > 0 && !tokens.empty() )    //Read Facet
+        {
+            std::size_t npts, idx;
+            std::vector< vertex_ptr_t > vertices;   //Facet vertices
+          
+            try
+            {
+                //Read number of points
+                npts = lexical_cast<int>(tokens[0]);
+
+                assert(npts < tokens.size());
+
+                for( std::size_t i = 0; i < npts; i++ )
+                {            
+                    idx = lexical_cast<int>(tokens[i+1]);               
+                    
+                    assert( idx < mesh.vertices_size() );
+                   
+                    vertices.push_back( mesh.vertices()[idx] );                                  
+                }
+            }
+            catch(bad_lexical_cast &)
+            {
+                cerr << "off : failed to read face indices : " << Line << '\n';
+                break;
+            }
+
+            mesh.add_face( 
+                face_ptr_t( new face_t( vertices.begin(), vertices.end() ) ) );
+        
+            faces--;
+        }
+    }
+    
+    return faces == 0 && vertices == 0;
+}
+
+template<typename mesh_t>
 bool OFF<mesh_t>::write(const std::string &filename, mesh_t &mesh)
 {
     using namespace std;

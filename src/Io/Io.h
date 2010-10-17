@@ -36,7 +36,8 @@ template<typename mesh_t>
 struct reader_traits
 {
     typedef boost::mpl::vector< 
-        WaveFront<mesh_t>          //register Wavefront importer
+        WaveFront<mesh_t>,          //register Wavefront importer
+        OFF<mesh_t>                 //register OFF importer
     > type;
 };
 
@@ -45,7 +46,7 @@ struct writer_traits
 {
     typedef boost::mpl::vector< 
         WaveFront<mesh_t>,          //register Wavefront exporter
-        OFF<mesh_t>                 //register Off exporter
+        OFF<mesh_t>                 //register OFF exporter
     > type;
 };
 
