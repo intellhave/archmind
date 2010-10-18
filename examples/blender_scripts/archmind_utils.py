@@ -253,8 +253,8 @@ class bheap:
             self.Array.pop()
 
             #update index
-            self.Index[self.Array[0]] = 0
             del self.Index[minitem]
+            self.Index[self.Array[0]] = 0
             self._percolate_down(0)
         else:
             self.clear()

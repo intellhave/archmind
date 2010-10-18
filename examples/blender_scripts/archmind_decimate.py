@@ -103,7 +103,7 @@ def find_opt(v0,v1):
     q = matrix_add( v0.q, v1.q )
     v = matrix_add( v0.v, v1.v )
 
-    #check if the points are two close
+    #check if the points are too close
     if distance(v0.point,v1.point) < NODE_EQUIV:
         opt = (v0.point + v1.point) * 0.5
         return [evaluate(q,v,opt),opt]
@@ -144,15 +144,14 @@ def decimate(m,target):
     for e in m.edges:
         if not is_locked(e):
             #find optimized point and add it to the heap
-            [cost,opt] = find_opt(e.v0,e.v1)
-            e.cost, e.opt = cost, opt
+            [e.cost,e.opt] = find_opt(e.v0,e.v1)
             edges.push( e )
 
     while edges and m.faces_size > target:
         #pop the min  
         e = edges.pop()
 
-        #check if the edge has been invalidated
+        #check if the edge has been invalidated by a contraction
         if not is_valid(e):
             continue
 
@@ -182,13 +181,13 @@ def decimate(m,target):
             m.set_point(e.v0,e.opt)
             np = e.v0
 
-            #remove affected edges
+            #remove affected edges from the heap to update the cost
             for ne in np.edges:
                 edges.remove( ne )
 
             #update quadric matrices
-            e.v0.q = matrix_add(e.v0.q, e.v1.q )
-            e.v0.v = matrix_add(e.v0.v, e.v1.v )
+            np.q = matrix_add(e.v0.q, e.v1.q )
+            np.v = matrix_add(e.v0.v, e.v1.v )
          
             #collapse the edge to its endpoint
             m.join_edge(e,e.v0 )
@@ -196,9 +195,8 @@ def decimate(m,target):
             #add updated edges to the heap
             for ne in np.edges:
                 if not is_locked(ne):
-                    [cost,opt] = find_opt(ne.v0,ne.v1)
                     #update cost
-                    ne.cost, ne.opt = cost, opt
+                    [ne.cost,ne.opt] = find_opt(ne.v0,ne.v1)
                     edges.push( ne )
 
 def popup():

@@ -26,12 +26,12 @@ Tooltip: 'Split mesh edges'
 #     misrepresented as being the original software.
 #  3. This notice may not be removed or altered from any source distribution.
 
+#Uniform mesh spliting
+
 from archmind_utils import *
 from heapq import *
 
 def split(epsilon,maxsplits):
-    print 'Spliting mesh...'
-    
     mymesh = blender_to_mesh()
     
     heap = []
@@ -40,7 +40,8 @@ def split(epsilon,maxsplits):
     for e in mymesh.edges:
         heappush( heap, [1.0 / distance(e.v0.point,e.v1.point), e] )
 
-    me = heap[len(heap)-1][0]
+    #min edge
+    me = heap[-1][0]
 
     print 'Min edge :', (1.0 / me) * epsilon
 
@@ -52,7 +53,7 @@ def split(epsilon,maxsplits):
         if l >= me or splits > maxsplits:
             break
 
-        #split the edge and return the vertex created
+        #split the edge and store the vertex created
         v = mymesh.split_edge(e,0.5,True)
         
         splits += 1
