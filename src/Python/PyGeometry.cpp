@@ -54,6 +54,17 @@ face_ptr_t triangle( vertex_ptr_t v0, vertex_ptr_t v1, vertex_ptr_t v2)
     return face_ptr_t(new face_t( verts.begin(), verts.end() ));
 }
 
+face_ptr_t quad( vertex_ptr_t v0, vertex_ptr_t v1, vertex_ptr_t v2, vertex_ptr_t v3)
+{
+    std::vector< vertex_ptr_t > verts;
+    verts.push_back( v0 );
+    verts.push_back( v1 );
+    verts.push_back( v2 );
+    verts.push_back( v3 );
+
+    return face_ptr_t(new face_t( verts.begin(), verts.end() ));
+}
+
 mesh_ptr_t createmesh()
 {
     return mesh_ptr_t( new mesh_t() );
@@ -139,6 +150,7 @@ void arch::python::export_geometry()
     scope geometry_scope = geometry_module;
 
     def("triangle", &triangle);
+    def("quad", &quad);
     def("poly", &py_poly<mesh_t::vertex_ptr_t>);
     def("mesh", &createmesh);
 

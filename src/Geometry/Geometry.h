@@ -157,7 +157,7 @@ public:
     *\param f the face to split
     *\param v0 a vertex of face f
     *\param v1 a vertex of face f
-    *\return the id of the edge created
+    *\return the edge created
     *\note the vertices must not form an edge or a degenerated face will be created
     */
     edge_ptr_t split_face( face_ptr_t f, vertex_ptr_t v0, vertex_ptr_t v1 );

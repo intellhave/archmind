@@ -1,8 +1,9 @@
 Archmind Geometric Kernel
 
 ** Important **
-The c++ interface is a header only library. Nevertheless, the boost library is required.
-In addition, for building the python interface, python is also required.
+The c++ library interface is header-only. 
+Nevertheless, the boost library is required to use it.
+For building the python interface, python is also required.
 
 ** Windows Python Library Compilation **
 
