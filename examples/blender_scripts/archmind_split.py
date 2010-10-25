@@ -26,7 +26,7 @@ Tooltip: 'Split mesh edges'
 #     misrepresented as being the original software.
 #  3. This notice may not be removed or altered from any source distribution.
 
-#Uniform mesh spliting
+#Uniform mesh splitting
 
 from archmind_utils import *
 from heapq import *
