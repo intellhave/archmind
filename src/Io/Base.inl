@@ -58,18 +58,24 @@ private:
 };
 
 template<typename mesh_t>
+struct reader_traits;
+
+template<typename mesh_t>
 bool load_from_file(const std::string &filename, mesh_t &mesh)
 {
     bool success = false;
-    boost::mpl::for_each<reader_traits<mesh_t>::type>( reader_dispatch<mesh_t>(filename,mesh,success) );
+    boost::mpl::for_each<typename reader_traits<mesh_t>::type>( reader_dispatch<mesh_t>( filename,mesh,success) );
     return success;
 }
+
+template<typename mesh_t>
+struct writer_traits;
 
 template<typename mesh_t>
 bool save_to_file(const std::string &filename, mesh_t &mesh)
 {
     bool success = false;
-    boost::mpl::for_each<writer_traits<mesh_t>::type>( writer_dispatch<mesh_t>(filename,mesh,success) );
+    boost::mpl::for_each<typename writer_traits<mesh_t>::type>( writer_dispatch<mesh_t>( filename,mesh,success) );
     return success;
 }
 

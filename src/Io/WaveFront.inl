@@ -77,7 +77,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             catch(bad_lexical_cast &)
             {
                 cerr << "wavefront : failed to safely cast vertex" << endl;
-                cerr << "token : " <<  tokens[1] << "," << tokens[2] << "," << tokens[3] << endl;
+                cerr << "tokens : " <<  tokens[1] << "," << tokens[2] << "," << tokens[3] << endl;
             }
         }
         else if( tokens[0] == "vt" )
@@ -105,9 +105,9 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
                     vector<string> indextokens;
 
                     //handle uv indices
-                    split(indextokens,tokens[i],is_any_of("/"),token_compress_on);
+                    split(indextokens,tokens[i],is_any_of(" /"),token_compress_on);
 
-                    std::size_t idx = lexical_cast<int>(indextokens[0])-1;
+                    std::size_t idx = lexical_cast<std::size_t>(indextokens[0])-1;
 
                     if( idx < mesh_vertices.size() )
                         vertices.push_back( mesh_vertices[idx] );

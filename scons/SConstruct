@@ -27,6 +27,9 @@ Export('pythonlib')
 conf = Configure(env)
 env = conf.Finish()
 
+if pythonlib:
+    env.Append(CPPFLAGS = '-DBOOST_PYTHON_STATIC_LIB')
+
 if debug:
     env.Append(CPPFLAGS = Split('-Wall -g '))
 else:
@@ -35,12 +38,12 @@ else:
 #add modules from respective files   
 objs = []
 
-objs.append(SConscript('src/Python/SConscript', exports='env'))
+objs.append(SConscript('../src/Python/SConscript', exports='env'))
 
 if pythonlib:
     env.SharedLibrary(target = './Lib/archmind',source = objs)
 else:
-    objs.append(SConscript('src/App/SConscript', exports='env'))
+    objs.append(SConscript('../src/App/SConscript', exports='env'))
     env.Program(target = './Release/app',source = objs)
 
 

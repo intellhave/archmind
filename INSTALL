@@ -11,6 +11,7 @@ There is a Microsoft Visual Studio solution in msvc
 
 ** Linux Python Library Compilation **
 
-There is a Scons file to build under Linux:
-    scons pythonlib=1 
+There is a Scons file to build under Linux in scons:
+    scons pythonlib=1
+    
 

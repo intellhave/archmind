@@ -54,13 +54,13 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
     getline(Stream, Line);
     
-    if( Line != "OFF" )
+    if( Line.substr(0,3) != "OFF" )
     {
-        cerr << "off : failed read OFF tag : " << filename << '\n';
+        cerr << "off : failed to read OFF tag : " << filename << '\n';
         return false;
     }
 
-    std::size_t vertices, faces;
+    std::size_t vertices = 0, faces = 0;
 
     //skip comments and read vertices and faces
     while( !Stream.eof() ) 
@@ -69,7 +69,8 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
         getline(Stream, Line);
         split(tokens,Line,is_any_of(" "),token_compress_on);
 
-        if( !tokens.empty() && tokens[0] == "#" )
+        //skip comments
+        if( !tokens.empty() && tokens[0][0] == '#' )
             continue;
 
         else if( tokens.size() == 3 )
@@ -81,7 +82,7 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             }
             catch(bad_lexical_cast &)
             {
-                cerr << "off : failed to safely cast vertex : " << Line << '\n';     
+                cerr << "off : failed to safely cast sizes : " << Line << '\n';     
                 return false;
             }
 
@@ -115,7 +116,7 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             catch(bad_lexical_cast &)
             {
                 cerr << "off : failed to safely cast vertex" << endl;
-                cerr << "token : " <<  tokens[0] << "," << tokens[1] << "," << tokens[2] << endl;
+                cerr << "tokens : " <<  tokens[0] << "," << tokens[1] << "," << tokens[2] << endl;
             }
 
             vertices--;

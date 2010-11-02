@@ -1,7 +1,8 @@
 Import('*')
 
 List = [
-Glob('*.cpp')
+#Glob('*.cpp')
+'Main.cpp'
 ]
 
 Obj = env.Object(List)

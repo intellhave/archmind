@@ -47,7 +47,7 @@ template<typename Traits = default_traits<> >
 class mesh
 {
 public:
-    typedef typename Traits traits;
+    typedef Traits traits;
     typedef typename Traits::mesh_ptr_t mesh_ptr_t;
 
     typedef typename Traits::real_t real_t; 
