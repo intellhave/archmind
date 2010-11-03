@@ -57,7 +57,7 @@ def subsurf():
     m = blender_to_mesh()
 
     vertex.normal = vec3(0.0)       #extend vertex class to hold the normal 
-    #calculate vertex normals
+    #calculate normals
     for v in m.verts:
         v.normal = vertex_normal(v)
 

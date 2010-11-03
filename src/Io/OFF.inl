@@ -67,6 +67,7 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
     {
         vector<string> tokens;
         getline(Stream, Line);
+		trim(Line);
         split(tokens,Line,is_any_of(" "),token_compress_on);
 
         //skip comments
@@ -99,6 +100,7 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
     {
         vector<string> tokens;
         getline(Stream, Line);
+		trim(Line);
         split(tokens,Line,is_any_of(" "),token_compress_on);
 
         if( vertices > 0 && tokens.size() == 3 )      //Read Vertex     
@@ -115,8 +117,8 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
             }
             catch(bad_lexical_cast &)
             {
-                cerr << "off : failed to safely cast vertex" << endl;
-                cerr << "tokens : " <<  tokens[0] << "," << tokens[1] << "," << tokens[2] << endl;
+                cerr << "off : failed to safely cast vertex\n";
+                cerr << "tokens : " <<  tokens[0] << "," << tokens[1] << "," << tokens[2] << '\n';
             }
 
             vertices--;

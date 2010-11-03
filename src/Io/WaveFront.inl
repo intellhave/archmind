@@ -59,6 +59,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
         vector<string> tokens;
 
         getline(Stream, Line);
+		trim(Line);
         split(tokens,Line,is_any_of(" "),token_compress_on);
 
         if( tokens[0] == "v" )      //Vertex     
