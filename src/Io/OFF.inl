@@ -46,7 +46,7 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
     if( !Stream )
     {
-        cerr << "off : failed to open : " << filename << " for parsing" << endl;
+        cerr << "off : failed to open : " << filename << " for parsing" << '\n';
         return false;
     }
 
@@ -169,7 +169,7 @@ bool OFF<mesh_t>::write(const std::string &filename, mesh_t &mesh)
 
     if( !Stream )
     {
-        cerr << "off : failed to open : " << filename << " for writing" << endl;
+        cerr << "off : failed to open : " << filename << " for writing\n";
         return false;
     }
 

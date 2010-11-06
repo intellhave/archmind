@@ -38,12 +38,13 @@ else:
 #add modules from respective files   
 objs = []
 
-objs.append(SConscript('../src/Python/SConscript', exports='env'))
 
 if pythonlib:
+    objs.append(SConscript('../src/Python/SConscript', exports='env'))
     env.SharedLibrary(target = './Lib/archmind',source = objs)
 else:
     objs.append(SConscript('../src/App/SConscript', exports='env'))
+    objs.append(SConscript('../src/Python/SConscript', exports='env'))
     env.Program(target = './Release/app',source = objs)
 
 

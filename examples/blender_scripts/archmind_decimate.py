@@ -28,7 +28,6 @@ Tooltip: 'Quadric Decimation tool'
 
 #Quadric mesh simplification : see 'Quadric-Based Polygonal Surface Simplification' of Michael Garland 
 
-from heapq import *
 from archmind_utils import *
 
 NODE_EQUIV = 0.001
