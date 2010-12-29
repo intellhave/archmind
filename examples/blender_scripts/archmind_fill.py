@@ -4,7 +4,7 @@
 Name: 'MeshFill'
 Blender: 249
 Group: 'Mesh'
-Tooltip: 'Fill mesh holes'
+Tooltip: 'Fills mesh holes'
 """
 
 #  Archmind Non-manifold Geometric Kernel
@@ -30,7 +30,6 @@ Tooltip: 'Fill mesh holes'
 #Covers holes of the mesh with perimeter below a certain threshold
 #TODO: no check for non planar holes
 #TODO: no check for the shape of the hole 
-#TODO: at the moment holes may not have more that 128 vertices
 
 from archmind_utils import *
 

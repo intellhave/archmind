@@ -60,9 +60,6 @@ struct traits
     typedef boost::shared_ptr< edge_t > edge_ptr_t;
     typedef boost::shared_ptr< vertex_t > vertex_ptr_t;
 
-    //TODO this is a limit that should be removed at some point
-    static const std::size_t max_poly_pts = 128;
-
     static uid_t CounterID;
 };
 

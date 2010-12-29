@@ -26,13 +26,13 @@
 #include "Iterators.h"
 
 #include <iostream>
-#include <bitset>
 #include <cstdlib>
 #include <cassert>
 #include <vector>
 #include <deque>
 #include <list>
 #include <boost/array.hpp>
+#include <boost/dynamic_bitset.hpp>
 #include <boost/range/iterator_range.hpp>
 #include "../Math/Vector.h"
 
@@ -209,7 +209,7 @@ public:
     typedef typename Traits::face_ptr_t face_ptr_t;
 
     typedef std::vector< edge_ptr_t > edge_array_t;
-    typedef std::bitset<Traits::max_poly_pts> bitset_t;
+    typedef boost::dynamic_bitset<unsigned char> bitset_t;
 
     typedef typename edge_array_t::const_iterator edge_iterator_t;
     typedef face_vertex_iterator<vertex_ptr_t const,edge_iterator_t,bitset_t> vertex_iterator_t;
@@ -285,6 +285,8 @@ private:
         
         //Build the edges
         std::vector< vertex_ptr_t > verts( start, end );
+
+        EdgesOrientation = bitset_t( verts.size() );
         Edges = edge_array_t( verts.size() );
         
         for( std::size_t i = 0; i < verts.size(); ++i )
