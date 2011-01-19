@@ -53,17 +53,32 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
     string Line;
 
     vector< vertex_ptr_t > mesh_vertices;
+	size_t line_count = 0;
 
     while( !Stream.eof() ) 
     {
         vector<string> tokens;
 
-        getline(Stream, Line);
+		++line_count;
+        getline(Stream, Line);	
 		trim(Line);
         split(tokens,Line,is_any_of(" "),token_compress_on);
 
+		if( tokens.empty() )
+		{
+			cerr << "wavefront : skipping line (" << line_count << ") : " << Line << endl;
+			continue;
+		}
+
         if( tokens[0] == "v" )      //Vertex     
         {
+			if( tokens.size() < 4 )
+            {
+                cerr << "wavefront : two few floats!" << endl;
+                cerr << "token : " << Line << endl;
+                break;
+            }
+
             real_t x,y,z;
 
             try
@@ -75,9 +90,9 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
                 mesh_vertices.push_back( 
                     vertex_ptr_t( new vertex_t(x,y,z) ) );
             }
-            catch(bad_lexical_cast &)
+            catch(bad_lexical_cast &err)
             {
-                cerr << "wavefront : failed to safely cast vertex" << endl;
+				cerr << "wavefront : failed to safely cast vertex : " << err.what() << endl;
                 cerr << "tokens : " <<  tokens[1] << "," << tokens[2] << "," << tokens[3] << endl;
             }
         }
@@ -120,9 +135,9 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
                     }
                 }
             }
-            catch(bad_lexical_cast &)
+            catch(bad_lexical_cast &err)
             {
-                cerr << "wavefront : failed to safely cast face indices" << endl;
+				cerr << "wavefront : failed to safely cast face indices : " << err.what() << endl;
                 break;
             }
 

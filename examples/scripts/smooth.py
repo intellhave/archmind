@@ -26,7 +26,7 @@ from archmind.geometry import *
 from archmind.io import *
 
 try:
-	opts, args = getopt.getopt(sys.argv[2:], 's', ['source='])
+	opts, args = getopt.getopt(sys.argv[1:], 's', ['source='])
 except getopt.GetoptError, err:
 	print str(err)
 	sys.exit(1)
@@ -44,7 +44,7 @@ def locked(v):
 
 mymesh = mesh()
 
-print 'Loading mesh...'
+print 'Loading ...'
 if not load_from_file(mesh_filename,mymesh):
 	sys.exit(1)
 
@@ -56,7 +56,7 @@ for i in range(0,NumOfIters):
 		if not locked(v):
 			mymesh.set_point( v, centroid( v.verts ) )
 
-print 'Saving mesh...'
+print 'Saving ...'
 save_to_file(mesh_filename,mymesh)
 
 

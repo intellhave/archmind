@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
     if(argc > 1)
     {
-        Interface pyEngine(argc,argv);
+        Interface pyEngine(argc-1,argv+1);
 
         if( !pyEngine.run_script(argv[1]) )
         {
