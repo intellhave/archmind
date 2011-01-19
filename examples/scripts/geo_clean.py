@@ -27,7 +27,7 @@ from archmind.geometry import *
 from archmind.io import *
 
 def fix_orientation(m):
-    """Fixed the faces orientation and returns the number of fixed faces"""
+    """Fixes the faces orientation and returns the number of fixed faces"""
     flips = 0
     checked = {}
     checked = [0 for i in range(0,m.faces_size)]    #build a list with zeros
@@ -38,7 +38,7 @@ def fix_orientation(m):
         checked[f.id] = 1       #mark as fixed
 
         for ff in f.faces:
-            #skip allready fixed faces
+            #skip already fixed faces
             if checked[ff.id]:
                 continue
 
@@ -59,7 +59,7 @@ def check_duplicate(f):
 
 
 def clean(argv):
-    """Removes degenerated faces and fixes faces orientation"""
+    """Removes degenerated faces and fixes the orientation"""
 
     try:
         opts, args = getopt.getopt(argv, 's', ['source='])
@@ -87,7 +87,6 @@ def clean(argv):
             mymesh.remove_face(f)
             rem += 1
 
-    #fixing orientation
     flips = fix_orientation(mymesh)
 
     print 'Faces removed : %d' % rem

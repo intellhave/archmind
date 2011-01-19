@@ -116,7 +116,7 @@ public:
     /*!
     *\brief removes a free vertex from the mesh
     *\param v
-    *\return true if the removal is sucessful
+    *\return true if the removal is successful
     */
     bool remove_vertex( vertex_ptr_t v );
 
@@ -131,7 +131,7 @@ public:
     /*!
     *\brief removes a face from the mesh
     *\brief f the face to remove
-    *\return true if the removal was sucessful
+    *\return true if the removal was successful
     */
     bool remove_face( face_ptr_t f );
 
@@ -148,7 +148,7 @@ public:
     *\brief collapses an edge on one of its vertices
     *\param e the edge that will collapse
     *\param v the vertex of the edge e that the edge is collapsed to
-    *\return true if the vertex is valid and the collapse operation is succesful
+    *\return true if the vertex is valid and the collapse operation is successful
     */
     bool join_edge( edge_ptr_t e, vertex_ptr_t v );
 

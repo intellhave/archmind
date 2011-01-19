@@ -205,7 +205,7 @@ circum_center(const PointIterator &begin, const PointIterator &end)
 }
 
 /*!
-\brief Calulcate centroid of list of vertex pointers
+\brief Calculate centroid of list of vertex pointers
 \param begin Start iterator
 \param end End iterator
 \return the centroid
