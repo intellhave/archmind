@@ -25,38 +25,44 @@ import getopt
 from archmind.geometry import *
 from archmind.io import *
 
-try:
-	opts, args = getopt.getopt(sys.argv[1:], 's', ['source='])
-except getopt.GetoptError, err:
-	print str(err)
-	sys.exit(1)
-
-for opt, arg in opts:
-	if opt in ('-s', '--source'):
-		mesh_filename = arg
-
-#helper function to check if a vertex can be moved
+#helper function that checks if a vertex can be moved
 def locked(v):
 	for e in v.edges:
 		if is_free( e ):
 			return 1
 	return 0
 
-mymesh = mesh()
+def smooth(argv):
+    """Laplacian smoothing"""
 
-print 'Loading ...'
-if not load_from_file(mesh_filename,mymesh):
-	sys.exit(1)
+    try:
+	    opts, args = getopt.getopt(argv, 's', ['source='])
+    except getopt.GetoptError, err:
+	    print str(err)
+	    sys.exit(1)
 
-print 'Smoothing...'
-NumOfIters = 20
+    for opt, arg in opts:
+	    if opt in ('-s', '--source'):
+		    mesh_filename = arg
 
-for i in range(0,NumOfIters):
-	for v in mymesh.verts:
-		if not locked(v):
-			mymesh.set_point( v, centroid( v.verts ) )
+    mymesh = mesh()
 
-print 'Saving ...'
-save_to_file(mesh_filename,mymesh)
+    print 'Loading ...'
+    if not load_from_file(mesh_filename,mymesh):
+	    sys.exit(1)
+
+    print 'Smoothing...'
+    NumOfIters = 20
+
+    for i in range(0,NumOfIters):
+	    for v in mymesh.verts:
+		    if not locked(v):
+			    mymesh.set_point( v, centroid( v.verts ) )
+
+    print 'Saving ...'
+    save_to_file(mesh_filename,mymesh)
+
+if __name__ == "__main__":
+    smooth(sys.argv[1:])
 
 

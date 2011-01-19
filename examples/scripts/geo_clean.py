@@ -17,7 +17,7 @@
 #     misrepresented as being the original software.
 #  3. This notice may not be removed or altered from any source distribution.
 
-#Geometry smoothing example
+#Geometry cleaning
 #A wavefront of OFF file is expected as an input
 
 import sys
@@ -59,7 +59,7 @@ def check_duplicate(f):
 
 
 def clean(argv):
-    """Removes degenerated faces and fixing faces orientation"""
+    """Removes degenerated faces and fixes faces orientation"""
 
     try:
         opts, args = getopt.getopt(argv, 's', ['source='])
