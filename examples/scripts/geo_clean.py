@@ -29,7 +29,6 @@ from archmind.io import *
 def fix_orientation(m):
     """Fixes the faces orientation and returns the number of fixed faces"""
     flips = 0
-    checked = {}
     checked = [0 for i in range(0,m.faces_size)]    #build a list with zeros
     queue = deque( [iter(m.faces).next()] )     #add the first face to the queue
 
