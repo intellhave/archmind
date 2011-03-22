@@ -21,8 +21,8 @@
 
 //A simple example showing how to construct a tetraedron and export is as a wavefront file
 
-#include <Archmind/Geometry/Geometry.h>
-#include <Archmind/Io/Loader.h>
+#include "Geometry/Geometry.h"
+#include "Io/Io.h"
 
 #include <vector>
 

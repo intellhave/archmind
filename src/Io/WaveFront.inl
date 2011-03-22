@@ -66,7 +66,10 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
 		if( tokens.empty() )
 		{
+			#ifndef NDEBUG
 			cerr << "wavefront : skipping line (" << line_count << ") : " << Line << endl;
+			#endif
+
 			continue;
 		}
 

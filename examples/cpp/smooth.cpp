@@ -21,9 +21,9 @@
 
 //Laplacian smoothing example
 
-#include <Archmind/Geometry/Geometry.h>
-#include <Archmind/Geometry/Algorithms.h>
-#include <Archmind/Io/Loader.h>
+#include "Geometry/Geometry.h"
+#include "Geometry/Algorithms.h"
+#include "Io/Io.h"
 
 #include <iostream>
 #include <vector>
