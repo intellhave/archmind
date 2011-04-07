@@ -275,7 +275,7 @@ void triangulate( const FacePtr &f, VertexListType &triangles )
     
     list_t poly;
 
-    for( typename face_t::vertex_iterator_t i = f->vertices_begin(); i != f->vertices_end(); ++i )
+    for( typename face_t::vertex_iterator_t i = f->verts_begin(); i != f->verts_end(); ++i )
         poly.push_back( vertex( (*i), false ) );
 
     std::vector< vec_t > poly_points( f->points_begin(), f->points_end() );

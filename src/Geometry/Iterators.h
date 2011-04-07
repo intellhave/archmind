@@ -113,7 +113,7 @@ private:
     Value &dereference() const
     {
         return m_Orientation[m_Pos] ? 
-            *((*m_Iter)->vertices_begin()) : *((*m_Iter)->vertices_begin()+1);
+            *((*m_Iter)->verts_begin()) : *((*m_Iter)->verts_begin()+1);
     }
 
     IterType m_Iter;
@@ -252,8 +252,8 @@ private:
     Value &dereference() const
     {
         return
-            (*((*m_Iter)->vertices_begin()))->unique_id() == m_VID ? 
-            *((*m_Iter)->vertices_begin()+1) : *((*m_Iter)->vertices_begin());
+            (*((*m_Iter)->verts_begin()))->unique_id() == m_VID ? 
+            *((*m_Iter)->verts_begin()+1) : *((*m_Iter)->verts_begin());
     }
 
     IterType m_Iter;

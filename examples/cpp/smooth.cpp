@@ -77,12 +77,12 @@ int main(int argc, char **argv)
     for( int i = 0; i < iterations; ++i )
     {
         for( 
-            mesh_t::vertex_iterator_t v = mymesh.vertices_begin();
-            v != mymesh.vertices_end(); ++v )
+            mesh_t::vertex_iterator_t v = mymesh.verts_begin();
+            v != mymesh.verts_end(); ++v )
         {
             //Move the vertex to the centoid of its neighbors
             if( !is_locked(*v) )
-                mymesh.set_point(*v, centroid( (*v)->vertices() ) );
+                mymesh.set_point(*v, centroid( (*v)->verts() ) );
         }
     }
 

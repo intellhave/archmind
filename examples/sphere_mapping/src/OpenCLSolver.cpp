@@ -22,6 +22,9 @@
 #include "OpenCLSolver.h"
 #include <iostream>
 #include <vector>
+#include <boost/foreach.hpp>
+
+#define foreach BOOST_FOREACH
 
 #if defined (_WIN32)	
 	#include <windows.h>
@@ -51,7 +54,7 @@ spheremap::SolverCL::SolverCL(
 	mesh_t &ouput_mesh,
 	Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
 {
-	std::size_t n = input_mesh.vertices_size();
+	std::size_t n = input_mesh.verts_size();
 	std::size_t m = input_mesh.faces_size();
 
 	m_LocalSize = 1024;
@@ -61,27 +64,27 @@ spheremap::SolverCL::SolverCL(
 	m_Vertices = new cl_float4[n];
 	m_SVertices = new cl_float4[n];		//Output
 
-	point_t c = options.centroid_proj ? centroid( input_mesh.vertices() ) : point_t(0.0);
+	point_t c = options.centroid_proj ? centroid( input_mesh.verts() ) : point_t(0.0);
 
 	//Copy the vertices
 	std::size_t i = 0;
-	for( mesh_t::vertex_iterator_t v = input_mesh.vertices_begin(); 
-		v != input_mesh.vertices_end(); ++v, ++i )
+	
+	foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
 	{
-		//const point_t &p = (*v)->point();
-		point_t p = normalize( (*v)->point() - c );
+		point_t p = normalize( v->point() - c );
 
 		m_Vertices[i].s[0] = p.x;
 		m_Vertices[i].s[1] = p.y;
 		m_Vertices[i].s[2] = p.z;
 		m_Vertices[i].s[3] = 0.0f;
+		++i;
 	}
 
 	//Copy the neighboring information
 	for( std::size_t i = 0; i < n; i++ )
 	{
 		m_Bounds.push_back( i == 0 ? 0 : m_Bounds.back() );
-		m_Bounds.push_back( m_Bounds.back() + input_mesh.vertices()[i]->edges_size() );
+		m_Bounds.push_back( m_Bounds.back() + input_mesh.verts()[i]->edges_size() );
 	}
 
 	//std::cout << "Computing conformal weights...\n";
@@ -94,15 +97,13 @@ spheremap::SolverCL::SolverCL(
 	cl_float *nweights = m_Weights;
 
 	//Copy the neighboring information
-	for( mesh_t::vertex_iterator_t v = input_mesh.vertices_begin(); 
-		v != input_mesh.vertices_end(); ++v )
+	foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
 	{
 		std::size_t wi = 0;
-		for( mesh_t::vertex_t::vertex_iterator_t vv = (*v)->vertices_begin(); 
-			vv != (*v)->vertices_end(); ++vv)
+		foreach( mesh_t::vertex_t::vertex_ptr_t vv, v->verts() )
 		{
-			*nverts++ = (*vv)->get_id();
-			*nweights++ = (*v)->Weights[wi++];
+			*nverts++ = vv->get_id();
+			*nweights++ = v->Weights[wi++];
 		}
 	}
 	
@@ -117,11 +118,24 @@ spheremap::SolverCL::SolverCL(
 	{
 		std::string name;
 		cl::platform_info(platforms[i],CL_PLATFORM_NAME,name);
-		if( (m_Options.cpu && name.find("ATI") != string::npos) || (!m_Options.cpu && name.find("NVIDIA") != string::npos)  )
+		
+		if( (name.find("ATI") != string::npos) || (name.find("NVIDIA") != string::npos)  )
 		{
-			std::cout << "Using : " << name << '\n';
 			platform = platforms[i];
-			break;
+
+			cl_device_id device;
+			err = clGetDeviceIDs(platform, m_Options.cpu ? CL_DEVICE_TYPE_CPU : CL_DEVICE_TYPE_GPU, 1, &device, 0);
+	
+			if( err != CL_SUCCESS ) continue;
+
+			// create the OpenCL context on a GPU device
+			m_hContext = clCreateContext( 0, 1, &device, 0, 0, &err );
+	
+			if( err == CL_SUCCESS ) 
+			{
+				std::cout << "Using : " << name << '\n';
+				break;
+			}
 		}
 	}
 
@@ -130,23 +144,7 @@ spheremap::SolverCL::SolverCL(
 		std::cerr << "Error : Failed to find platform\n"; 
 		return;
 	}
-
-	cl_device_id device;
 	
-	if( m_Options.cpu )
-		clGetDeviceIDs(platform, CL_DEVICE_TYPE_CPU, 1, &device, 0);
-	else
-		clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, 0);
-
-	// create the OpenCL context on a GPU device
-	m_hContext = clCreateContext( 0, 1, &device, 0, 0, &err );
-
-	if( err != CL_SUCCESS )
-	{
-		std::cerr << "Error in clCreateContextFromType : " << err << std::endl;
-		return;
-	}
-
 	// get the list of GPU devices associated with context
 	size_t nContextDescriptorSize;
 	clGetContextInfo(m_hContext, CL_CONTEXT_DEVICES, 0, 0, &nContextDescriptorSize);
@@ -179,7 +177,7 @@ spheremap::SolverCL::SolverCL(
 
 	std::string program_source;
 	if( loadTextFile("CL/nl_laplacesolver.cl",program_source) )
-		std::cout << "OpenCL file" << " successfully loaded!" << std::endl;
+		std::cout << "OpenCL file" << " loaded" << std::endl;
 
 	const char *source = program_source.c_str();
 
@@ -251,7 +249,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 	solve_stats.success = true;
 	solve_stats.iterations = 0;
 
-	std::size_t n = m_Input.vertices_size();
+	std::size_t n = m_Input.verts_size();
 	std::size_t m = m_Input.faces_size();
 
 	cl_mem src,dst,weights,constraints,bounds,indices,tmp_res;
@@ -412,10 +410,10 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 	for( mesh_t::face_iterator_t f = m_Input.faces_begin(); f != m_Input.faces_end(); ++f )
 	{
 		std::vector< vertex_ptr_t > verts;
-		std::vector< vertex_ptr_t > indices((*f)->vertices_begin(),(*f)->vertices_end());
+		std::vector< vertex_ptr_t > indices((*f)->verts_begin(),(*f)->verts_end());
 
 		for( std::size_t i = 0 ; i < indices.size(); ++i )
-			verts.push_back( m_Output.vertices()[ indices[i]->get_id() ] );
+			verts.push_back( m_Output.verts()[ indices[i]->get_id() ] );
 
 		m_Output.add_face( face_ptr_t( new face_t(verts.begin(),verts.end()) ) );
 	}
@@ -428,20 +426,17 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 void spheremap::SolverCL::compute_weights()
 {
 	//Compute Conformal or Barycentric weights for all the edges
-	for( mesh_t::edge_iterator_t e = m_Input.edges_begin();
-		e != m_Input.edges_end(); ++e )
+	foreach( mesh_t::edge_ptr_t e, m_Input.edges() )
 	{
-		std::vector< vertex_ptr_t > verts((*e)->vertices_begin(),(*e)->vertices_end());
+		std::vector< vertex_ptr_t > verts(e->verts_begin(),e->verts_end());
 
 		//Find the two oposing vertices
-		for( edge_t::face_iterator_t ef = (*e)->faces_begin(); 
-			ef != (*e)->faces_end(); ++ef )
+		foreach( mesh_t::face_ptr_t ef, e->faces() )
 		{
-			for( face_t::vertex_iterator_t efv = (*ef)->vertices_begin();
-				efv != (*ef)->vertices_end(); ++efv )
+			foreach( mesh_t::vertex_ptr_t efv, ef->verts() )
 			{
-				if( *efv != verts[0] && *efv != verts[1] )
-					verts.push_back(*efv);
+				if( efv != verts[0] && efv != verts[1] )
+					verts.push_back(efv);
 			}
 		}
 
@@ -473,14 +468,13 @@ void spheremap::SolverCL::compute_weights()
 	}
 
 	//Normalize the weights of all the vertices
-	for( mesh_t::vertex_iterator_t v = m_Input.vertices_begin();
-		v != m_Input.vertices_end(); ++v )
+	foreach( mesh_t::vertex_ptr_t v, m_Input.verts() )
 	{
 		float sum = 0.0;
-		for( std::size_t j = 0; j < (*v)->Weights.size(); ++j )
-			sum += (*v)->Weights[j];
+		for( std::size_t j = 0; j < v->Weights.size(); ++j )
+			sum += v->Weights[j];
 
-		for( std::size_t j = 0; j < (*v)->Weights.size(); ++j )
-			(*v)->Weights[j] /= sum;
+		for( std::size_t j = 0; j < v->Weights.size(); ++j )
+			v->Weights[j] /= sum;
 	}
 }

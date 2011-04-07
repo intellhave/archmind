@@ -54,8 +54,8 @@ struct Stl
             Stream << "  facet normal " << (*f)->normal() << "\n";
             Stream << "    outer loop\n";
 
-            for( mesh_t::face_t::vertex_iterator_t v = (*f)->vertices_begin();
-                v != (*f)->vertices_end(); ++v )
+            for( mesh_t::face_t::vertex_iterator_t v = (*f)->verts_begin();
+                v != (*f)->verts_end(); ++v )
                 Stream << "      vertex " << (*v)->point() << "\n";
 
             Stream << "    endloop\n";

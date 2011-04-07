@@ -33,13 +33,10 @@ int main(int argc, char *argv[])
 		"Parallel Computation of Spherical Parameterizations for Mesh Analysis\n" <<
 	    "Copyright (C) 2011 Athanasiadis Theodoros and Fudos Ioannis\n\n";
 
-	if( argc < 2 ) 
-	{
-		std::cout << "Type : " << argv[0] << " --help for a list of options\n";
+	cmdline_map_t cmd_args;
+	
+	if( !parseCommandLine(argc,argv,cmd_args) ) 
 		return 1;
-	}
-
-	cmdline_map_t cmd_args = parseCommandLine(argc,argv);
 
 	mesh_t input_mesh;
 	mesh_t output_mesh;

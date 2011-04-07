@@ -29,19 +29,17 @@ namespace spheremap
 
 typedef boost::program_options::variables_map cmdline_map_t;
 
-cmdline_map_t parseCommandLine(int argc, char **argv)
+bool parseCommandLine(int argc, char **argv, cmdline_map_t &vm)
 {
 	using namespace boost::program_options;
 	using namespace std;
-
-	variables_map vm;
 
 	//Set the available options
 	options_description desc("Allowed Command Line Arguments");
 		desc.add_options()
 			("help", "produce help message")
-			("source", value<string>()->default_value(""), "source model file")
-			("target", value<string>()->default_value(""), "target model file")
+			("source", value<string>(), "source model file")
+			("target", value<string>(), "target model file")
 			("max_iters", value<int>()->default_value(100), "max iterations")
 			("weights", value<string>()->default_value("tutte"), "type of weights (tutte,conformal)")
 			("cpu", value<int>()->default_value(0), "set to 1 to run the solver on the cpu")
@@ -57,14 +55,26 @@ cmdline_map_t parseCommandLine(int argc, char **argv)
 		notify(vm);
 
 		if(vm.count("help"))
+		{
 			cout << desc << endl;		//output help
+			return false;
+		}
 	}
 	catch(exception &e)
 	{
-		cerr << "parseCommandLine : " << e.what() << endl;
+		cerr << e.what() << endl;
+		return false;
 	}
 
-	return vm;
+	if( vm.count("source") && vm.count("target") )
+	{
+		return true;
+	}
+	else
+	{
+		std::cout << "Type : " << argv[0] << " --help for a list of options\n";
+		return false;
+	}
 }
 
 }

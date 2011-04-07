@@ -72,13 +72,13 @@ typename vertex<Traits>::edge_iterator_t vertex<Traits>::edges_end()const
 }
 
 template<typename Traits>
-typename vertex<Traits>::vertex_iterator_t vertex<Traits>::vertices_begin()const
+typename vertex<Traits>::vertex_iterator_t vertex<Traits>::verts_begin()const
 {
     return vertex_iterator_t( Edges.begin(), unique_id() );
 }
 
 template<typename Traits>
-typename vertex<Traits>::vertex_iterator_t vertex<Traits>::vertices_end()const
+typename vertex<Traits>::vertex_iterator_t vertex<Traits>::verts_end()const
 {
     return vertex_iterator_t( Edges.end(), NO_ID );
 }
@@ -90,20 +90,20 @@ std::size_t vertex<Traits>::edges_size()const
 }
 
 template<typename Traits>
-std::size_t vertex<Traits>::vertices_size()const
+std::size_t vertex<Traits>::verts_size()const
 {
     std::size_t count = 0;
     
-    for( vertex_iterator_t v = vertices_begin(); v != vertices_end(); ++v )
+    for( vertex_iterator_t v = verts_begin(); v != verts_end(); ++v )
         ++count;
 
     return count;
 }
 
 template<typename Traits>
-typename vertex<Traits>::vertex_range_t vertex<Traits>::vertices()const
+typename vertex<Traits>::vertex_range_t vertex<Traits>::verts()const
 {
-    return vertex_range_t( vertices_begin(), vertices_end() );
+    return vertex_range_t( verts_begin(), verts_end() );
 }
 
 template<typename Traits>
@@ -205,27 +205,27 @@ uid_t edge<Traits>::unique_id()const
 }
 
 template<typename Traits>
-typename edge<Traits>::vertex_iterator_t edge<Traits>::vertices_begin()const
+typename edge<Traits>::vertex_iterator_t edge<Traits>::verts_begin()const
 {
     return Vertices.begin();
 }
 
 template<typename Traits>
-typename edge<Traits>::vertex_iterator_t edge<Traits>::vertices_end()const
+typename edge<Traits>::vertex_iterator_t edge<Traits>::verts_end()const
 {
     return Vertices.end();
 }
 
 template<typename Traits>
-std::size_t edge<Traits>::vertices_size()const
+std::size_t edge<Traits>::verts_size()const
 {
     return Vertices.size();
 }
 
 template<typename Traits>
-typename edge<Traits>::vertex_range_t edge<Traits>::vertices()const
+typename edge<Traits>::vertex_range_t edge<Traits>::verts()const
 {
-    return vertex_range_t( vertices_begin(), vertices_end() );
+    return vertex_range_t( verts_begin(), verts_end() );
 }
 
 template<typename Traits>
@@ -238,6 +238,12 @@ template<typename Traits>
 typename edge<Traits>::vertex_ptr_t edge<Traits>::vertices_back()const
 {
     return Vertices[1];
+}
+
+template<typename Traits>
+typename edge<Traits>::face_range_t edge<Traits>::faces()const
+{
+	return face_range_t( faces_begin(), faces_end() );
 }
 
 template<typename Traits>
@@ -291,13 +297,13 @@ face<Traits>::~face()
 template<typename Traits>
 typename face<Traits>::point_iterator_t face<Traits>::points_begin()const
 {
-    return point_iterator_t( vertices_begin() );
+    return point_iterator_t( verts_begin() );
 }
 
 template<typename Traits>
 typename face<Traits>::point_iterator_t face<Traits>::points_end()const
 {
-    return point_iterator_t( vertices_end() );
+    return point_iterator_t( verts_end() );
 }
 
 template<typename Traits>
@@ -313,27 +319,27 @@ typename face<Traits>::point_range_t face<Traits>::points()const
 }
 
 template<typename Traits>
-typename face<Traits>::vertex_iterator_t face<Traits>::vertices_begin()const
+typename face<Traits>::vertex_iterator_t face<Traits>::verts_begin()const
 {
     return vertex_iterator_t( Edges.begin(), EdgesOrientation);
 }
 
 template<typename Traits>
-typename face<Traits>::vertex_iterator_t face<Traits>::vertices_end()const
+typename face<Traits>::vertex_iterator_t face<Traits>::verts_end()const
 {
     return vertex_iterator_t( Edges.end(), EdgesOrientation );
 }
 
 template<typename Traits>
-std::size_t face<Traits>::vertices_size()const
+std::size_t face<Traits>::verts_size()const
 {
     return Edges.size();
 }
 
 template<typename Traits>
-typename face<Traits>::vertex_range_t face<Traits>::vertices()const
+typename face<Traits>::vertex_range_t face<Traits>::verts()const
 {
-    return vertex_range_t( vertices_begin(), vertices_end() );
+    return vertex_range_t( verts_begin(), verts_end() );
 }
 
 template<typename Traits>
@@ -399,23 +405,23 @@ typename face<Traits>::point_t face<Traits>::normal()const
 {
 
     //return math::normal( 
-        //Edges[0]->vertices()[EdgesOrientation[0] ? 0 : 1]->point(),
-        //Edges[1]->vertices()[EdgesOrientation[1] ? 0 : 1]->point(),
-        //Edges[2]->vertices()[EdgesOrientation[2] ? 0 : 1]->point());
+        //Edges[0]->verts()[EdgesOrientation[0] ? 0 : 1]->point(),
+        //Edges[1]->verts()[EdgesOrientation[1] ? 0 : 1]->point(),
+        //Edges[2]->verts()[EdgesOrientation[2] ? 0 : 1]->point());
 
-    point_t v0 = Edges[0]->vertices()[EdgesOrientation[0]]->point();
+    point_t v0 = Edges[0]->verts()[EdgesOrientation[0]]->point();
 
     //calculate N = E1 x E0
     point_t n = 
         math::cross( 
-        Edges[2]->vertices()[EdgesOrientation[2]]->point() - v0, 
-        Edges[1]->vertices()[EdgesOrientation[1]]->point() - v0 );
+        Edges[2]->verts()[EdgesOrientation[2]]->point() - v0, 
+        Edges[1]->verts()[EdgesOrientation[1]]->point() - v0 );
 
     //for n-gons, n > 3 use the other points too
     for( std::size_t i = 2; (i+1) < Edges.size(); ++i )
         n += math::cross( 
-            Edges[i+1]->vertices()[EdgesOrientation[i+1]]->point() - v0, 
-            Edges[i]->vertices()[EdgesOrientation[i]]->point() - v0 );
+            Edges[i+1]->verts()[EdgesOrientation[i+1]]->point() - v0, 
+            Edges[i]->verts()[EdgesOrientation[i]]->point() - v0 );
 
     return normalize( n );
 }

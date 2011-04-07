@@ -76,12 +76,12 @@ public:
     mesh();
     ~mesh();
 
-    vertex_range_t vertices()const;
+    vertex_range_t verts()const;
 
-    vertex_iterator_t vertices_begin()const;
-    vertex_iterator_t vertices_end()const;
+    vertex_iterator_t verts_begin()const;
+    vertex_iterator_t verts_end()const;
 
-    std::size_t vertices_size()const;
+    std::size_t verts_size()const;
     
     edge_range_t edges()const;
 
@@ -228,12 +228,12 @@ public:
     
     std::size_t points_size()const;
 
-    vertex_range_t vertices()const;
+    vertex_range_t verts()const;
     
-    vertex_iterator_t vertices_begin()const;
-    vertex_iterator_t vertices_end()const;
+    vertex_iterator_t verts_begin()const;
+    vertex_iterator_t verts_end()const;
 
-    std::size_t vertices_size()const;
+    std::size_t verts_size()const;
 
     edge_iterator_t edges_begin()const;
     edge_iterator_t edges_end()const;
@@ -293,7 +293,7 @@ private:
         {
             Edges[i] = edge_ptr_t(new edge_t(verts[i],verts[(i+1)%verts.size()]));
 
-            if( Edges[i]->vertices()[0] == verts[i] )
+            if( Edges[i]->verts()[0] == verts[i] )
                 EdgesOrientation[i] = true;
         }
     }
@@ -333,15 +333,17 @@ public:
     edge(vertex_ptr_t v0, vertex_ptr_t v1);
     ~edge();
 
-    vertex_range_t vertices()const;
+    vertex_range_t verts()const;
 
     vertex_ptr_t vertices_front()const;
     vertex_ptr_t vertices_back()const;
 
-    vertex_iterator_t vertices_begin()const;
-    vertex_iterator_t vertices_end()const;
+    vertex_iterator_t verts_begin()const;
+    vertex_iterator_t verts_end()const;
 
-    std::size_t vertices_size()const;
+    std::size_t verts_size()const;
+
+	face_range_t faces()const;
 
     face_iterator_t faces_begin()const;
     face_iterator_t faces_end()const;
@@ -401,12 +403,12 @@ public:
     vertex(const math::vector3<real_t> &co);
     vertex(const real_t &x, const real_t &y, const real_t &z);
 
-    vertex_range_t vertices()const;
+    vertex_range_t verts()const;
 
-    vertex_iterator_t vertices_begin()const;
-    vertex_iterator_t vertices_end()const;
+    vertex_iterator_t verts_begin()const;
+    vertex_iterator_t verts_end()const;
 
-    std::size_t vertices_size()const;
+    std::size_t verts_size()const;
 
     edge_iterator_t edges_begin()const;
     edge_iterator_t edges_end()const;

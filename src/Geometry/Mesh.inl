@@ -41,32 +41,32 @@ mesh<Traits>::~mesh()
         (*e)->Vertices[0] = (*e)->Vertices[1] = vertex_ptr_t();
     }
 
-    for( vertex_iterator_t v = vertices_begin(); v != vertices_end(); ++v )
+    for( vertex_iterator_t v = verts_begin(); v != verts_end(); ++v )
         (*v)->Edges.clear();
         
 }
 
 //Iterators
 template<typename Traits>
-typename mesh<Traits>::vertex_iterator_t mesh<Traits>::vertices_begin()const
+typename mesh<Traits>::vertex_iterator_t mesh<Traits>::verts_begin()const
 {
     return Vertices.begin();
 }
 
 template<typename Traits>
-typename mesh<Traits>::vertex_iterator_t mesh<Traits>::vertices_end()const
+typename mesh<Traits>::vertex_iterator_t mesh<Traits>::verts_end()const
 {
     return Vertices.end();
 }
 
 template<typename Traits>
-typename mesh<Traits>::vertex_range_t mesh<Traits>::vertices()const
+typename mesh<Traits>::vertex_range_t mesh<Traits>::verts()const
 {
     return vertex_range_t(Vertices.begin(), Vertices.end());
 }
 
 template<typename Traits>
-std::size_t mesh<Traits>::vertices_size()const
+std::size_t mesh<Traits>::verts_size()const
 {
     return Vertices.size();
 }
@@ -148,7 +148,7 @@ bool mesh<Traits>::remove_edge( edge_ptr_t e )
         typename edge_t::vertex_iterator_t v;
 
         //remove the references from the vertices
-        for( v = e->vertices_begin(); v != e->vertices_end(); ++v )
+        for( v = e->verts_begin(); v != e->verts_end(); ++v )
         {
             for( std::size_t i = 0; i < (*v)->Edges.size(); )
                 if( (*v)->Edges[i] == e )
@@ -282,15 +282,15 @@ uid_t mesh<Traits>::add_face( face_ptr_t f )
     std::size_t e_id = 0;
 
     //Insert the polygon vertices
-    for( v = f->vertices_begin(); v != f->vertices_end(); ++e_id, ++v )
+    for( v = f->verts_begin(); v != f->verts_end(); ++e_id, ++v )
     {
         add_vertex( *v );
 
         //Check if we add a new edge or reference an old one
         for( ev = (*v)->edges_begin(); ev != (*v)->edges_end(); ++ev )
         {
-            if( (*ev)->vertices()[0] == f->Edges[e_id]->vertices()[0] &&
-                (*ev)->vertices()[1] == f->Edges[e_id]->vertices()[1] )
+            if( (*ev)->verts()[0] == f->Edges[e_id]->verts()[0] &&
+                (*ev)->verts()[1] == f->Edges[e_id]->verts()[1] )
             {
                 f->Edges[e_id] = *ev;       //assign the correct edge
                 (*ev)->Faces.push_back( f );        //add a reference to the new face
@@ -328,10 +328,10 @@ typename mesh<Traits>::vertex_ptr_t
 mesh<Traits>::split_edge( edge_ptr_t e, real_t t, bool triangulate )
 {
     if( e->get_id() == NO_ID )      //check if this edge is part of the mesh
-        return e->vertices()[0];
+        return e->verts()[0];
 
-    typename vertex_t::point_t v0 = e->vertices()[0]->point();      //edge first point
-    typename vertex_t::point_t v1 = e->vertices()[1]->point();      //edge second point
+    typename vertex_t::point_t v0 = e->verts()[0]->point();      //edge first point
+    typename vertex_t::point_t v1 = e->verts()[1]->point();      //edge second point
 
     vertex_ptr_t sv( new vertex_t(v0 + (v1 - v0) * t) );
 
@@ -346,7 +346,7 @@ mesh<Traits>::split_edge( edge_ptr_t e, real_t t, bool triangulate )
         if( !triangulate )
         {
             //copy old poly vertices
-            std::vector< vertex_ptr_t > verts( faces[i]->vertices_begin(), faces[i]->vertices_end() );
+            std::vector< vertex_ptr_t > verts( faces[i]->verts_begin(), faces[i]->verts_end() );
     
             //find the edge position on the face
             std::size_t pos = std::distance( 
@@ -372,14 +372,14 @@ mesh<Traits>::split_edge( edge_ptr_t e, real_t t, bool triangulate )
                 {
                     if( faces[i]->edge_cw( *ei ) )
                     {
-                        verts[0] = (*ei)->vertices()[0];
-                        verts[1] = (*ei)->vertices()[1];
+                        verts[0] = (*ei)->verts()[0];
+                        verts[1] = (*ei)->verts()[1];
                         verts[2] = sv; 
                     }
                     else
                     {
-                        verts[0] = (*ei)->vertices()[1];
-                        verts[1] = (*ei)->vertices()[0];
+                        verts[0] = (*ei)->verts()[1];
+                        verts[1] = (*ei)->verts()[0];
                         verts[2] = sv; 
                     }
                  
@@ -406,7 +406,7 @@ bool mesh<Traits>::join_edge( edge_ptr_t e, vertex_ptr_t v )
         return false;
 
     //store the other vertex of the edge
-    vertex_ptr_t ov = (e->vertices()[0] == v) ? e->vertices()[1] : e->vertices()[0];
+    vertex_ptr_t ov = (e->verts()[0] == v) ? e->verts()[1] : e->verts()[0];
 
     //keep a copy of old edges faces
     std::vector< face_ptr_t > e_faces( e->faces_begin(), e->faces_end() );
@@ -419,7 +419,7 @@ bool mesh<Traits>::join_edge( edge_ptr_t e, vertex_ptr_t v )
         {
             //build a new face with the new vertex instead of the old one
             std::vector< vertex_ptr_t > verts;
-            for( typename face_t::vertex_iterator_t vi = v_faces[i]->vertices_begin(); vi != v_faces[i]->vertices_end(); ++vi )
+            for( typename face_t::vertex_iterator_t vi = v_faces[i]->verts_begin(); vi != v_faces[i]->verts_end(); ++vi )
                 verts.push_back( (*vi == ov) ? v : *vi ); 
 
             //face_ptr_t nf(new face_t( *v_faces[i] ));
@@ -443,7 +443,7 @@ mesh<Traits>::split_face( face_ptr_t f, vertex_ptr_t v0, vertex_ptr_t v1 )
         //return a dummy edge
         return edge_ptr_t( new edge_t(v0,v1) );
 
-    std::vector< vertex_ptr_t > verts( f->vertices_begin(), f->vertices_end() );
+    std::vector< vertex_ptr_t > verts( f->verts_begin(), f->verts_end() );
     std::vector< vertex_ptr_t > poly0;
     std::vector< vertex_ptr_t > poly1;
     std::size_t pos0 = 0, pos1 = 0, i;
@@ -474,7 +474,7 @@ mesh<Traits>::split_face( face_ptr_t f, vertex_ptr_t v0, vertex_ptr_t v1 )
 
 #ifndef NDEBUG
     using std::abs;
-    if( nf0->vertices_size() < 3 || nf1->vertices_size() < 3 )
+    if( nf0->verts_size() < 3 || nf1->verts_size() < 3 )
         std::clog << "split_face : warning : degenerated face created\n";
 #endif
 
@@ -492,8 +492,8 @@ mesh<Traits>::join_face( face_ptr_t f0, face_ptr_t f1 )
     using std::abs;
 
     //copy the vertices of both faces
-    std::vector< vertex_ptr_t > verts0(f0->vertices_begin(),f0->vertices_end());
-    std::vector< vertex_ptr_t > verts1(f1->vertices_begin(),f1->vertices_end());
+    std::vector< vertex_ptr_t > verts0(f0->verts_begin(),f0->verts_end());
+    std::vector< vertex_ptr_t > verts1(f1->verts_begin(),f1->verts_end());
     std::deque< vertex_ptr_t > diff_verts;
 
     typedef std::pair< std::size_t, std::size_t > v_t;

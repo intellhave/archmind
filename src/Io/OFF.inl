@@ -139,9 +139,9 @@ bool OFF<mesh_t>::read(const std::string &filename, mesh_t &mesh)
                 {            
                     idx = lexical_cast<int>(tokens[i+1]);               
                     
-                    assert( idx < mesh.vertices_size() );
+                    assert( idx < mesh.verts_size() );
                    
-                    vertices.push_back( mesh.vertices()[idx] );                                  
+                    vertices.push_back( mesh.verts()[idx] );                                  
                 }
             }
             catch(bad_lexical_cast &)
@@ -177,16 +177,16 @@ bool OFF<mesh_t>::write(const std::string &filename, mesh_t &mesh)
 
     Stream << "#Exported from Archmind\n";
 
-    Stream << mesh.vertices_size() << " " << mesh.faces_size() << " " << mesh.edges_size() << "\n";
+    Stream << mesh.verts_size() << " " << mesh.faces_size() << " " << mesh.edges_size() << "\n";
 
-    for( typename mesh_t::vertex_iterator_t v = mesh.vertices_begin(); v != mesh.vertices_end(); ++v )
+    for( typename mesh_t::vertex_iterator_t v = mesh.verts_begin(); v != mesh.verts_end(); ++v )
         Stream << (*v)->point() << "\n";
 
     for( typename mesh_t::face_iterator_t f = mesh.faces_begin(); f != mesh.faces_end(); ++f )
     {     
-        Stream << (*f)->vertices_size() << " ";
+        Stream << (*f)->verts_size() << " ";
        
-        for( typename mesh_t::face_t::vertex_iterator_t fv = (*f)->vertices_begin(); fv != (*f)->vertices_end(); ++fv )
+        for( typename mesh_t::face_t::vertex_iterator_t fv = (*f)->verts_begin(); fv != (*f)->verts_end(); ++fv )
             Stream << " " << (*fv)->get_id();
      
         Stream << "\n";       
