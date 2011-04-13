@@ -24,8 +24,6 @@
 #include <vector>
 #include <boost/foreach.hpp>
 
-#define foreach BOOST_FOREACH
-
 #if defined (_WIN32)	
 	#include <windows.h>
 	#include <mmsystem.h>
@@ -43,6 +41,8 @@
 
 	#define timeGetTime() (get_ticks())
 #endif
+
+#define foreach BOOST_FOREACH
 
 using namespace std;
 using namespace arch::math;
@@ -87,7 +87,6 @@ spheremap::SolverCL::SolverCL(
 		m_Bounds.push_back( m_Bounds.back() + input_mesh.verts()[i]->edges_size() );
 	}
 
-	//std::cout << "Computing conformal weights...\n";
 	compute_weights();
 
 	m_NVertices = new cl_uint[m_Bounds.back()];

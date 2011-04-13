@@ -34,7 +34,6 @@ struct sphere_vertex : arch::geometry::vertex<Traits>
 	sphere_vertex(const point_t &co) : vertex<Traits>(co) {}
 	sphere_vertex(const real_t &x, const real_t &y, const real_t &z) : vertex<Traits>(x,y,z) {}
 
-	//Extend the class to also hold vertex weights
 	std::vector< float > Weights;
 };
 
