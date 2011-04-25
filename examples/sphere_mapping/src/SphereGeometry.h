@@ -31,8 +31,11 @@ namespace spheremap
 template<typename Traits>
 struct sphere_vertex : arch::geometry::vertex<Traits>
 {
-	sphere_vertex(const point_t &co) : vertex<Traits>(co) {}
-	sphere_vertex(const real_t &x, const real_t &y, const real_t &z) : vertex<Traits>(x,y,z) {}
+    typedef typename Traits::point_t point_t;
+    typedef typename Traits::real_t real_t;
+
+	sphere_vertex(const point_t &co) : arch::geometry::vertex<Traits>(co) {}
+	sphere_vertex(const real_t &x, const real_t &y, const real_t &z) : arch::geometry::vertex<Traits>(x,y,z) {}
 
 	std::vector< float > Weights;
 };

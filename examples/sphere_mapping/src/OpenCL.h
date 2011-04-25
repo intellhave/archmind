@@ -23,6 +23,7 @@
 #define OPENCL_HEADER_H
 
 #include <string>
+#include <iostream>
 #include <CL/cl.h>
 
 namespace cl

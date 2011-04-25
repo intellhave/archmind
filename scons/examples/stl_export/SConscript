@@ -1,0 +1,11 @@
+Import('*')
+
+List = [
+Glob('../../../examples/cpp/stl_export.cpp')
+]
+
+Obj = env.Object(List)
+Return('Obj')
+
+
+

@@ -34,7 +34,6 @@
 #include <boost/array.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/range/iterator_range.hpp>
-#include "../Math/Vector.h"
 
 namespace arch
 {
@@ -51,7 +50,7 @@ public:
     typedef typename Traits::mesh_ptr_t mesh_ptr_t;
 
     typedef typename Traits::real_t real_t; 
-    typedef typename math::vector3<real_t> point_t;
+    typedef typename Traits::point_t point_t;
 
     typedef typename Traits::vertex_t vertex_t;
     typedef typename Traits::edge_t edge_t;
@@ -198,7 +197,7 @@ class face
 {
 public:
     typedef typename Traits::real_t real_t;
-    typedef typename math::vector3<real_t> point_t;
+    typedef typename Traits::point_t point_t;
 
     typedef typename Traits::vertex_t vertex_t;
     typedef typename Traits::edge_t edge_t;
@@ -309,7 +308,7 @@ class edge
 {
 public:
     typedef typename Traits::real_t real_t;
-    typedef typename math::vector3<real_t> point_t;
+    typedef typename Traits::point_t point_t;
     
     typedef typename Traits::vertex_t vertex_t;
     typedef typename Traits::edge_t edge_t;
@@ -374,7 +373,7 @@ class vertex
 {
 public:
     typedef typename Traits::real_t real_t;
-    typedef typename math::vector3<real_t> point_t;
+    typedef typename Traits::point_t point_t;
     
     typedef typename Traits::vertex_t vertex_t;
     typedef typename Traits::edge_t edge_t;
@@ -400,7 +399,7 @@ public:
 
     vertex();
     ~vertex();
-    vertex(const math::vector3<real_t> &co);
+    vertex(const point_t &co);
     vertex(const real_t &x, const real_t &y, const real_t &z);
 
     vertex_range_t verts()const;

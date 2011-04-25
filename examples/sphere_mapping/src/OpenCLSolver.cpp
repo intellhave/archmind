@@ -55,7 +55,6 @@ spheremap::SolverCL::SolverCL(
 	Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
 {
 	std::size_t n = input_mesh.verts_size();
-	std::size_t m = input_mesh.faces_size();
 
 	m_LocalSize = 1024;
 	m_GlobalSize = cl::roundUp(m_LocalSize,n);
@@ -112,6 +111,7 @@ spheremap::SolverCL::SolverCL(
 	std::vector< cl_platform_id > platforms;
 
 	cl::get_platforms(platforms);
+    bool valid_platform = false;
 
 	for( std::size_t i = 0; i < platforms.size(); ++i )
 	{
@@ -133,16 +133,14 @@ spheremap::SolverCL::SolverCL(
 			if( err == CL_SUCCESS ) 
 			{
 				std::cout << "Using : " << name << '\n';
+                valid_platform = true;
 				break;
 			}
 		}
 	}
 
-	if( platform == NULL )
-	{	
-		std::cerr << "Error : Failed to find platform\n"; 
-		return;
-	}
+	if( !valid_platform )
+        throw std::runtime_error("Failed to find platform\n");
 	
 	// get the list of GPU devices associated with context
 	size_t nContextDescriptorSize;
@@ -185,8 +183,7 @@ spheremap::SolverCL::SolverCL(
 
 	if( err != CL_SUCCESS )
 	{
-		std::cerr << "Error in clCreateProgramWithSource!" << std::endl;
-		return;
+        throw std::runtime_error("Error in clCreateProgramWithSource!");
 	}
 
 	// build the program
@@ -194,9 +191,8 @@ spheremap::SolverCL::SolverCL(
 
 	if( err != CL_SUCCESS )
 	{
-		std::cerr << "Error in clBuildProgram!" << std::endl;
 		std::cerr << cl::buildlog(m_Program,aDevices[0]) << std::endl;
-		return;
+        throw std::runtime_error("Error in clBuildProgram!");
 	}
 
 	if( m_Options.weights == 0 )
@@ -248,8 +244,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 	solve_stats.success = true;
 	solve_stats.iterations = 0;
 
-	std::size_t n = m_Input.verts_size();
-	std::size_t m = m_Input.faces_size();
+	cl_int n = m_Input.verts_size();
 
 	cl_mem src,dst,weights,constraints,bounds,indices,tmp_res;
 
@@ -267,7 +262,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 	err |= clSetKernelArg(m_Kernel, 2, sizeof(cl_mem), (void *)&bounds );
 	err |= clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&indices );
 	err |= clSetKernelArg(m_Kernel, 4, sizeof(cl_mem), (void *)&dst );
-	err |= clSetKernelArg(m_Kernel, 5, sizeof(size_t), &n );
+	err |= clSetKernelArg(m_Kernel, 5, sizeof(cl_int), &n );
 
 	if( m_Options.weights == 1 )	//conformal weights
 		err |= clSetKernelArg(m_Kernel, 6, sizeof(cl_mem), (void *)&weights );
@@ -277,15 +272,15 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 	err |= clSetKernelArg(m_KernelSPConvergence, 2, sizeof(cl_mem), (void *)&bounds );
 	err |= clSetKernelArg(m_KernelSPConvergence, 3, sizeof(cl_mem), (void *)&indices );
 	err |= clSetKernelArg(m_KernelSPConvergence, 4, sizeof(cl_mem), (void *)&dst );
-	err |= clSetKernelArg(m_KernelSPConvergence, 5, sizeof(size_t), &n );
+	err |= clSetKernelArg(m_KernelSPConvergence, 5, sizeof(cl_int), &n );
 	err |= clSetKernelArg(m_KernelSPConvergence, 6, sizeof(cl_mem), (void *)&tmp_res );
-
+    
 	if( m_Options.weights == 1 )	//conformal weights
 		err |= clSetKernelArg(m_KernelSPConvergence, 7, sizeof(cl_mem), (void *)&weights );
 	
 	err |= clSetKernelArg(m_KernelConvergence, 1, sizeof(cl_mem), (void *)&bounds );
 	err |= clSetKernelArg(m_KernelConvergence, 2, sizeof(cl_mem), (void *)&indices );
-	err |= clSetKernelArg(m_KernelConvergence, 3, sizeof(size_t), &n );
+	err |= clSetKernelArg(m_KernelConvergence, 3, sizeof(cl_int), &n );
 	err |= clSetKernelArg(m_KernelConvergence, 4, sizeof(cl_mem), (void *)&tmp_res );
 
 	if(  m_Options.weights == 1 )
@@ -301,11 +296,11 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 	cl_float res, linear_res;
 	std::size_t one = 1;
 
-	for( int i = 0; i < m_Options.max_iters; ++i )
+	for( std::size_t i = 0; i < m_Options.max_iters; ++i )
 	{
 		solve_stats.iterations++;
 
-		for( int j = 1; j < m_Options.max_sp_iters; ++j )
+		for( std::size_t j = 1; j < m_Options.max_sp_iters; ++j )
 		{
 			// execute the normal kernel
 			if( j % 1000 != 0 )
@@ -340,7 +335,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 				clSetKernelArg(m_Kernel, 4, sizeof(cl_mem), (void *)&dst );
 
 				//Finally compute the residual (Lmax)
-				clSetKernelArg(m_KernelSRes, 0, sizeof(size_t), &n );
+				clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
 				clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
 				clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &m_Memobjs.back());
 
@@ -362,7 +357,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 
 		//Normalize the solution and update the constraints
 		clSetKernelArg(m_KernelNormalize, 0, sizeof(cl_mem), (void *)&src);			//vertices
-		clSetKernelArg(m_KernelNormalize, 1, sizeof(size_t), (void *)&n);			//vertices
+		clSetKernelArg(m_KernelNormalize, 1, sizeof(cl_int), (void *)&n);			//vertices
 		clSetKernelArg(m_KernelNormalize, 2, sizeof(cl_mem), (void *)&constraints);	//constraints
 		clSetKernelArg(m_KernelNormalize, 3, sizeof(cl_mem), (void *)&dst);			//vertices
 
@@ -377,7 +372,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 		err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelConvergence, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
 
 		//Finally compute the residual (L2)
-		clSetKernelArg(m_KernelRes, 0, sizeof(size_t), &n );
+		clSetKernelArg(m_KernelRes, 0, sizeof(cl_int), &n );
 		clSetKernelArg(m_KernelRes, 1, sizeof(cl_mem), &tmp_res );
 		clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &m_Memobjs.back());
 		

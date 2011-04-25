@@ -1,0 +1,11 @@
+Import('*')
+
+List = [
+Glob('../../../examples/cpp/smooth.cpp')
+]
+
+Obj = env.Object(List)
+Return('Obj')
+
+
+

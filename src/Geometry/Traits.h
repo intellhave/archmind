@@ -23,6 +23,7 @@
 #define GEOMETRY_TRAITS_H
 
 #include <boost/shared_ptr.hpp>
+#include "../Math/Vector.h"
 
 namespace arch
 {
@@ -48,6 +49,8 @@ template<
 struct traits
 {
     typedef Real real_t;
+
+    typedef math::vector3<real_t> point_t;
 
     typedef Mesh mesh_t;
     typedef Face face_t;

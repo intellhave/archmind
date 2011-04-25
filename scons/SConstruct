@@ -7,13 +7,14 @@ SetOption('num_jobs', num_cpu+1)
 vars = Variables()
 vars.Add('puthonlib', 'Set to 1 to build a python lib', 0)
 vars.Add('debug', 'Set to 1 to build for debug', 0)
+vars.Add('examples', 'Set to 1 to build the examples', 0)
 
 env = Environment( 
           variables = vars,
           SHLIBPREFIX = '', #do not prefix the library with lib
           LIBS = Split('boost_python python2.6'),
           LIBPATH = Split('#/lib /usr/lib'),
-          CPPPATH = Split('#/include /usr/include /usr/include/python2.6'),
+          CPPPATH = Split('#../src/ /usr/include /usr/include/python2.6'),
         )
 
 #Generate help for the options
@@ -21,6 +22,7 @@ Help(vars.GenerateHelpText(env))
 
 pythonlib = ARGUMENTS.get('pythonlib',0)    
 debug = ARGUMENTS.get('debug',0)
+examples = ARGUMENTS.get('examples',0)
 
 Export('pythonlib')
 
@@ -36,15 +38,41 @@ else:
     env.Append(CPPFLAGS = Split('-Wall -DNDEBUG -O3 -msse -msse2'))
 
 #add modules from respective files   
-objs = []
-
 
 if pythonlib:
+    objs = []
     objs.append(SConscript('../src/Python/SConscript', exports='env'))
     env.SharedLibrary(target = './Lib/archmind',source = objs)
 else:
+    objs = []
     objs.append(SConscript('../src/App/SConscript', exports='env'))
     objs.append(SConscript('../src/Python/SConscript', exports='env'))
-    env.Program(target = './Release/app',source = objs)
+    env.Program(target = 'app',source = objs)
+    
+    if examples:
+        #smoothing example
+        objs = []
+        objs.append(SConscript('./examples/smooth/SConscript', exports='env'))
+        env.Program(target = 'smooth',source = objs)
+       
+        #tetra example 
+        objs = []
+        objs.append(SConscript('./examples/tetra/SConscript', exports='env'))
+        env.Program(target = 'tetra',source = objs)
+
+        #stl export example
+        objs = []
+        objs.append(SConscript('./examples/stl_export/SConscript', exports='env'))
+        env.Program(target = 'stl_export',source = objs)
+
+        #sphere mapping example
+        objs = []
+        objs.append(SConscript('./examples/sphere_mapping/SConscript', exports='env'))
+        env.Append(CPPPATH = '#../examples/sphere_mapping/include')
+        env.Append(LIBS = Split('OpenCL boost_program_options'))
+        env.Program(target = 'sphere_map',source = objs)
+
+        
+
 
 

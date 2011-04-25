@@ -48,13 +48,13 @@ struct Stl
         }
 
         Stream << "solid Archmind\n";
-        for( mesh_t::face_iterator_t f = m.faces_begin(); 
+        for( typename mesh_t::face_iterator_t f = m.faces_begin(); 
             f != m.faces_end(); ++f )
         {
             Stream << "  facet normal " << (*f)->normal() << "\n";
             Stream << "    outer loop\n";
 
-            for( mesh_t::face_t::vertex_iterator_t v = (*f)->verts_begin();
+            for( typename mesh_t::face_t::vertex_iterator_t v = (*f)->verts_begin();
                 v != (*f)->verts_end(); ++v )
                 Stream << "      vertex " << (*v)->point() << "\n";
 

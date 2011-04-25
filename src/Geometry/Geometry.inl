@@ -31,7 +31,7 @@ vertex<Traits>::vertex() : m_ID( NO_ID )
 }
 
 template<typename Traits>
-vertex<Traits>::vertex(const math::vector3<real_t> &co ) : Point(co), m_ID( NO_ID )
+vertex<Traits>::vertex(const point_t &co ) : Point(co), m_ID( NO_ID )
 {
     m_UniqueID = Traits::CounterID++;
 
