@@ -21,7 +21,7 @@
 #A wavefront file is expected as an input
 
 import sys
-import getopt
+import argparse
 from archmind.geometry import *
 from archmind.io import *
 
@@ -35,23 +35,17 @@ def locked(v):
 def smooth(argv):
     """Laplacian smoothing"""
 
-    try:
-	    opts, args = getopt.getopt(argv, 's', ['source='])
-    except getopt.GetoptError, err:
-	    print str(err)
-	    sys.exit(1)
-
-    for opt, arg in opts:
-	    if opt in ('-s', '--source'):
-		    mesh_filename = arg
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', help="input model")
+    vars = parser.parse_args(argv)
+    mesh_filename = vars.s
     mymesh = mesh()
 
-    print 'Loading ...'
+    print('Loading ...')
     if not load_from_file(mesh_filename,mymesh):
 	    sys.exit(1)
 
-    print 'Smoothing...'
+    print('Smoothing...')
     NumOfIters = 20
 
     for i in range(0,NumOfIters):
@@ -59,7 +53,7 @@ def smooth(argv):
 		    if not locked(v):
 			    mymesh.set_point( v, centroid( v.verts ) )
 
-    print 'Saving ...'
+    print('Saving ...')
     save_to_file(mesh_filename,mymesh)
 
 if __name__ == "__main__":

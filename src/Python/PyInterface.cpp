@@ -32,8 +32,9 @@ BOOST_PYTHON_MODULE(archmind)
     using namespace boost::python;
 
     //specify that this module is actually a package
-    object package = scope();
-    package.attr("__path__") = "archmind";
+    //object package = scope();
+    //package.attr("__path__") = "archmind";
+	object archmind_module( handle<>(borrowed(PyImport_AddModule("archmind") ) ) );
 
     export_types();
     export_geometry();
@@ -85,9 +86,9 @@ bool Interface::run_script(const std::string &filename)
     {
 		init_module_archmind();
       
-        PyRun_SimpleString("import cStringIO");
+        PyRun_SimpleString("import io");
         PyRun_SimpleString("import sys");
-        PyRun_SimpleString("sys.stderr = cStringIO.StringIO()");
+        PyRun_SimpleString("sys.stderr = io.StringIO()");
 
         object result = exec_file(filename.c_str(), m_MainNamespace, m_MainNamespace);
     }
