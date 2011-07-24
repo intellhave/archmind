@@ -23,6 +23,7 @@
 #include "PyGeometry.h"
 #include "PyLoader.h"
 #include <Python.h>
+#include <locale>
 
 using namespace arch::python;
 
@@ -39,13 +40,22 @@ BOOST_PYTHON_MODULE(archmind)
     export_loader();
 }
 
-Interface::Interface(int argc, char **argv)
+Interface::Interface(int argc, char **argv) : m_Argc(argc)
 {
     using namespace boost::python;
 
     Py_Initialize();
-    PySys_SetArgv(argc,argv);
 
+	//Convert to wchar_t**
+	m_Argv = new wchar_t*[argc];
+	for( int i = 0; i < argc; ++i )
+	{
+		m_Argv[i] = new wchar_t[256];
+		std::mbstowcs(m_Argv[i],argv[i],255);
+	}
+
+    PySys_SetArgv(argc,m_Argv);
+	
     object main_module(handle<>(borrowed(PyImport_AddModule("__main__"))));
     m_MainNamespace = main_module.attr("__dict__");
 }
@@ -53,6 +63,11 @@ Interface::Interface(int argc, char **argv)
 Interface::~Interface()
 {
     Py_Finalize();
+
+	for( int i = 0; i < m_Argc; ++i )
+		delete [] m_Argv[i];
+
+	delete [] m_Argv;
 }
 
 std::string Interface::last_error()const
@@ -68,8 +83,8 @@ bool Interface::run_script(const std::string &filename)
 
     try
     {
-        initarchmind();
-
+		init_module_archmind();
+      
         PyRun_SimpleString("import cStringIO");
         PyRun_SimpleString("import sys");
         PyRun_SimpleString("sys.stderr = cStringIO.StringIO()");

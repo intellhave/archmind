@@ -38,6 +38,7 @@ class Interface
 {
 public:
     Interface(int argc = 0, char **argv = NULL);
+	
     ~Interface();
 
     bool run_script(const std::string &filename);
@@ -46,6 +47,9 @@ public:
 private:
     std::string m_ErrorString;
     boost::python::object m_MainNamespace;
+
+	int m_Argc;
+	wchar_t **m_Argv;
 };
     
 }
