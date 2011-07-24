@@ -21,34 +21,33 @@
 #A wavefront of OFF file is expected as an input
 
 import sys
-import getopt
+import argparse
 from collections import deque
 from archmind.geometry import *
 from archmind.io import *
 
 def fix_orientation(m):
     """Fixes the faces orientation and returns the number of fixed faces"""
+
     flips = 0
     checked = [0 for i in range(0,m.faces_size)]    #build a list with zeros
-    queue = deque( [iter(m.faces).next()] )     #add the first face to the queue
+    queue = deque( [next(m.faces)] )     #add the first face to the queue
 
     while queue:
         f = queue.popleft()
-        checked[f.id] = 1       #mark as fixed
 
         for ff in f.faces:
             #skip already fixed faces
-            if checked[ff.id]:
-                continue
+            if not checked[ff.id]:
+                #get the common edge of the two faces
+                e = set(f.edges).intersection(ff.edges).pop()
 
-            #get the common edge of the two faces
-            e = set(f.edges).intersection(ff.edges).pop()
+                if f.edge_cw(e) == ff.edge_cw(e):
+                    m.flip_face(ff)       #flip face orientation
+                    flips+=1
 
-            if f.edge_cw(e) == ff.edge_cw(e):
-                m.flip_face(ff)       #flip face orientation
-                flips+=1
-
-            queue.append(ff)
+                checked[ff.id] = 1       #mark as fixed
+                queue.append(ff)
 
     return flips
 
@@ -60,25 +59,20 @@ def check_duplicate(f):
 def clean(argv):
     """Removes degenerated faces and fixes the orientation"""
 
-    try:
-        opts, args = getopt.getopt(argv, 's', ['source='])
-    except getopt.GetoptError, err:
-        print 'exception'
-        print str(err)
-        sys.exit(1)
-
-    for opt, arg in opts:
-        if opt in ('-s', '--source'):
-            mesh_filename = arg 
-            print 'File = %s' % mesh_filename
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', help="input model")
+    vars = parser.parse_args(argv)
+    mesh_filename = vars.s
+    mymesh = mesh()
+            
+    mesh_filename = vars.s
     mymesh = mesh()
 
-    print 'Loading mesh... %s' %  mesh_filename
+    print('Loading mesh... %s' %  mesh_filename)
     if not load_from_file(mesh_filename,mymesh):
         sys.exit(1)
 
-    print 'Checking...'
+    print('Checking...')
 
     rem = 0
     for f in list(mymesh.faces):
@@ -88,8 +82,8 @@ def clean(argv):
 
     flips = fix_orientation(mymesh)
 
-    print 'Faces removed : %d' % rem
-    print 'Faces flipped : %d' % flips
+    print('Faces removed : %d' % rem)
+    print('Faces flipped : %d' % flips)
 
     save_to_file(mesh_filename,mymesh)
 
