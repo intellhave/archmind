@@ -150,6 +150,12 @@ bool vertex<Traits>::operator!=( const vertex<Traits> &other )
 }
 
 template< typename Traits >
+bool vertex<Traits>::operator<( const vertex<Traits> &other )
+{
+    return m_ID < other.m_ID;
+}
+
+template< typename Traits >
 typename vertex<Traits>::point_t vertex<Traits>::point()const
 {
     return Point;
@@ -277,6 +283,12 @@ bool edge<Traits>::operator!=( const edge<Traits> &other )
     return m_UniqueID != other.m_UniqueID;
 }
 
+template< typename Traits >
+bool edge<Traits>::operator<( const edge<Traits> &other )
+{
+    return m_ID < other.m_ID;
+}
+
 //Face
 template<typename Traits>
 face<Traits>::face() : m_ID(NO_ID)
@@ -383,6 +395,12 @@ template< typename Traits >
 bool face<Traits>::operator!=( const face<Traits> &other )
 {
     return m_UniqueID != other.m_UniqueID;
+}
+
+template< typename Traits >
+bool face<Traits>::operator<( const face<Traits> &other )
+{
+    return m_UniqueID < other.m_UniqueID;
 }
 
 template<typename Traits>

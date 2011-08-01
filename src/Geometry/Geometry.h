@@ -271,6 +271,7 @@ public:
     // operators
     bool operator==(const face<Traits> &other);
     bool operator!=(const face<Traits> &other);
+	bool operator<(const face<Traits> &other);
     
 private:
     template<typename> friend class mesh;
@@ -355,6 +356,7 @@ public:
     // operators
     bool operator==(const edge<Traits> &other);
     bool operator!=(const edge<Traits> &other);
+	bool operator<(const edge<Traits> &other);
 
 private: 
     template<typename> friend class mesh;
@@ -425,6 +427,7 @@ public:
     // operators
     bool operator==(const vertex<Traits> &other);
     bool operator!=(const vertex<Traits> &other);
+	bool operator<(const vertex<Traits> &other);
     
 private:
     template<typename> friend class mesh;
