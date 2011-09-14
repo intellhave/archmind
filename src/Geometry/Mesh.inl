@@ -22,6 +22,9 @@
 template<typename Traits>
 mesh<Traits>::mesh()
 {
+#ifndef NDEBUG
+    std::clog << "Mesh()" << std::endl;
+#endif
 }
 
 template<typename Traits>
@@ -31,6 +34,7 @@ mesh<Traits>::~mesh()
     std::clog << "~Mesh()" << std::endl;
 #endif
 
+#if 0
     //Erase edge cyclic references
     for( face_iterator_t f = faces_begin(); f != faces_end(); ++f )
         (*f)->Edges.clear();
@@ -43,7 +47,7 @@ mesh<Traits>::~mesh()
 
     for( vertex_iterator_t v = verts_begin(); v != verts_end(); ++v )
         (*v)->Edges.clear();
-        
+#endif   
 }
 
 //Iterators
@@ -151,7 +155,7 @@ bool mesh<Traits>::remove_edge( edge_ptr_t e )
         for( v = e->verts_begin(); v != e->verts_end(); ++v )
         {
             for( std::size_t i = 0; i < (*v)->Edges.size(); )
-                if( (*v)->Edges[i] == e )
+                if( (*v)->Edges[i].lock() == e )
                 {
                     std::swap( (*v)->Edges[i], (*v)->Edges.back() );
                     (*v)->Edges.pop_back();
@@ -186,7 +190,7 @@ bool mesh<Traits>::remove_face( face_ptr_t f )
         for( e = f->edges_begin(); e != f->edges_end(); ++e )
         {
             for( std::size_t i = 0; i < (*e)->Faces.size(); )
-                if( (*e)->Faces[i] == f )
+                if( (*e)->Faces[i].lock() == f )
                 {
                     std::swap( (*e)->Faces[i], (*e)->Faces.back() );
                     (*e)->Faces.pop_back();
@@ -273,7 +277,7 @@ template<typename Traits>
 uid_t mesh<Traits>::add_face( face_ptr_t f )
 {
     typename face_t::vertex_iterator_t v;
-    typename face_t::edge_iterator_t ev;
+    typename vertex_t::edge_iterator_t ve;
 
     //dont add duplicate faces
     if( f->get_id() != NO_ID )
@@ -287,19 +291,19 @@ uid_t mesh<Traits>::add_face( face_ptr_t f )
         add_vertex( *v );
 
         //Check if we add a new edge or reference an old one
-        for( ev = (*v)->edges_begin(); ev != (*v)->edges_end(); ++ev )
+        for( ve = (*v)->edges_begin(); ve != (*v)->edges_end(); ++ve )
         {
-            if( (*ev)->verts()[0] == f->Edges[e_id]->verts()[0] &&
-                (*ev)->verts()[1] == f->Edges[e_id]->verts()[1] )
+            if( (*ve)->v0() == f->Edges[e_id]->v0() &&
+                (*ve)->v1() == f->Edges[e_id]->v1() )
             {
-                f->Edges[e_id] = *ev;       //assign the correct edge
-                (*ev)->Faces.push_back( f );        //add a reference to the new face
+                f->Edges[e_id] = *ve;       //assign the correct edge
+                (*ve)->Faces.push_back( f );        //add a reference to the new face
                 break;
             }
         }
 
         //check if we failed to find an old edge
-        if( ev == (*v)->edges_end() )
+        if( ve == (*v)->edges_end() )
         {
             //Add a face reference to the edge
             f->Edges[e_id]->Faces.push_back( f );

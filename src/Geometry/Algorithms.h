@@ -66,7 +66,12 @@ area(const PointVectorType &poly)
     const vec_t &v0 = poly[0];
     
     vec_t rf = math::cross( poly[2] - v0, poly[1] - v0 );
-    vec_t n( math::normalize( rf ) );       //plane normal
+	real_t mag = math::magnitude( rf );
+
+	if( mag == real_t(0.0) )		//degenerate case
+		return real_t(0.0);
+
+	vec_t n( rf / mag );       //plane normal
 
     for( std::size_t i = 2; (i+1) < poly.size(); ++i )
         rf += math::cross( poly[i+1] - v0, poly[i] - v0 );

@@ -92,12 +92,7 @@ std::size_t vertex<Traits>::edges_size()const
 template<typename Traits>
 std::size_t vertex<Traits>::verts_size()const
 {
-    std::size_t count = 0;
-    
-    for( vertex_iterator_t v = verts_begin(); v != verts_end(); ++v )
-        ++count;
-
-    return count;
+    return Edges.size();
 }
 
 template<typename Traits>
@@ -235,13 +230,13 @@ typename edge<Traits>::vertex_range_t edge<Traits>::verts()const
 }
 
 template<typename Traits>
-typename edge<Traits>::vertex_ptr_t edge<Traits>::vertices_front()const
+typename edge<Traits>::vertex_ptr_t edge<Traits>::v0()const
 {
     return Vertices[0];
 }
 
 template<typename Traits>
-typename edge<Traits>::vertex_ptr_t edge<Traits>::vertices_back()const
+typename edge<Traits>::vertex_ptr_t edge<Traits>::v1()const
 {
     return Vertices[1];
 }

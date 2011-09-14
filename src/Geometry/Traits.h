@@ -23,6 +23,8 @@
 #define GEOMETRY_TRAITS_H
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 #include "../Math/Vector.h"
 
 namespace arch
@@ -62,6 +64,10 @@ struct traits
     typedef boost::shared_ptr< face_t > face_ptr_t;
     typedef boost::shared_ptr< edge_t > edge_ptr_t;
     typedef boost::shared_ptr< vertex_t > vertex_ptr_t;
+
+	typedef boost::weak_ptr< face_t > face_wptr_t;
+	typedef boost::weak_ptr< edge_t > edge_wptr_t;
+	typedef boost::weak_ptr< vertex_t > vertex_wptr_t;
 
     static uid_t CounterID;
 };

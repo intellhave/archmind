@@ -317,16 +317,17 @@ public:
     
     typedef typename Traits::vertex_ptr_t vertex_ptr_t;
     typedef typename Traits::edge_ptr_t edge_ptr_t;
-    typedef typename Traits::face_ptr_t face_ptr_t;
+	typedef typename Traits::face_ptr_t face_ptr_t;
+    typedef typename Traits::face_wptr_t face_wptr_t;
     
     typedef boost::array< vertex_ptr_t, 2 > vertex_array_t;
-    typedef std::vector< face_ptr_t > face_array_t;
+    typedef std::vector< face_wptr_t > face_array_t;
 
     typedef typename vertex_array_t::const_iterator vertex_iterator_t;
-    typedef typename face_array_t::const_iterator face_iterator_t;
+    //typedef typename face_array_t::const_iterator face_iterator_t;
+	typedef weak_ptr_iterator< face_ptr_t const, typename face_array_t::const_iterator > face_iterator_t;
 
     typedef boost::iterator_range< vertex_iterator_t > vertex_range_t;
-    //typedef boost::iterator_range< edge_iterator_t > edge_range_t;
     typedef boost::iterator_range< face_iterator_t > face_range_t;
 
     edge();
@@ -335,8 +336,8 @@ public:
 
     vertex_range_t verts()const;
 
-    vertex_ptr_t vertices_front()const;
-    vertex_ptr_t vertices_back()const;
+    vertex_ptr_t v0()const;
+    vertex_ptr_t v1()const;
 
     vertex_iterator_t verts_begin()const;
     vertex_iterator_t verts_end()const;
@@ -382,14 +383,16 @@ public:
     typedef typename Traits::face_t face_t;
     
     typedef typename Traits::vertex_ptr_t vertex_ptr_t;
-    typedef typename Traits::edge_ptr_t edge_ptr_t;
+	typedef typename Traits::edge_ptr_t edge_ptr_t;
+    typedef typename Traits::edge_wptr_t edge_wptr_t;
     typedef typename Traits::face_ptr_t face_ptr_t;
     
-    typedef std::vector< edge_ptr_t > edge_array_t;
+    typedef std::vector< edge_wptr_t > edge_array_t;
 
     //Iterators
     //V->E
-    typedef typename edge_array_t::const_iterator edge_iterator_t;
+    //typedef typename edge_array_t::const_iterator edge_iterator_t;
+	typedef weak_ptr_iterator< edge_ptr_t const, typename edge_array_t::const_iterator > edge_iterator_t; 
     
     //V->F
     typedef vertex_face_iterator<face_ptr_t const,edge_iterator_t, typename Traits::edge_t::face_iterator_t > face_iterator_t;

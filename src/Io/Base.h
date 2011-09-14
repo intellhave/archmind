@@ -38,7 +38,7 @@ bool load_from_file(const std::string &filename,mesh_t &mesh);
 
 //!save the model to a file
 template<typename mesh_t>
-bool save_to_file(const std::string &filename,mesh_t &mesh);
+bool save_to_file(const std::string &filename,const mesh_t &mesh);
 
 #include "Base.inl"
 

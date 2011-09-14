@@ -35,6 +35,49 @@ namespace geometry
 {
 
 template<typename Value, typename IterType>
+class weak_ptr_iterator : public boost::iterator_facade<
+    weak_ptr_iterator<Value,IterType>, 
+    Value, 
+    boost::forward_traversal_tag,
+    Value                           >
+{
+public:
+    weak_ptr_iterator() {}
+
+    weak_ptr_iterator(IterType iter) : m_Iter(iter)
+    {
+    }
+    
+    template<typename OtherValue,typename OtherIterType> 
+    weak_ptr_iterator(const weak_ptr_iterator<OtherValue,OtherIterType> &other) :
+        m_Iter(other.m_Iter)
+    {}
+
+private:
+    friend class boost::iterator_core_access;
+    template<typename,typename> friend class weak_ptr_iterator;
+
+    void increment() 
+    {
+        ++m_Iter; 
+    }
+
+    template<typename OtherValue,typename OtherIterType>
+    bool equal(const weak_ptr_iterator<OtherValue,OtherIterType> &other)const
+    {
+        return m_Iter == other.m_Iter;
+    }
+
+    Value dereference() const
+    {
+		return m_Iter->lock();
+    }
+
+    IterType m_Iter;
+};
+
+
+template<typename Value, typename IterType>
 class face_point_iterator : public boost::iterator_facade<
     face_point_iterator<Value,IterType>, 
     Value, 
@@ -216,6 +259,7 @@ private:
 
     uid_t m_VID;
 };
+
 
 template<typename Value, typename IterType>
 class vertex_vertex_iterator : public boost::iterator_facade<

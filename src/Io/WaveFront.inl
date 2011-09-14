@@ -153,7 +153,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 }
 
 template<typename mesh_t>
-bool WaveFront<mesh_t>::write(const std::string &filename, mesh_t &mesh)
+bool WaveFront<mesh_t>::write(const std::string &filename, const mesh_t &mesh)
 {
     using namespace std;
    

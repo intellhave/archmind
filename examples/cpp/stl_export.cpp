@@ -37,7 +37,7 @@ struct Stl
         return filename.find(".stl") != std::string::npos ||
                filename.find(".STL") != std::string::npos; 
     }
-    bool write(const std::string &filename, mesh_t &m)
+    bool write(const std::string &filename, const mesh_t &m)
     {
         std::ofstream Stream(filename.c_str());
 

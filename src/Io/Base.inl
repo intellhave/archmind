@@ -42,7 +42,7 @@ template<typename mesh_t>
 class writer_dispatch
 {
 public:
-    writer_dispatch(const std::string &filename, mesh_t &mesh, bool &finish) : 
+    writer_dispatch(const std::string &filename, const mesh_t &mesh, bool &finish) : 
         m_filename(filename), m_mesh(mesh), m_finish(finish) {}
     
     template< typename U > void operator()(U &x)
@@ -53,7 +53,7 @@ public:
 
 private:
     std::string m_filename;
-    mesh_t &m_mesh;
+    const mesh_t &m_mesh;
     bool &m_finish;
 };
 
@@ -72,7 +72,7 @@ template<typename mesh_t>
 struct writer_traits;
 
 template<typename mesh_t>
-bool save_to_file(const std::string &filename, mesh_t &mesh)
+bool save_to_file(const std::string &filename, const mesh_t &mesh)
 {
     bool success = false;
     boost::mpl::for_each<typename writer_traits<mesh_t>::type>( writer_dispatch<mesh_t>( filename,mesh,success) );
