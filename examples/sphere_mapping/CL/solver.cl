@@ -19,36 +19,33 @@
    3. This notice may not be removed or altered from any source distribution.
    */
 
-__constant float omega = 1.0;
-
 __kernel void solve_conformal( 
         const __global float4 *v,
         const __global float4 *vf,
-        const __global int *bounds,
         const __global int *verts,
         __global float4 *v_s,      //output
-        const int numOfVertices,
+        const int n,
         const __global float *w
         )
 {
     //Vertex ID
     int id = get_global_id(0);
 
-    if( id >= numOfVertices )
+    if( id >= n )
         return;
 
     float4 p = vf[id];   //vertex coordinates
     float4 c = (float4)(0.0f,0.0f,0.0f,0.0f);
 
-    int start = bounds[id];
-    int end = bounds[id+1];
-    for( int i = start; i < end; ++i )
+    int start = id;
+    for( int i = 0; i < PAD_SIZE; ++i )
     {
         //neighbor vertex
-        c += v[ verts[i] ] * w[i]; 
+        c += v[ verts[start] ] * w[start];
+        start += n;
     }
 
-    c = (1.0f - omega) * v[id] + omega*c;
+    c = ONE_MINUS_OMEGA * v[id] + OMEGA * c;
 
     float l = dot(c,p) - 1.0f;
     v_s[id] = c - p*l;
@@ -57,10 +54,9 @@ __kernel void solve_conformal(
 __kernel void solve_conformal_res( 
         const __global float4 *v,
         const __global float4 *vf,
-        const __global int *bounds,
         const __global int *verts,
         __global float4 *v_s,      //output
-        const int numOfVertices,
+        const int n,
         __global float *res,
         const __global float *w
         )
@@ -68,21 +64,22 @@ __kernel void solve_conformal_res(
     //Vertex ID
     int id = get_global_id(0);
 
-    if( id >= numOfVertices )
+    if( id >= n )
         return;
 
     float4 p = vf[id];   //vertex coordinates
     float4 c = (float4)(0.0f,0.0f,0.0f,0.0f);
 
-    int start = bounds[id];
-    int end = bounds[id+1];
-    for( int i = start; i < end; ++i )
+    int start = id;
+    
+    for( int i = 0; i < PAD_SIZE; ++i )
     {
         //neighbor vertex
-        c += v[ verts[i] ] * w[i]; 
+        c += v[ verts[start] ] * w[start];
+        start += n;
     }
 
-    c = (1.0f - omega) * v[id] + omega*c;
+    c = ONE_MINUS_OMEGA * v[id] + OMEGA * c;
 
     float l = dot(c,p) - 1.0f;
     float4 pos = c - p*l;
@@ -94,27 +91,30 @@ __kernel void solve_conformal_res(
 __kernel void solve_equal( 
         const __global float4 *v,
         const __global float4 *vf,
-        const __global int *bounds,
         const __global int *verts,
         __global float4 *v_s,      //output
-        const int numOfVertices)
+        const int n,
+        const __global int *bounds)
 {
     //Vertex ID
     int id = get_global_id(0);
 
-    if( id >= numOfVertices )
+    if( id >= n )
         return;
 
     float4 p = vf[id];   //vertex coordinates
-
-    int start = bounds[id];
-    int end = bounds[id+1];
-
+    int start = id;
+    int size = bounds[id];
     float4 c = v[verts[start]];
-    for( int i = start+1; i < end; ++i )
-        c += v[verts[i]]; 
-    c /= (float)(end - start);
-    c = (1.0f - omega) * v[id] + omega*c;
+    start += n;
+    for( int i = 1; i < size; ++i )
+    {
+        c += v[verts[start]];
+        start += n;
+    }
+
+    c /= (float)(size);
+    c = ONE_MINUS_OMEGA * v[id] + OMEGA * c;
 
     float l = dot(c,p) - 1.0;
     v_s[id] = c - p*l;
@@ -124,28 +124,31 @@ __kernel void solve_equal(
 __kernel void solve_equal_res( 
         const __global float4 *v,
         const __global float4 *vf,
-        const __global int *bounds,
         const __global int *verts,
         __global float4 *v_s,      //output
-        const int numOfVertices,
-        __global float *res)
+        const int n,
+        __global float *res,
+        const __global int *bounds)
 {
     //Vertex ID
     int id = get_global_id(0);
 
-    if( id >= numOfVertices )
+    if( id >= n )
         return;
 
     float4 p = vf[id];   //vertex coordinates
-
-    int start = bounds[id];
-    int end = bounds[id+1];
-
+    int start = id;
+    int size = bounds[id];
     float4 c = v[verts[start]];
-    for( int i = start+1; i < end; ++i )
-        c += v[verts[i]]; 
-    c /= (float)(end - start);
-    c = (1.0f - omega) * v[id] + omega*c;
+    start += n;
+    for( int i = 1; i < size; ++i )
+    {
+        c += v[verts[start]];
+        start += n;
+    }
+
+    c /= (float)(size);
+    c = ONE_MINUS_OMEGA * v[id] + OMEGA * c;
 
     float l = dot(c,p) - 1.0;
     float4 pos = c - p*l;
@@ -165,7 +168,6 @@ __kernel void normalize_solution(const __global float4 *v,  const int n, __globa
 
 __kernel void convergence_conformal_res( 
         const __global float4 *v,
-        const __global int *bounds,
         const __global int *verts,
         const int n,
         __global float *res,
@@ -180,12 +182,13 @@ __kernel void convergence_conformal_res(
 
     float4 c = (float4)(0.0f,0.0f,0.0f,0.0f);
  
-    int start = bounds[id];
-    int end = bounds[id+1];
-    for( int i = start; i < end; ++i )
+    int start = id;
+    
+    for( int i = 0; i < PAD_SIZE; ++i )
     {
         //neighbor vertex
-        c += v[verts[i]] * w[i]; 
+        c += v[ verts[start] ] * w[start];
+        start += n;
     }
 
     c = normalize(c);
@@ -194,25 +197,29 @@ __kernel void convergence_conformal_res(
 }
 
 __kernel void convergence_equal_res( 
-             const __global float4 *v,
-             const __global int *bounds,
-                     const __global int *verts,
-                     const int n,
-            __global float *res)        //residual output
+            const __global float4 *v,
+            const __global int *verts,
+            const int n,
+            __global float *res,        //residual output
+            const __global int *bounds)
 {
     //Vertex ID
     int id = get_global_id(0);
         
     if( id >= n )
-                return;
+        return;
     
-    int start = bounds[id];
-    int end = bounds[id+1];
-        
+    int start = id;
+    int size = bounds[id];
     float4 c = v[verts[start]];
-        for( unsigned int i = start+1; i < end; ++i )
-        c += v[verts[i]]; 
-    c /= (float)(end - start);
+    start += n;
+    for( int i = 1; i < size; ++i )
+    {
+        c += v[verts[start]];
+        start += n;
+    }
+
+    c /= (float)(size);
     c = normalize(c);
     
     res[id] = dot(c - v[id],c - v[id]);

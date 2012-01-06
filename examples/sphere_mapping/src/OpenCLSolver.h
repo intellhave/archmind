@@ -103,6 +103,7 @@ private:
 
 	std::size_t m_LocalSize;
 	std::size_t m_GlobalSize;
+	cl_int m_PadSize;
 
 	Options m_Options;
 };

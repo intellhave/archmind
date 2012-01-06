@@ -25,21 +25,21 @@
 #include <boost/foreach.hpp>
 
 #if defined (_WIN32)	
-	#include <windows.h>
-	#include <mmsystem.h>
-	#pragma comment(lib, "Winmm.lib")
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "Winmm.lib")
 #else
-	#include <sys/time.h>
+#include <sys/time.h>
 
-	unsigned int get_ticks()
-	{
-		struct timeval t;
+unsigned int get_ticks()
+{
+    struct timeval t;
 
-		gettimeofday(&t, 0);
-		return (t.tv_sec*1000) + (t.tv_usec/1000); //bring down number to miliseconds
-	}
+    gettimeofday(&t, 0);
+    return (t.tv_sec*1000) + (t.tv_usec/1000); //bring down number to miliseconds
+}
 
-	#define timeGetTime() (get_ticks())
+#define timeGetTime() (get_ticks())
 #endif
 
 #define foreach BOOST_FOREACH
@@ -50,423 +50,453 @@ using namespace arch::geometry;
 using namespace spheremap;
 
 spheremap::SolverCL::SolverCL( 
-	mesh_t &input_mesh,
-	mesh_t &ouput_mesh,
-	Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
+                              mesh_t &input_mesh,
+                              mesh_t &ouput_mesh,
+                              Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
 {
-	std::size_t n = input_mesh.verts_size();
+    std::size_t n = input_mesh.verts_size();
 
-	m_LocalSize = 1024;
-	m_GlobalSize = cl::roundUp(m_LocalSize,n);
+    m_LocalSize = 1024;
+    m_GlobalSize = cl::roundUp(m_LocalSize,n);
 
-	//Vertices
-	m_Vertices = new cl_float4[n];
-	m_SVertices = new cl_float4[n];		//Output
+    //Vertices
+    m_Vertices = new cl_float4[n];
+    m_SVertices = new cl_float4[n];		//Output
 
-	point_t c = options.centroid_proj ? centroid( input_mesh.verts() ) : point_t(0.0);
+    point_t c = options.centroid_proj ? centroid( input_mesh.verts() ) : point_t(0.0);
 
-	//Copy the vertices
-	std::size_t i = 0;
-	
-	foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
-	{
-		point_t p = normalize( v->point() - c );
+    //Copy the vertices
+    std::size_t i = 0;
 
-		m_Vertices[i].s[0] = p.x;
-		m_Vertices[i].s[1] = p.y;
-		m_Vertices[i].s[2] = p.z;
-		m_Vertices[i].s[3] = 0.0f;
-		++i;
-	}
+    foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
+    {
+        point_t p = normalize( v->point() - c );
 
-	//Copy the neighboring information
-	m_Bounds.push_back(0);
-	for( std::size_t i = 0; i < n; i++ )
-		m_Bounds.push_back( m_Bounds.back() + cl_int(input_mesh.verts()[i]->edges_size()) );
+        m_Vertices[i].s[0] = p.x;
+        m_Vertices[i].s[1] = p.y;
+        m_Vertices[i].s[2] = p.z;
+        m_Vertices[i].s[3] = 0.0f;     
+        ++i;
+    }
 
-	compute_weights();
+    //Copy the neighboring information
+    //m_Bounds.push_back(0);
+    //for( std::size_t i = 0; i < n; i++ )
+    //    m_Bounds.push_back( m_Bounds.back() + cl_int(input_mesh.verts()[i]->edges_size()) );
+    //find the pad size (max neighbors of the mesh)
+    m_PadSize = 0;
+    for( std::size_t i = 0; i < n; i++ )
+    {
+        std::size_t wi = input_mesh.verts()[i]->edges_size();
+        m_Bounds.push_back( wi );
+        if( wi > m_PadSize ) m_PadSize = wi;
+    }
 
-	m_NVertices = new cl_int[m_Bounds.back()];
-	m_Weights = new cl_float[m_Bounds.back()];
+    compute_weights();
 
-	cl_int *nverts = m_NVertices;
-	cl_float *nweights = m_Weights;
+    m_NVertices = new cl_int[ n * m_PadSize ];
+    m_Weights = new cl_float[ n * m_PadSize ];
 
-	//Copy the neighboring information
-	foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
-	{
-		std::size_t wi = 0;
-		foreach( mesh_t::vertex_t::vertex_ptr_t vv, v->verts() )
-		{
-			*nverts++ = vv->get_id();
-			*nweights++ = v->Weights[wi++];
-		}
-	}
-	
-	cl_int err = 0;
+    cl_int *nverts = m_NVertices;
+    cl_float *nweights = m_Weights;
 
-	cl_platform_id platform = NULL;
-	std::vector< cl_platform_id > platforms;
+    //Copy the neighboring information
+    foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
+    {
+        std::size_t counter = 0;
+        std::size_t wi = 0;
+        foreach( mesh_t::vertex_t::vertex_ptr_t vv, v->verts() )
+        {
+            nverts[ v->get_id() + counter ] = vv->get_id();
+            nweights[ v->get_id() + counter ] = v->Weights[wi++];
+            counter += n;
+        }
 
-	cl::get_platforms(platforms);
+        //fill the rest with dummy values
+        for( ; wi < m_PadSize; ++wi )
+        {
+            nverts[ v->get_id() + counter ] = nverts[ v->get_id() ];
+            nweights[ v->get_id() + counter ] = 0.0;
+            counter += n;
+        }	
+    }
+
+    printf("mesh size : %d\n", input_mesh.verts_size() );
+
+    cl_int err = 0;
+
+    cl_platform_id platform = NULL;
+    std::vector< cl_platform_id > platforms;
+
+    cl::get_platforms(platforms);
     bool valid_platform = false;
 
-	for( std::size_t i = 0; i < platforms.size(); ++i )
-	{
-		std::string name;
-		cl::platform_info(platforms[i],CL_PLATFORM_NAME,name);
-		
-		if( (name.find("ATI") != string::npos) || (name.find("NVIDIA") != string::npos)  )
-		{
-			platform = platforms[i];
+    for( std::size_t i = 0; i < platforms.size(); ++i )
+    {
+        std::string name;
+        cl::platform_info(platforms[i],CL_PLATFORM_NAME,name);
 
-			cl_device_id device;
-			err = clGetDeviceIDs(platform, m_Options.cpu ? CL_DEVICE_TYPE_CPU : CL_DEVICE_TYPE_GPU, 1, &device, 0);
-	
-			if( err != CL_SUCCESS ) continue;
+        if( (name.find("ATI") != string::npos) || (name.find("NVIDIA") != string::npos)  )
+        {
+            platform = platforms[i];
 
-			// create the OpenCL context on a GPU device
-			m_hContext = clCreateContext( 0, 1, &device, 0, 0, &err );
-	
-			if( err == CL_SUCCESS ) 
-			{
-				std::cout << "Using : " << name << '\n';
+            cl_device_id device;
+            err = clGetDeviceIDs(platform, m_Options.cpu ? CL_DEVICE_TYPE_CPU : CL_DEVICE_TYPE_GPU, 1, &device, 0);
+
+            if( err != CL_SUCCESS ) continue;
+
+            // create the OpenCL context on a GPU device
+            m_hContext = clCreateContext( 0, 1, &device, 0, 0, &err );
+
+            if( err == CL_SUCCESS ) 
+            {
+                std::cout << "Using : " << name << '\n';
                 valid_platform = true;
-				break;
-			}
-		}
-	}
+                break;
+            }
+        }
+    }
 
-	if( !valid_platform )
+    if( !valid_platform )
         throw std::runtime_error("Failed to find platform\n");
-	
-	// get the list of GPU devices associated with context
-	size_t nContextDescriptorSize;
-	clGetContextInfo(m_hContext, CL_CONTEXT_DEVICES, 0, 0, &nContextDescriptorSize);
-	cl_device_id *aDevices = (cl_device_id *)malloc(nContextDescriptorSize);
-	clGetContextInfo(m_hContext, CL_CONTEXT_DEVICES, nContextDescriptorSize, aDevices, 0);
 
-	clGetDeviceInfo(aDevices[0], CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t), &m_LocalSize, 0);
-	m_LocalSize = m_Options.workgroup;
-	std::cout << "OpenCL : work group size : " << m_LocalSize << '\n';
+    // get the list of GPU devices associated with context
+    size_t nContextDescriptorSize;
+    clGetContextInfo(m_hContext, CL_CONTEXT_DEVICES, 0, 0, &nContextDescriptorSize);
+    cl_device_id *aDevices = (cl_device_id *)malloc(nContextDescriptorSize);
+    clGetContextInfo(m_hContext, CL_CONTEXT_DEVICES, nContextDescriptorSize, aDevices, 0);
 
-	m_GlobalSize = cl::roundUp(m_LocalSize,n);
+    clGetDeviceInfo(aDevices[0], CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t), &m_LocalSize, 0);
+    m_LocalSize = m_Options.workgroup;
+    std::cout << "OpenCL : work group size : " << m_LocalSize << '\n';
 
-	// create a command-queue
-	m_CmdQueue = clCreateCommandQueue(m_hContext, aDevices[0], 0, 0);
-	
-	// allocate the buffer memory objects
-	//Vertices
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4)*n, m_Vertices, NULL));
-	//Constraints
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4)*n, m_Vertices, NULL));
-	//Bounds
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.size(), &m_Bounds[0], NULL));
-	//Indices
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.back(), m_NVertices, NULL));
-	//Weights
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float)*m_Bounds.back(), m_Weights, NULL));
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_float4)*n, NULL, NULL));
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_float)*n, NULL, NULL));
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_float), NULL, NULL));
+    m_GlobalSize = cl::roundUp(m_LocalSize,n);
 
-	std::string program_source;
-	if( loadTextFile("CL/nl_laplacesolver.cl",program_source) )
-		std::cout << "OpenCL file" << " loaded" << std::endl;
+    // create a command-queue
+    m_CmdQueue = clCreateCommandQueue(m_hContext, aDevices[0], 0, 0);
 
-	const char *source = program_source.c_str();
+    // allocate the buffer memory objects
 
-	// create the program
-	m_Program = clCreateProgramWithSource(m_hContext, 1, &source, 0, &err);
+    //Vertices
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4) * n, m_Vertices, NULL));   
+    //Constraints
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4) * n, m_Vertices, NULL));
+    //Indices
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int) * n * m_PadSize, m_NVertices, NULL));   
+    //Weights
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * n * m_PadSize, m_Weights, NULL));  
+    //Output
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_float4)*n, NULL, NULL));  
+    //Temp Residual
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_float)*n, NULL, NULL)); 
+    //Bounds
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.size(), &m_Bounds[0], NULL)); 
+    //Residual
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_float), NULL, NULL));
 
-	if( err != CL_SUCCESS )
-	{
+
+    std::string program_source;
+    if( loadTextFile("CL/solver.cl",program_source) )
+        std::cout << "OpenCL file" << " loaded" << std::endl;
+
+    const char *source = program_source.c_str();
+
+    // create the program
+    m_Program = clCreateProgramWithSource(m_hContext, 1, &source, 0, &err);
+
+    if( err != CL_SUCCESS )
+    {
         throw std::runtime_error("Error in clCreateProgramWithSource!");
-	}
+    }
 
-	// build the program
-	err = clBuildProgram(m_Program, 0, NULL, NULL, NULL, NULL);
+    // build the program
+    char options[255];
+    sprintf(options, "-cl-strict-aliasing -D PAD_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f", m_PadSize );
+    err = clBuildProgram(m_Program, 0, NULL, options, NULL, NULL);
 
-	if( err != CL_SUCCESS )
-	{
-		std::cerr << cl::buildlog(m_Program,aDevices[0]) << std::endl;
+    if( err != CL_SUCCESS )
+    {
+        std::cerr << cl::buildlog(m_Program,aDevices[0]) << std::endl;
         throw std::runtime_error("Error in clBuildProgram!");
-	}
+    }
 
-	if( m_Options.weights == 0 )
-	{
-		m_Kernel = clCreateKernel(m_Program, "solve_equal", NULL);
-		m_KernelSPConvergence = clCreateKernel(m_Program, "solve_equal_res", NULL);
-		m_KernelConvergence = clCreateKernel(m_Program, "convergence_equal_res", NULL);
-	}
-	else
-	{
-		m_Kernel = clCreateKernel(m_Program, "solve_conformal", NULL);
-		m_KernelSPConvergence = clCreateKernel(m_Program, "solve_conformal_res", NULL);
-		m_KernelConvergence = clCreateKernel(m_Program, "convergence_conformal_res", NULL);
-	}
+    if( m_Options.weights == 0 )
+    {
+        m_Kernel = clCreateKernel(m_Program, "solve_equal", NULL);
+        m_KernelSPConvergence = clCreateKernel(m_Program, "solve_equal_res", NULL);
+        m_KernelConvergence = clCreateKernel(m_Program, "convergence_equal_res", NULL);
+    }
+    else
+    {
+        m_Kernel = clCreateKernel(m_Program, "solve_conformal", NULL);
+        m_KernelSPConvergence = clCreateKernel(m_Program, "solve_conformal_res", NULL);
+        m_KernelConvergence = clCreateKernel(m_Program, "convergence_conformal_res", NULL);
+    }
 
-	m_KernelSRes = clCreateKernel(m_Program, "lmax_residual", NULL);
-	m_KernelNormalize = clCreateKernel(m_Program, "normalize_solution", NULL);
-	m_KernelRes = clCreateKernel(m_Program, "l2_residual", NULL);
+    m_KernelSRes = clCreateKernel(m_Program, "lmax_residual", NULL);
+    m_KernelNormalize = clCreateKernel(m_Program, "normalize_solution", NULL);
+    m_KernelRes = clCreateKernel(m_Program, "l2_residual", NULL);
 }
 
 spheremap::SolverCL::~SolverCL()
 {
-	//clean up
-	clReleaseKernel( m_Kernel );
-	clReleaseKernel( m_KernelSPConvergence );
-	clReleaseKernel( m_KernelSRes );
-	clReleaseKernel( m_KernelNormalize );
-	clReleaseKernel( m_KernelRes );
-	clReleaseKernel( m_KernelConvergence );
+    //clean up
+    clReleaseKernel( m_Kernel );
+    clReleaseKernel( m_KernelSPConvergence );
+    clReleaseKernel( m_KernelSRes );
+    clReleaseKernel( m_KernelNormalize );
+    clReleaseKernel( m_KernelRes );
+    clReleaseKernel( m_KernelConvergence );
 
-	clReleaseProgram( m_Program );
-	clReleaseCommandQueue( m_CmdQueue );
-	clReleaseContext( m_hContext );
-	
-	for( std::size_t i = 0; i < m_Memobjs.size(); ++i )
-		clReleaseMemObject( m_Memobjs[i] );
+    clReleaseProgram( m_Program );
+    clReleaseCommandQueue( m_CmdQueue );
+    clReleaseContext( m_hContext );
 
-	delete [] m_Vertices;
-	delete [] m_SVertices;
-	delete [] m_NVertices;
-	delete [] m_Weights;
+    for( std::size_t i = 0; i < m_Memobjs.size(); ++i )
+        clReleaseMemObject( m_Memobjs[i] );
+
+    delete [] m_Vertices;
+    delete [] m_SVertices;
+    delete [] m_NVertices;
+    delete [] m_Weights;
 }
 
 bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 {
-	using std::max;
+    using std::max;
 
-	solve_stats.elapsed_ms = timeGetTime();
-	solve_stats.success = true;
-	solve_stats.iterations = 0;
+    solve_stats.elapsed_ms = timeGetTime();
+    solve_stats.success = true;
+    solve_stats.iterations = 0;
 
-	cl_int n = m_Input.verts_size();
+    cl_int n = m_Input.verts_size();
 
-	cl_mem src,dst,weights,constraints,bounds,indices,tmp_res;
+    cl_mem src,dst,weights,constraints,indices,tmp_res,bounds;
 
-	src = m_Memobjs[0];		//Vertices
-	constraints = m_Memobjs[1];		//Constraints
-	bounds = m_Memobjs[2];		//Bounds
-	indices = m_Memobjs[3];		//Indices
-	weights = m_Memobjs[4];		//Weights
-	dst = m_Memobjs[5];
-	tmp_res = m_Memobjs[6];
+    src = m_Memobjs[0];			//Vertices
+    constraints = m_Memobjs[1];	//Constraints
+    indices = m_Memobjs[2];		//Indices
+    weights = m_Memobjs[3];		//Weights
+    dst = m_Memobjs[4];			//Output
+    tmp_res = m_Memobjs[5];
+    bounds = m_Memobjs[6];
 
-	//set kernel arguments
-	cl_int err = clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
-	err |= clSetKernelArg(m_Kernel, 1, sizeof(cl_mem), (void *)&constraints );
-	err |= clSetKernelArg(m_Kernel, 2, sizeof(cl_mem), (void *)&bounds );
-	err |= clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&indices );
-	err |= clSetKernelArg(m_Kernel, 4, sizeof(cl_mem), (void *)&dst );
-	err |= clSetKernelArg(m_Kernel, 5, sizeof(cl_int), &n );
+    //set kernel arguments
+    cl_int err = clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
+    err |= clSetKernelArg(m_Kernel, 1, sizeof(cl_mem), (void *)&constraints );
+    err |= clSetKernelArg(m_Kernel, 2, sizeof(cl_mem), (void *)&indices );
+    err |= clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&dst );
+    err |= clSetKernelArg(m_Kernel, 4, sizeof(cl_int), &n );
 
-	if( m_Options.weights == 1 )	//conformal weights
-		err |= clSetKernelArg(m_Kernel, 6, sizeof(cl_mem), (void *)&weights );
+    if( m_Options.weights == 1 )	//conformal weights
+        err |= clSetKernelArg(m_Kernel, 5, sizeof(cl_mem), (void *)&weights );
+    else
+        err |= clSetKernelArg(m_Kernel, 5, sizeof(cl_mem), (void *)&bounds );
 
-	err |= clSetKernelArg(m_KernelSPConvergence, 0, sizeof(cl_mem), (void *)&src );
-	err |= clSetKernelArg(m_KernelSPConvergence, 1, sizeof(cl_mem), (void *)&constraints );
-	err |= clSetKernelArg(m_KernelSPConvergence, 2, sizeof(cl_mem), (void *)&bounds );
-	err |= clSetKernelArg(m_KernelSPConvergence, 3, sizeof(cl_mem), (void *)&indices );
-	err |= clSetKernelArg(m_KernelSPConvergence, 4, sizeof(cl_mem), (void *)&dst );
-	err |= clSetKernelArg(m_KernelSPConvergence, 5, sizeof(cl_int), &n );
-	err |= clSetKernelArg(m_KernelSPConvergence, 6, sizeof(cl_mem), (void *)&tmp_res );
-    
-	if( m_Options.weights == 1 )	//conformal weights
-		err |= clSetKernelArg(m_KernelSPConvergence, 7, sizeof(cl_mem), (void *)&weights );
-	
-	err |= clSetKernelArg(m_KernelConvergence, 1, sizeof(cl_mem), (void *)&bounds );
-	err |= clSetKernelArg(m_KernelConvergence, 2, sizeof(cl_mem), (void *)&indices );
-	err |= clSetKernelArg(m_KernelConvergence, 3, sizeof(cl_int), &n );
-	err |= clSetKernelArg(m_KernelConvergence, 4, sizeof(cl_mem), (void *)&tmp_res );
+    err |= clSetKernelArg(m_KernelSPConvergence, 0, sizeof(cl_mem), (void *)&src );
+    err |= clSetKernelArg(m_KernelSPConvergence, 1, sizeof(cl_mem), (void *)&constraints );
+    err |= clSetKernelArg(m_KernelSPConvergence, 2, sizeof(cl_mem), (void *)&indices );
+    err |= clSetKernelArg(m_KernelSPConvergence, 3, sizeof(cl_mem), (void *)&dst );
+    err |= clSetKernelArg(m_KernelSPConvergence, 4, sizeof(cl_int), &n );
+    err |= clSetKernelArg(m_KernelSPConvergence, 5, sizeof(cl_mem), (void *)&tmp_res );
 
-	if(  m_Options.weights == 1 )
-		err |= clSetKernelArg(m_KernelConvergence, 5, sizeof(cl_mem), (void *)&weights );
+    if( m_Options.weights == 1 )	//conformal weights
+        err |= clSetKernelArg(m_KernelSPConvergence, 6, sizeof(cl_mem), (void *)&weights );
+    else
+        err |= clSetKernelArg(m_KernelSPConvergence, 6, sizeof(cl_mem), (void *)&bounds );
 
-	if( err != CL_SUCCESS )
-	{
-		std::cerr << "Some error occured during the setting of arguments : " << err << std::endl;
-		return false;
-	}
+    err |= clSetKernelArg(m_KernelConvergence, 1, sizeof(cl_mem), (void *)&indices );
+    err |= clSetKernelArg(m_KernelConvergence, 2, sizeof(cl_int), &n );
+    err |= clSetKernelArg(m_KernelConvergence, 3, sizeof(cl_mem), (void *)&tmp_res );
 
-	cl_float last_res = 1000000.0f;
-	cl_float res, linear_res;
-	std::size_t one = 1;
+    if(  m_Options.weights == 1 )
+        err |= clSetKernelArg(m_KernelConvergence, 4, sizeof(cl_mem), (void *)&weights );
+    else
+        err |= clSetKernelArg(m_KernelConvergence, 4, sizeof(cl_mem), (void *)&bounds );
 
-	for( std::size_t i = 0; i < m_Options.max_iters; ++i )
-	{
-		solve_stats.iterations++;
+    if( err != CL_SUCCESS )
+    {
+        std::cerr << "Some error occured during the setting of arguments : " << err << std::endl;
+        return false;
+    }
 
-		for( std::size_t j = 1; j < m_Options.max_sp_iters; ++j )
-		{
-			// execute the normal kernel
-			if( j % 1000 != 0 )
-			{
-				// execute kernel 
-				err = clEnqueueNDRangeKernel(m_CmdQueue, m_Kernel, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
+    cl_float last_res = 1000000.0f;
+    cl_float res, linear_res;
+    std::size_t one = 1;
 
-				if( err != CL_SUCCESS )
-				{
-					std::cerr << "Some error occured during the execution of the kernel : " << err << std::endl;
-					return false;
-				}
+    for( std::size_t i = 0; i < m_Options.max_iters; ++i )
+    {
+        solve_stats.iterations++;
 
-				//swap buffers
-				std::swap(dst,src);
+        for( std::size_t j = 1; j < m_Options.max_sp_iters; ++j )
+        {
+            // execute the normal kernel
+            if( j % 1000 != 0 )
+            {
+                // execute kernel 
+                err = clEnqueueNDRangeKernel(m_CmdQueue, m_Kernel, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
 
-				//reset arguments
-				clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
-				clSetKernelArg(m_Kernel, 4, sizeof(cl_mem), (void *)&dst );
-			}
-			// execute the kernel that also calculates the residual
-			else
-			{
-				// execute kernel 
-				err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSPConvergence, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
+                if( err != CL_SUCCESS )
+                {
+                    std::cerr << "Some error occured during the execution of the kernel : " << err << std::endl;
+                    return false;
+                }
 
-				//swap buffers
-				std::swap(dst,src);
+                //swap buffers
+                std::swap(dst,src);
 
-				//reset arguments
-				clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
-				clSetKernelArg(m_Kernel, 4, sizeof(cl_mem), (void *)&dst );
+                //reset arguments
+                clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
+                clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&dst );
+            }
+            // execute the kernel that also calculates the residual
+            else
+            {
+                // execute kernel 
+                err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSPConvergence, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
 
-				//Finally compute the residual (Lmax)
-				clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
-				clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
-				clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &m_Memobjs.back());
+                //swap buffers
+                std::swap(dst,src);
 
-				err |= clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSRes, 1, NULL, &one, &one, 0, NULL, NULL);
+                //reset arguments
+                clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
+                clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&dst );
 
-				if( err != CL_SUCCESS )
-				{
-					std::cerr << "Some error occured during the execution of the kernel : " << err << std::endl;
-					return false;
-				}
+                //Finally compute the residual (Lmax)
+                clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
+                clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
+                clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &m_Memobjs.back());
 
-				//Read back the residual value
-				err |= clEnqueueReadBuffer(m_CmdQueue, m_Memobjs.back(), CL_TRUE, 0, sizeof(cl_float), &linear_res, 0, NULL, NULL);
+                err |= clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSRes, 1, NULL, &one, &one, 0, NULL, NULL);
 
-				if( linear_res < m_Options.spdelta )
-					break;				
-			}
-		}
+                if( err != CL_SUCCESS )
+                {
+                    std::cerr << "Some error occured during the execution of the kernel : " << err << std::endl;
+                    return false;
+                }
 
-		//Normalize the solution and update the constraints
-		clSetKernelArg(m_KernelNormalize, 0, sizeof(cl_mem), (void *)&src);			//vertices
-		clSetKernelArg(m_KernelNormalize, 1, sizeof(cl_int), (void *)&n);			//vertices
-		clSetKernelArg(m_KernelNormalize, 2, sizeof(cl_mem), (void *)&constraints);	//constraints
-		clSetKernelArg(m_KernelNormalize, 3, sizeof(cl_mem), (void *)&dst);			//vertices
+                //Read back the residual value
+                err |= clEnqueueReadBuffer(m_CmdQueue, m_Memobjs.back(), CL_TRUE, 0, sizeof(cl_float), &linear_res, 0, NULL, NULL);
 
-		err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelNormalize, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
+                if( linear_res < m_Options.spdelta )
+                    break;				
+            }
+        }
 
-		//swap buffers
-		std::swap(dst,src);
+        //Normalize the solution and update the constraints
+        clSetKernelArg(m_KernelNormalize, 0, sizeof(cl_mem), (void *)&src);			//vertices
+        clSetKernelArg(m_KernelNormalize, 1, sizeof(cl_int), (void *)&n);			//vertices
+        clSetKernelArg(m_KernelNormalize, 2, sizeof(cl_mem), (void *)&constraints);	//constraints
+        clSetKernelArg(m_KernelNormalize, 3, sizeof(cl_mem), (void *)&dst);			//vertices
 
-		//Calculate the residual for each vertex
-		clSetKernelArg(m_KernelConvergence, 0, sizeof(cl_mem), (void *)&src );
-		
-		err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelConvergence, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
+        err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelNormalize, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
 
-		//Finally compute the residual (L2)
-		clSetKernelArg(m_KernelRes, 0, sizeof(cl_int), &n );
-		clSetKernelArg(m_KernelRes, 1, sizeof(cl_mem), &tmp_res );
-		clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &m_Memobjs.back());
-		
-		err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &one, &one, 0, NULL, NULL);
+        //swap buffers
+        std::swap(dst,src);
 
-		//Read back the residual value
-		err = clEnqueueReadBuffer(m_CmdQueue, m_Memobjs.back(), CL_TRUE, 0, sizeof(cl_float), &res, 0, NULL, NULL);
-		
-		std::cout << i << " - res : " << res << '\n';
+        //Calculate the residual for each vertex
+        clSetKernelArg(m_KernelConvergence, 0, sizeof(cl_mem), (void *)&src );
 
-		if( last_res < res || res < m_Options.target_residual )
-			break;
+        err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelConvergence, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
 
-		last_res = res;
-	}
+        //Finally compute the residual (L2)
+        clSetKernelArg(m_KernelRes, 0, sizeof(cl_int), &n );
+        clSetKernelArg(m_KernelRes, 1, sizeof(cl_mem), &tmp_res );
+        clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &m_Memobjs.back());
 
-	//Read the final coordinates
-	err = clEnqueueReadBuffer(m_CmdQueue, src, CL_TRUE, 0, n*sizeof(cl_float4), m_SVertices, 0, NULL, NULL);
+        err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &one, &one, 0, NULL, NULL);
 
-	solve_stats.elapsed_ms = timeGetTime() - solve_stats.elapsed_ms;
+        //Read back the residual value
+        err = clEnqueueReadBuffer(m_CmdQueue, m_Memobjs.back(), CL_TRUE, 0, sizeof(cl_float), &res, 0, NULL, NULL);
 
-	
-	for( std::size_t i = 0; i < n; ++i )
-	{
-		m_Output.add_vertex( vertex_ptr_t( new vertex_t(
-			m_SVertices[i].s[0],m_SVertices[i].s[1],m_SVertices[i].s[2] ) ) );
-	}
+        std::cout << i << " - res : " << res << '\n';
 
-	for( mesh_t::face_iterator_t f = m_Input.faces_begin(); f != m_Input.faces_end(); ++f )
-	{
-		std::vector< vertex_ptr_t > verts;
-		std::vector< vertex_ptr_t > indices((*f)->verts_begin(),(*f)->verts_end());
+        if( last_res < res || res < m_Options.target_residual )
+            break;
 
-		for( std::size_t i = 0 ; i < indices.size(); ++i )
-			verts.push_back( m_Output.verts()[ indices[i]->get_id() ] );
+        last_res = res;
+    }
 
-		m_Output.add_face( face_ptr_t( new face_t(verts.begin(),verts.end()) ) );
-	}
+    //Read the final coordinates
+    err = clEnqueueReadBuffer(m_CmdQueue, src, CL_TRUE, 0, n*sizeof(cl_float4), m_SVertices, 0, NULL, NULL);
 
-	solve_stats.residual = res;
+    solve_stats.elapsed_ms = timeGetTime() - solve_stats.elapsed_ms;
 
-	return true;
+
+    for( std::size_t i = 0; i < n; ++i )
+    {
+        m_Output.add_vertex( vertex_ptr_t( new vertex_t(
+            m_SVertices[i].s[0],m_SVertices[i].s[1],m_SVertices[i].s[2] ) ) );
+    }
+
+    for( mesh_t::face_iterator_t f = m_Input.faces_begin(); f != m_Input.faces_end(); ++f )
+    {
+        std::vector< vertex_ptr_t > verts;
+        std::vector< vertex_ptr_t > indices((*f)->verts_begin(),(*f)->verts_end());
+
+        for( std::size_t i = 0 ; i < indices.size(); ++i )
+            verts.push_back( m_Output.verts()[ indices[i]->get_id() ] );
+
+        m_Output.add_face( face_ptr_t( new face_t(verts.begin(),verts.end()) ) );
+    }
+
+    solve_stats.residual = res;
+
+    return true;
 }
 
 void spheremap::SolverCL::compute_weights()
 {
-	//Compute Conformal or Barycentric weights for all the edges
-	foreach( mesh_t::edge_ptr_t e, m_Input.edges() )
-	{
-		std::vector< vertex_ptr_t > verts(e->verts_begin(),e->verts_end());
+    //Compute Conformal or Barycentric weights for all the edges
+    foreach( mesh_t::edge_ptr_t e, m_Input.edges() )
+    {
+        std::vector< vertex_ptr_t > verts(e->verts_begin(),e->verts_end());
 
-		//Find the two oposing vertices
-		foreach( mesh_t::face_ptr_t ef, e->faces() )
-		{
-			foreach( mesh_t::vertex_ptr_t efv, ef->verts() )
-			{
-				if( efv != verts[0] && efv != verts[1] )
-					verts.push_back(efv);
-			}
-		}
+        //Find the two oposing vertices
+        foreach( mesh_t::face_ptr_t ef, e->faces() )
+        {
+            foreach( mesh_t::vertex_ptr_t efv, ef->verts() )
+            {
+                if( efv != verts[0] && efv != verts[1] )
+                    verts.push_back(efv);
+            }
+        }
 
-		float w = 1.0;
+        float w = 1.0;
 
-		if( m_Options.weights == 1 )	//Conformal weights
-		{
-			float a0 = acos( dot( 
-				normalize( verts[2]->point() - verts[0]->point() ), 
-				normalize( verts[2]->point() - verts[1]->point() ) ) );
+        if( m_Options.weights == 1 )	//Conformal weights
+        {
+            float a0 = acos( dot( 
+                normalize( verts[2]->point() - verts[0]->point() ), 
+                normalize( verts[2]->point() - verts[1]->point() ) ) );
 
-			float a1 = acos( dot( 
-				normalize( verts[3]->point() - verts[0]->point() ), 
-				normalize( verts[3]->point() - verts[1]->point() ) ) );
+            float a1 = acos( dot( 
+                normalize( verts[3]->point() - verts[0]->point() ), 
+                normalize( verts[3]->point() - verts[1]->point() ) ) );
 
-			//Clamp the weights between 5 and 85 degrees
-			if( a0 < 0.087266462599716474f ) a0 = 0.087266462599716474f;
-			else if( a0 > 1.4835298641951802f ) a0 = 1.4835298641951802f;
+            //Clamp the weights between 5 and 85 degrees
+            if( a0 < 0.087266462599716474f ) a0 = 0.087266462599716474f;
+            else if( a0 > 1.4835298641951802f ) a0 = 1.4835298641951802f;
 
-			if( a1 < 0.087266462599716474f ) a1 = 0.087266462599716474f;
-			else if( a1 > 1.4835298641951802f ) a1 = 1.4835298641951802f;
+            if( a1 < 0.087266462599716474f ) a1 = 0.087266462599716474f;
+            else if( a1 > 1.4835298641951802f ) a1 = 1.4835298641951802f;
 
-			w = (1.0 / tan(a0) + 1.0 / tan(a1));
-		}
+            w = (1.0 / tan(a0) + 1.0 / tan(a1));
+        }
 
-		//add the weight to the two vertices of this edge
-		verts[0]->Weights.push_back(w);
-		verts[1]->Weights.push_back(w);
-	}
+        //add the weight to the two vertices of this edge
+        verts[0]->Weights.push_back(w);
+        verts[1]->Weights.push_back(w);
+    }
 
-	//Normalize the weights of all the vertices
-	foreach( mesh_t::vertex_ptr_t v, m_Input.verts() )
-	{
-		float sum = 0.0;
-		for( std::size_t j = 0; j < v->Weights.size(); ++j )
-			sum += v->Weights[j];
+    //Normalize the weights of all the vertices
+    foreach( mesh_t::vertex_ptr_t v, m_Input.verts() )
+    {
+        float sum = 0.0;
+        for( std::size_t j = 0; j < v->Weights.size(); ++j )
+            sum += v->Weights[j];
 
-		for( std::size_t j = 0; j < v->Weights.size(); ++j )
-			v->Weights[j] /= sum;
-	}
+        for( std::size_t j = 0; j < v->Weights.size(); ++j )
+            v->Weights[j] /= sum;
+    }
 }
