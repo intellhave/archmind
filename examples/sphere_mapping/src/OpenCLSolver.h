@@ -98,8 +98,8 @@ private:
 	cl_float4 *m_Vertices;
 	cl_float4 *m_SVertices;
 	cl_float *m_Weights;
-	cl_uint *m_NVertices;
-	std::vector<cl_uint> m_Bounds;
+	cl_int *m_NVertices;
+	std::vector<cl_int> m_Bounds;
 
 	std::size_t m_LocalSize;
 	std::size_t m_GlobalSize;

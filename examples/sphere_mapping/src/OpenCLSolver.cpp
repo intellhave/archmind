@@ -80,18 +80,16 @@ spheremap::SolverCL::SolverCL(
 	}
 
 	//Copy the neighboring information
+	m_Bounds.push_back(0);
 	for( std::size_t i = 0; i < n; i++ )
-	{
-		m_Bounds.push_back( i == 0 ? 0 : m_Bounds.back() );
-		m_Bounds.push_back( m_Bounds.back() + input_mesh.verts()[i]->edges_size() );
-	}
+		m_Bounds.push_back( m_Bounds.back() + cl_int(input_mesh.verts()[i]->edges_size()) );
 
 	compute_weights();
 
-	m_NVertices = new cl_uint[m_Bounds.back()];
+	m_NVertices = new cl_int[m_Bounds.back()];
 	m_Weights = new cl_float[m_Bounds.back()];
 
-	cl_uint *nverts = m_NVertices;
+	cl_int *nverts = m_NVertices;
 	cl_float *nweights = m_Weights;
 
 	//Copy the neighboring information
@@ -163,9 +161,9 @@ spheremap::SolverCL::SolverCL(
 	//Constraints
 	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4)*n, m_Vertices, NULL));
 	//Bounds
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_uint)*m_Bounds.size(), &m_Bounds[0], NULL));
+	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.size(), &m_Bounds[0], NULL));
 	//Indices
-	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_uint)*m_Bounds.back(), m_NVertices, NULL));
+	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.back(), m_NVertices, NULL));
 	//Weights
 	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float)*m_Bounds.back(), m_Weights, NULL));
 	m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_float4)*n, NULL, NULL));
