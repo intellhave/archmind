@@ -80,11 +80,7 @@ spheremap::SolverCL::SolverCL(
     }
 
     //Copy the neighboring information
-    //m_Bounds.push_back(0);
-    //for( std::size_t i = 0; i < n; i++ )
-    //    m_Bounds.push_back( m_Bounds.back() + cl_int(input_mesh.verts()[i]->edges_size()) );
-    //find the pad size (max neighbors of the mesh)
-    m_PadSize = 0;
+    m_PadSize = 0;      //maximun neighbors
     for( std::size_t i = 0; i < n; i++ )
     {
         std::size_t wi = input_mesh.verts()[i]->edges_size();
@@ -112,7 +108,7 @@ spheremap::SolverCL::SolverCL(
             counter += n;
         }
 
-        //fill the rest with dummy values
+        //pad the rest with 0 weights
         for( ; wi < m_PadSize; ++wi )
         {
             nverts[ v->get_id() + counter ] = nverts[ v->get_id() ];
@@ -120,8 +116,6 @@ spheremap::SolverCL::SolverCL(
             counter += n;
         }	
     }
-
-    printf("mesh size : %d\n", input_mesh.verts_size() );
 
     cl_int err = 0;
 

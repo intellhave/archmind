@@ -17,9 +17,7 @@
   2. Altered source versions must be plainly marked as such, and must not be
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
-*/
-
-
+  */
 #include "SphereGeometry.h"
 #include "Io/Io.h"
 #include "CommandLine.h"
@@ -29,46 +27,46 @@ using namespace spheremap;
 
 int main(int argc, char *argv[])
 {
-	std::cout << 
-		"Parallel Computation of Spherical Parameterizations for Mesh Analysis\n" <<
-	    "Copyright (C) 2011 Athanasiadis Theodoros and Fudos Ioannis\n\n";
+    std::cout << 
+        "Parallel Computation of Spherical Parameterizations for Mesh Analysis\n" <<
+        "Copyright (C) 2011 Athanasiadis Theodoros and Fudos Ioannis\n\n";
 
-	cmdline_map_t cmd_args;
-	
-	if( !parseCommandLine(argc,argv,cmd_args) ) 
-		return 1;
+    cmdline_map_t cmd_args;
 
-	mesh_t input_mesh;
-	mesh_t output_mesh;
+    if( !parseCommandLine(argc,argv,cmd_args) ) 
+        return 1;
 
-	if( !arch::io::load_from_file(cmd_args["source"].as<std::string>(), input_mesh) )
-	{
-		std::cerr << "Failed to open : " << cmd_args["source"].as<std::string>() << "\n";
-		return 1;
-	}
+    mesh_t input_mesh;
+    mesh_t output_mesh;
 
-	Options options;
+    if( !arch::io::load_from_file(cmd_args["source"].as<std::string>(), input_mesh) )
+    {
+        std::cerr << "Failed to open : " << cmd_args["source"].as<std::string>() << "\n";
+        return 1;
+    }
 
-	options.workgroup = cmd_args["workgroup"].as<int>();
-	options.cpu = cmd_args["cpu"].as<int>();
-	options.max_iters = cmd_args["max_iters"].as<int>();
-	options.spdelta = cmd_args["spdelta"].as<float>();
-	options.target_residual = cmd_args["res"].as<float>();
-	options.weights = cmd_args["weights"].as<std::string>() == "conformal" ? 1 : 0;
-	options.centroid_proj = cmd_args["centroid"].as<int>();
+    Options options;
 
-	Stats stats;
-	
-	SolverCL solver(input_mesh, output_mesh, options);
+    options.workgroup = cmd_args["workgroup"].as<int>();
+    options.cpu = cmd_args["cpu"].as<int>();
+    options.max_iters = cmd_args["max_iters"].as<int>();
+    options.spdelta = cmd_args["spdelta"].as<float>();
+    options.target_residual = cmd_args["res"].as<float>();
+    options.weights = cmd_args["weights"].as<std::string>() == "conformal" ? 1 : 0;
+    options.centroid_proj = cmd_args["centroid"].as<int>();
 
-	solver.solve(stats);
+    Stats stats;
 
-	std::cout << "Stats\n";
-	std::cout << "Time : " << stats.elapsed_ms << " ms\n";
-	std::cout << "Iters : " << stats.iterations << "\n";
-	std::cout << "Residual : " << stats.residual << "\n";
+    SolverCL solver(input_mesh, output_mesh, options);
 
-	arch::io::save_to_file(cmd_args["target"].as<std::string>(), output_mesh);
+    solver.solve(stats);
 
-	return 0;
+    std::cout << "Stats\n";
+    std::cout << "Time : " << stats.elapsed_ms << " ms\n";
+    std::cout << "Iters : " << stats.iterations << "\n";
+    std::cout << "Residual : " << stats.residual << "\n";
+
+    arch::io::save_to_file(cmd_args["target"].as<std::string>(), output_mesh);
+
+    return 0;
 }
