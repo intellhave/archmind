@@ -57,9 +57,16 @@ int main(int argc, char *argv[])
 
     Stats stats;
 
-    SolverCL solver(input_mesh, output_mesh, options);
+    try
+    {
+        SolverCL solver(input_mesh, output_mesh, options);
+        solver.solve(stats);
+    }
+    catch(const std::runtime_error &err)
+    {
+        std::cerr << err.what();
+    }
 
-    solver.solve(stats);
 
     std::cout << "Stats\n";
     std::cout << "Time : " << stats.elapsed_ms << " ms\n";

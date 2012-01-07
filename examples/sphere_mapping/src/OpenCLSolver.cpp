@@ -54,6 +54,8 @@ spheremap::SolverCL::SolverCL(
                               mesh_t &ouput_mesh,
                               Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
 {
+    using std::min;
+
     std::size_t n = input_mesh.verts_size();
 
     m_LocalSize = 1024;
@@ -130,7 +132,7 @@ spheremap::SolverCL::SolverCL(
         std::string name;
         cl::platform_info(platforms[i],CL_PLATFORM_NAME,name);
 
-        if( (name.find("ATI") != string::npos) || (name.find("NVIDIA") != string::npos)  )
+        if( (name.find("AMD") != string::npos) || (name.find("NVIDIA") != string::npos)  )
         {
             platform = platforms[i];
 
@@ -161,7 +163,7 @@ spheremap::SolverCL::SolverCL(
     clGetContextInfo(m_hContext, CL_CONTEXT_DEVICES, nContextDescriptorSize, aDevices, 0);
 
     clGetDeviceInfo(aDevices[0], CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(std::size_t), &m_LocalSize, 0);
-    m_LocalSize = m_Options.workgroup;
+    m_LocalSize = min( m_LocalSize, m_Options.workgroup );
     std::cout << "OpenCL : work group size : " << m_LocalSize << '\n';
 
     m_GlobalSize = cl::roundUp(m_LocalSize,n);
