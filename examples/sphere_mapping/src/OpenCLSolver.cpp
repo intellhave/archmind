@@ -29,6 +29,7 @@
 #include <mmsystem.h>
 #pragma comment(lib, "Winmm.lib")
 #else
+
 #include <sys/time.h>
 
 unsigned int get_ticks()
@@ -58,12 +59,9 @@ spheremap::SolverCL::SolverCL(
 
     std::size_t n = input_mesh.verts_size();
 
-    m_LocalSize = 1024;
-    m_GlobalSize = cl::roundUp(m_LocalSize,n);
-
     //Vertices
-    m_Vertices = new cl_float4[n];
-    m_SVertices = new cl_float4[n];		//Output
+    m_Vertices = new cl_scalar4_t[n];
+    m_SVertices = new cl_scalar4_t[n];		//Output
 
     point_t c = options.centroid_proj ? centroid( input_mesh.verts() ) : point_t(0.0);
 
@@ -93,18 +91,21 @@ spheremap::SolverCL::SolverCL(
     compute_weights();
 
     m_NVertices = new cl_int[ n * m_PadSize ];
-    m_Weights = new cl_float[ n * m_PadSize ];
+    m_Weights = new cl_scalar_t[ n * m_PadSize ];
 
     cl_int *nverts = m_NVertices;
-    cl_float *nweights = m_Weights;
+    cl_scalar_t *nweights = m_Weights;
 
     //Copy the neighboring information
     foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() )
     {
         std::size_t counter = 0;
         std::size_t wi = 0;
+        std::size_t last = 0;
+
         foreach( mesh_t::vertex_t::vertex_ptr_t vv, v->verts() )
         {
+            last = counter;
             nverts[ v->get_id() + counter ] = vv->get_id();
             nweights[ v->get_id() + counter ] = v->Weights[wi++];
             counter += n;
@@ -113,7 +114,7 @@ spheremap::SolverCL::SolverCL(
         //pad the rest with 0 weights
         for( ; wi < m_PadSize; ++wi )
         {
-            nverts[ v->get_id() + counter ] = nverts[ v->get_id() ];
+            nverts[ v->get_id() + counter ] = nverts[ last ];
             nweights[ v->get_id() + counter ] = 0.0;
             counter += n;
         }	
@@ -166,7 +167,10 @@ spheremap::SolverCL::SolverCL(
     m_LocalSize = min( m_LocalSize, m_Options.workgroup );
     std::cout << "OpenCL : work group size : " << m_LocalSize << '\n';
 
-    m_GlobalSize = cl::roundUp(m_LocalSize,n);
+    m_ReductionThreads = 256;
+    m_ReductionBlocks = (n + m_ReductionThreads - 1) / m_ReductionThreads;
+
+    m_GlobalSize = cl::round_up(m_LocalSize,n);
 
     // create a command-queue
     m_CmdQueue = clCreateCommandQueue(m_hContext, aDevices[0], 0, 0);
@@ -174,23 +178,22 @@ spheremap::SolverCL::SolverCL(
     // allocate the buffer memory objects
 
     //Vertices
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4) * n, m_Vertices, NULL));   
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_scalar4_t) * n, m_Vertices, NULL));   
     //Constraints
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_float4) * n, m_Vertices, NULL));
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_scalar4_t) * n, m_Vertices, NULL));
     //Indices
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int) * n * m_PadSize, m_NVertices, NULL));   
     //Weights
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_float) * n * m_PadSize, m_Weights, NULL));  
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_scalar_t) * n * m_PadSize, m_Weights, NULL));  
     //Output
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_float4)*n, NULL, NULL));  
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_scalar4_t)*n, NULL, NULL));  
     //Temp Residual
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_float)*n, NULL, NULL)); 
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_scalar_t)*n, NULL, NULL)); 
     //Bounds
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.size(), &m_Bounds[0], NULL)); 
     //Residual
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_float), NULL, NULL));
-
-
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_scalar_t)*m_ReductionBlocks, NULL, NULL));
+   
     std::string program_source;
     if( loadTextFile("CL/solver.cl",program_source) )
         std::cout << "OpenCL file" << " loaded" << std::endl;
@@ -207,7 +210,7 @@ spheremap::SolverCL::SolverCL(
 
     // build the program
     char options[255];
-    sprintf(options, "-cl-strict-aliasing -D PAD_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f", m_PadSize );
+    sprintf(options, "-cl-strict-aliasing -D PAD_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_PadSize, USE_DOUBLE );
     err = clBuildProgram(m_Program, 0, NULL, options, NULL, NULL);
 
     if( err != CL_SUCCESS )
@@ -267,7 +270,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 
     cl_int n = m_Input.verts_size();
 
-    cl_mem src,dst,weights,constraints,indices,tmp_res,bounds;
+    cl_mem src,dst,weights,constraints,indices,tmp_res,bounds,final_res;
 
     src = m_Memobjs[0];			//Vertices
     constraints = m_Memobjs[1];	//Constraints
@@ -276,7 +279,8 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     dst = m_Memobjs[4];			//Output
     tmp_res = m_Memobjs[5];
     bounds = m_Memobjs[6];
-
+    final_res = m_Memobjs[7];
+    
     //set kernel arguments
     cl_int err = clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
     err |= clSetKernelArg(m_Kernel, 1, sizeof(cl_mem), (void *)&constraints );
@@ -316,8 +320,8 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
         return false;
     }
 
-    cl_float last_res = 1000000.0f;
-    cl_float res, linear_res;
+    cl_scalar_t last_res = 1000000.0f;
+    cl_scalar_t res, linear_res;
     std::size_t one = 1;
 
     for( std::size_t i = 0; i < m_Options.max_iters; ++i )
@@ -359,12 +363,27 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
                 clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&dst );
 
                 //Finally compute the residual (Lmax)
-                clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
-                clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
-                clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &m_Memobjs.back());
+                std::size_t s = m_ReductionBlocks * m_ReductionThreads;
+    
+                //run the max reduction kernels
+                while( s > 1 )
+                {
+                    clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
+                    clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
+                    clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &final_res);
+                    clSetKernelArg(m_KernelSRes, 3, sizeof(cl_scalar_t)*m_ReductionThreads, NULL);
 
-                err |= clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSRes, 1, NULL, &one, &one, 0, NULL, NULL);
+                    std::size_t threads = (s < m_ReductionThreads) ? cl::next_pow2(s) : m_ReductionThreads;
+                    std::size_t blocks = (s + threads - 1) / threads;
+                 
+                    std::size_t rglobal_work_size = threads * blocks;
+                    std::size_t rlocal_work_size = threads;
 
+                    err |= clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSRes, 1, NULL, &rglobal_work_size, &rlocal_work_size, 0, NULL, NULL);
+
+                    s = (s + threads - 1) / threads;
+                }
+              
                 if( err != CL_SUCCESS )
                 {
                     std::cerr << "Some error occured during the execution of the kernel : " << err << std::endl;
@@ -372,7 +391,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
                 }
 
                 //Read back the residual value
-                err |= clEnqueueReadBuffer(m_CmdQueue, m_Memobjs.back(), CL_TRUE, 0, sizeof(cl_float), &linear_res, 0, NULL, NULL);
+                err |= clEnqueueReadBuffer(m_CmdQueue, final_res, CL_TRUE, 0, sizeof(cl_scalar_t), &linear_res, 0, NULL, NULL);
 
                 if( linear_res < m_Options.spdelta )
                     break;				
@@ -398,12 +417,12 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
         //Finally compute the residual (L2)
         clSetKernelArg(m_KernelRes, 0, sizeof(cl_int), &n );
         clSetKernelArg(m_KernelRes, 1, sizeof(cl_mem), &tmp_res );
-        clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &m_Memobjs.back());
+        clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &final_res);
 
         err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &one, &one, 0, NULL, NULL);
 
         //Read back the residual value
-        err = clEnqueueReadBuffer(m_CmdQueue, m_Memobjs.back(), CL_TRUE, 0, sizeof(cl_float), &res, 0, NULL, NULL);
+        err = clEnqueueReadBuffer(m_CmdQueue, final_res, CL_TRUE, 0, sizeof(cl_scalar_t), &res, 0, NULL, NULL);
 
         std::cout << i << " - res : " << res << '\n';
 
@@ -414,7 +433,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     }
 
     //Read the final coordinates
-    err = clEnqueueReadBuffer(m_CmdQueue, src, CL_TRUE, 0, n*sizeof(cl_float4), m_SVertices, 0, NULL, NULL);
+    err = clEnqueueReadBuffer(m_CmdQueue, src, CL_TRUE, 0, n*sizeof(cl_scalar4_t), m_SVertices, 0, NULL, NULL);
 
     solve_stats.elapsed_ms = timeGetTime() - solve_stats.elapsed_ms;
 

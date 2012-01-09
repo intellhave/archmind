@@ -28,6 +28,20 @@
 
 #include <vector>
 
+#ifndef USE_DOUBLE
+#define USE_DOUBLE 0
+#endif
+
+#if USE_DOUBLE
+typedef double scalar_t;
+typedef cl_double cl_scalar_t;
+typedef cl_double4 cl_scalar4_t;
+#else
+typedef float scalar_t;
+typedef cl_float cl_scalar_t;
+typedef cl_float4 cl_scalar4_t;
+#endif
+
 namespace spheremap
 {
 
@@ -35,7 +49,7 @@ struct Stats
 {
 	unsigned elapsed_ms;
 	unsigned iterations;
-	float residual;
+	scalar_t residual;
 	bool success;
 };
 
@@ -52,8 +66,8 @@ struct Options
 		centroid_proj(false)
 		{}
 
-	float target_residual;
-	float spdelta;
+	scalar_t target_residual;
+	scalar_t spdelta;
 	std::size_t workgroup;
 	std::size_t max_iters;
 	std::size_t max_sp_iters;
@@ -95,14 +109,16 @@ private:
 	cl_command_queue m_CmdQueue;
 	std::vector<cl_mem> m_Memobjs;
 
-	cl_float4 *m_Vertices;
-	cl_float4 *m_SVertices;
-	cl_float *m_Weights;
+	cl_scalar4_t *m_Vertices;
+	cl_scalar4_t *m_SVertices;
+	cl_scalar_t *m_Weights;
 	cl_int *m_NVertices;
 	std::vector<cl_int> m_Bounds;
 
 	std::size_t m_LocalSize;
 	std::size_t m_GlobalSize;
+    std::size_t m_ReductionThreads;
+    std::size_t m_ReductionBlocks;
 	cl_int m_PadSize;
 
 	Options m_Options;
