@@ -119,7 +119,7 @@ private:
 	std::size_t m_GlobalSize;
     std::size_t m_ReductionThreads;
     std::size_t m_ReductionBlocks;
-	cl_int m_PadSize;
+	cl_int m_StrideSize;
 
 	Options m_Options;
 };

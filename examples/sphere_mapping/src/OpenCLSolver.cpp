@@ -80,18 +80,18 @@ spheremap::SolverCL::SolverCL(
     }
 
     //Copy the neighboring information
-    m_PadSize = 0;      //maximun neighbors
+    m_StrideSize = 0;      //distance between successive neighbors 
     for( std::size_t i = 0; i < n; i++ )
     {
         std::size_t wi = input_mesh.verts()[i]->edges_size();
         m_Bounds.push_back( wi );
-        if( wi > m_PadSize ) m_PadSize = wi;
+        if( wi > m_StrideSize ) m_StrideSize = wi;
     }
 
     compute_weights();
 
-    m_NVertices = new cl_int[ n * m_PadSize ];
-    m_Weights = new cl_scalar_t[ n * m_PadSize ];
+    m_NVertices = new cl_int[ n * m_StrideSize ];
+    m_Weights = new cl_scalar_t[ n * m_StrideSize ];
 
     cl_int *nverts = m_NVertices;
     cl_scalar_t *nweights = m_Weights;
@@ -112,7 +112,7 @@ spheremap::SolverCL::SolverCL(
         }
 
         //pad the rest with 0 weights
-        for( ; wi < m_PadSize; ++wi )
+        for( ; wi < m_StrideSize; ++wi )
         {
             nverts[ v->get_id() + counter ] = nverts[ last ];
             nweights[ v->get_id() + counter ] = 0.0;
@@ -182,9 +182,9 @@ spheremap::SolverCL::SolverCL(
     //Constraints
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_scalar4_t) * n, m_Vertices, NULL));
     //Indices
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int) * n * m_PadSize, m_NVertices, NULL));   
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int) * n * m_StrideSize, m_NVertices, NULL));   
     //Weights
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_scalar_t) * n * m_PadSize, m_Weights, NULL));  
+    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_scalar_t) * n * m_StrideSize, m_Weights, NULL));  
     //Output
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_scalar4_t)*n, NULL, NULL));  
     //Temp Residual
@@ -210,7 +210,7 @@ spheremap::SolverCL::SolverCL(
 
     // build the program
     char options[255];
-    sprintf(options, "-cl-strict-aliasing -D PAD_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_PadSize, USE_DOUBLE );
+    sprintf(options, "-cl-strict-aliasing -D STRIDE_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_StrideSize, USE_DOUBLE );
     err = clBuildProgram(m_Program, 0, NULL, options, NULL, NULL);
 
     if( err != CL_SUCCESS )

@@ -51,7 +51,7 @@ __kernel void solve_conformal(
     scalar4_t c = (scalar4_t)(0.0f,0.0f,0.0f,0.0f);
 
     int start = id;
-    for( int i = 0; i < PAD_SIZE; ++i )
+    for( int i = 0; i < STRIDE_SIZE; ++i )
     {
         //neighbor vertex
 	int nid = verts[start];
@@ -89,7 +89,7 @@ __kernel void solve_conformal_res(
 
     int start = id;
     
-    for( int i = 0; i < PAD_SIZE; ++i )
+    for( int i = 0; i < STRIDE_SIZE; ++i )
     {
         //neighbor vertex
 	int nid = verts[start];
@@ -205,7 +205,7 @@ __kernel void convergence_conformal_res(
  
     int start = id;
     
-    for( int i = 0; i < PAD_SIZE; ++i )
+    for( int i = 0; i < STRIDE_SIZE; ++i )
     {
         //neighbor vertex
         //neighbor vertex
