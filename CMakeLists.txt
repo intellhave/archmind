@@ -14,6 +14,7 @@ set(
     ${OPENCL_INCLUDE_DIR}
     ${OPENCL_DIR}/OpenCL/common/inc
     $ENV{OPENCL_INCLUDE_DIR}
+    $ENV{CUDA_INC_PATH}
     /usr/local/include
     /usr/include
     #append additional search directories for OpenCL include here
@@ -28,6 +29,7 @@ set(
     $ENV{OPENCL_DIR}/lib
     $ENV{OPENCL_DIR}/lib/x86
     $ENV{LD_LIBRARY_PATH}
+    $ENV{CUDA_LIB_PATH}
     /usr/local/lib64
     /usr/local/lib
     /usr/lib64
