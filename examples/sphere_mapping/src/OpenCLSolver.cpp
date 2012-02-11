@@ -31,6 +31,7 @@
 #else
 
 #include <sys/time.h>
+#include <stdio.h>
 
 unsigned int get_ticks()
 {
@@ -209,9 +210,9 @@ spheremap::SolverCL::SolverCL(
     }
 
     // build the program
-    char options[255];
-    sprintf(options, "-cl-strict-aliasing -D STRIDE_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_StrideSize, USE_DOUBLE );
-    err = clBuildProgram(m_Program, 0, NULL, options, NULL, NULL);
+    char cloptions[255];
+    sprintf(cloptions, "-cl-strict-aliasing -D STRIDE_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_StrideSize, USE_DOUBLE );
+    err = clBuildProgram(m_Program, 0, NULL, cloptions, NULL, NULL);
 
     if( err != CL_SUCCESS )
     {
