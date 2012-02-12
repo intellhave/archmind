@@ -84,7 +84,7 @@ spheremap::SolverCL::SolverCL(
     m_StrideSize = 0;      //distance between successive neighbors 
     for( std::size_t i = 0; i < n; i++ )
     {
-        std::size_t wi = input_mesh.verts()[i]->edges_size();
+        cl_int wi = cl_int(input_mesh.verts()[i]->edges_size());
         m_Bounds.push_back( wi );
         if( wi > m_StrideSize ) m_StrideSize = wi;
     }
@@ -107,7 +107,7 @@ spheremap::SolverCL::SolverCL(
         foreach( mesh_t::vertex_t::vertex_ptr_t vv, v->verts() )
         {
             last = counter;
-            nverts[ v->get_id() + counter ] = vv->get_id();
+            nverts[ v->get_id() + counter ] = cl_int(vv->get_id());
             nweights[ v->get_id() + counter ] = v->Weights[wi++];
             counter += n;
         }
@@ -268,7 +268,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     solve_stats.success = true;
     solve_stats.iterations = 0;
 
-    cl_int n = m_Input.verts_size();
+    cl_int n = cl_int( m_Input.verts_size() );
 
     cl_mem src,dst,weights,constraints,indices,tmp_res,bounds,final_res;
 
