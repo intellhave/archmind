@@ -20,7 +20,6 @@
 */
 
 #include "OpenCLSolver.h"
-#include "solver.cl"
 #include <iostream>
 #include <vector>
 #include <boost/foreach.hpp>
@@ -196,9 +195,14 @@ spheremap::SolverCL::SolverCL(
     //Residual
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_scalar_t)*m_ReductionBlocks, NULL, NULL));
    
-    // create the program
-    m_Program = clCreateProgramWithSource(m_hContext, 1, &solver_source, 0, &err);
+    std::string program_source;
+    if( loadTextFile("CL/solver.cl",program_source) )
+        std::cout << "OpenCL file" << " loaded" << std::endl;
 
+    const char *source = program_source.c_str();
+
+    // create the program
+    m_Program = clCreateProgramWithSource(m_hContext, 1, &source, 0, &err);
     if( err != CL_SUCCESS )
     {
         throw std::runtime_error("Error in clCreateProgramWithSource!");
