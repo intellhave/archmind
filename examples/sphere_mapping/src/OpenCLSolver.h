@@ -60,7 +60,7 @@ struct Options
 		spdelta(1e-06f),
 		workgroup(512),
 		max_iters(100), 
-		max_sp_iters(10000),
+		max_sp_iters(100000),
 		weights(0),
 		cpu(false),
 		centroid_proj(false)
