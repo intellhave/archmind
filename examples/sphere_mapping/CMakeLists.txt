@@ -5,6 +5,7 @@ set(SPHERE_MAPPING_SRC
 	src/Main.cpp
 	)
 
+include_directories(Boost_INCLUDE_DIRS)
 include_directories(src)
 include_directories(../../src)
 
