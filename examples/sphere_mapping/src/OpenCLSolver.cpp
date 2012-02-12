@@ -196,7 +196,7 @@ spheremap::SolverCL::SolverCL(
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_scalar_t)*m_ReductionBlocks, NULL, NULL));
    
     std::string program_source;
-    if( loadTextFile("CL/solver.cl",program_source) )
+    if( loadTextFile("solver.cl",program_source) )
         std::cout << "OpenCL file" << " loaded" << std::endl;
 
     const char *source = program_source.c_str();
