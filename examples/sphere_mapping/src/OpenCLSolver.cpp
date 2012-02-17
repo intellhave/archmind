@@ -192,8 +192,6 @@ spheremap::SolverCL::SolverCL(
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_WRITE_ONLY, sizeof(cl_scalar_t)*n, NULL, NULL)); 
     //Bounds
     m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.size(), &m_Bounds[0], NULL)); 
-    //Residual
-    m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_WRITE, sizeof(cl_scalar_t)*m_ReductionBlocks, NULL, NULL));
    
     std::string program_source;
     if( loadTextFile("solver.cl",program_source) )
@@ -270,7 +268,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 
     cl_int n = cl_int( m_Input.verts_size() );
 
-    cl_mem src,dst,weights,constraints,indices,tmp_res,bounds,final_res;
+    cl_mem src,dst,weights,constraints,indices,tmp_res,bounds;
 
     src = m_Memobjs[0];			//Vertices
     constraints = m_Memobjs[1];	//Constraints
@@ -279,7 +277,6 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     dst = m_Memobjs[4];			//Output
     tmp_res = m_Memobjs[5];
     bounds = m_Memobjs[6];
-    final_res = m_Memobjs[7];
     
     //set kernel arguments
     cl_int err = clSetKernelArg(m_Kernel, 0, sizeof(cl_mem), (void *)&src );
@@ -370,7 +367,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
                 {
                     clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
                     clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
-                    clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &final_res);
+                    clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &tmp_res);
                     clSetKernelArg(m_KernelSRes, 3, sizeof(cl_scalar_t)*m_ReductionThreads, NULL);
 
                     std::size_t threads = (s < m_ReductionThreads) ? cl::next_pow2(s) : m_ReductionThreads;
@@ -391,7 +388,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
                 }
 
                 //Read back the residual value
-                err |= clEnqueueReadBuffer(m_CmdQueue, final_res, CL_TRUE, 0, sizeof(cl_scalar_t), &linear_res, 0, NULL, NULL);
+                err |= clEnqueueReadBuffer(m_CmdQueue, tmp_res, CL_TRUE, 0, sizeof(cl_scalar_t), &linear_res, 0, NULL, NULL);
 
                 if( linear_res < m_Options.spdelta )
                     break;				
@@ -417,12 +414,12 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
         //Finally compute the residual (L2)
         clSetKernelArg(m_KernelRes, 0, sizeof(cl_int), &n );
         clSetKernelArg(m_KernelRes, 1, sizeof(cl_mem), &tmp_res );
-        clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &final_res);
+        clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &tmp_res);
 
         err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &one, &one, 0, NULL, NULL);
 
         //Read back the residual value
-        err = clEnqueueReadBuffer(m_CmdQueue, final_res, CL_TRUE, 0, sizeof(cl_scalar_t), &res, 0, NULL, NULL);
+        err = clEnqueueReadBuffer(m_CmdQueue, tmp_res, CL_TRUE, 0, sizeof(cl_scalar_t), &res, 0, NULL, NULL);
 
         std::cout << i << " - res : " << res << '\n';
 

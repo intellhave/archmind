@@ -251,7 +251,7 @@ __kernel void convergence_equal_res(
 
 __kernel void lmax_residual(
         const int n, 
-        const const __global scalar_t *res, 
+        const __global scalar_t *res, 
         __global scalar_t *res_norma, 
         __local scalar_t *work)
 {
