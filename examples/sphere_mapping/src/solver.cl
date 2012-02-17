@@ -24,7 +24,14 @@
 #endif
 
 #if USE_DOUBLE
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#ifdef cl_khr_fp64
+    #pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#elif defined(cl_amd_fp64)
+    #pragma OPENCL EXTENSION cl_amd_fp64 : enable
+#else 
+    #error "Double precision not supported by OpenCL implementation"
+#endif
+
 typedef double scalar_t;
 typedef double4 scalar4_t;
 #else
