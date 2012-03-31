@@ -26,7 +26,7 @@ vertex<Traits>::vertex() : m_ID( NO_ID )
     m_UniqueID = Traits::CounterID++;
 
 #ifndef NDEBUG
-    std::clog << "Vertex (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "Vertex (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -36,7 +36,7 @@ vertex<Traits>::vertex(const point_t &co ) : Point(co), m_ID( NO_ID )
     m_UniqueID = Traits::CounterID++;
 
 #ifndef NDEBUG
-    std::clog << "Vertex (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "Vertex (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -46,7 +46,7 @@ vertex<Traits>::vertex(const real_t &x, const real_t &y, const real_t &z) : Poin
     m_UniqueID = Traits::CounterID++;
 
 #ifndef NDEBUG
-    std::clog << "Vertex (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "Vertex (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -55,7 +55,7 @@ vertex<Traits>::~vertex()
 {
 
 #ifndef NDEBUG
-    std::clog << "~Vertex (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "~Vertex (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -114,7 +114,7 @@ typename vertex<Traits>::face_iterator_t vertex<Traits>::faces_end()const
 }
 
 template<typename Traits>
-uid_t vertex<Traits>::get_id()const
+uid_t vertex<Traits>::id()const
 {
     return m_ID;
 }
@@ -174,7 +174,7 @@ edge<Traits>::edge(typename edge<Traits>::vertex_ptr_t v0,typename edge<Traits>:
    m_UniqueID = Traits::CounterID++;
    
 #ifndef NDEBUG
-   std::clog << "Edge (" << m_UniqueID << ")" << std::endl;
+   //std::clog << "Edge (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -183,12 +183,12 @@ template<typename Traits>
 edge<Traits>::~edge()
 {
 #ifndef NDEBUG
-    std::clog << "~Edge (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "~Edge (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
 template<typename Traits>
-uid_t edge<Traits>::get_id()const
+uid_t edge<Traits>::id()const
 {
     return m_ID;
 }
@@ -289,7 +289,7 @@ template<typename Traits>
 face<Traits>::face() : m_ID(NO_ID)
 {
 #ifndef NDEBUG
-    std::clog << "Face (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "Face (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -297,7 +297,7 @@ template<typename Traits>
 face<Traits>::~face() 
 {
 #ifndef NDEBUG
-    std::clog << "~Face (" << m_UniqueID << ")" << std::endl;
+    //std::clog << "~Face (" << m_UniqueID << ")" << std::endl;
 #endif
 }
 
@@ -458,7 +458,26 @@ uid_t face<Traits>::unique_id() const
 }
 
 template<typename Traits>
-uid_t face<Traits>::get_id() const
+uid_t face<Traits>::id() const
 {
     return m_ID;
 }
+
+template<typename Traits>
+bool face<Traits>::is_triangle()const
+{
+	return Edges.size() == 3;
+}
+
+template<typename Traits>
+bool face<Traits>::is_quad()const
+{
+	return Edges.size() == 4;
+}
+
+template<typename Traits>
+bool face<Traits>::is_ngon()const
+{
+	return Edges.size() > 4;
+}
+

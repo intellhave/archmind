@@ -175,7 +175,7 @@ bool WaveFront<mesh_t>::write(const std::string &filename, const mesh_t &mesh)
         Stream << "f";
        
         for( typename mesh_t::face_t::vertex_iterator_t fv = (*f)->verts_begin(); fv != (*f)->verts_end(); ++fv )
-            Stream << " " << ((*fv)->get_id()+1);
+            Stream << " " << ((*fv)->id()+1);
      
         Stream << "\n";       
     }

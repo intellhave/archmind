@@ -30,9 +30,8 @@ namespace cl
 {
 
 // Round Up Division function
-std::size_t round_up(int group_size, int global_size);
-
-std::size_t next_pow2(unsigned int n);
+int round_up(int group_size, int global_size);
+unsigned int next_pow2(unsigned int n);
 
 std::string buildlog(cl_program program, cl_device_id device);
 

@@ -187,7 +187,7 @@ bool OFF<mesh_t>::write(const std::string &filename, const mesh_t &mesh)
         Stream << (*f)->verts_size() << " ";
        
         for( typename mesh_t::face_t::vertex_iterator_t fv = (*f)->verts_begin(); fv != (*f)->verts_end(); ++fv )
-            Stream << " " << (*fv)->get_id();
+            Stream << " " << (*fv)->id();
      
         Stream << "\n";       
     }

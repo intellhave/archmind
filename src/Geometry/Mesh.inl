@@ -23,7 +23,7 @@ template<typename Traits>
 mesh<Traits>::mesh()
 {
 #ifndef NDEBUG
-    std::clog << "Mesh()" << std::endl;
+    //std::clog << "Mesh()" << std::endl;
 #endif
 }
 
@@ -31,7 +31,7 @@ template<typename Traits>
 mesh<Traits>::~mesh()
 {
 #ifndef NDEBUG
-    std::clog << "~Mesh()" << std::endl;
+    //std::clog << "~Mesh()" << std::endl;
 #endif
 
 #if 0
@@ -127,7 +127,7 @@ template<typename Traits>
 bool mesh<Traits>::remove_vertex( vertex_ptr_t v )
 {
     
-    if( v->get_id() == NO_ID )      //check if this is a valid mesh vertex
+    if( v->id() == NO_ID )      //check if this is a valid mesh vertex
     {
         //print a message ?
         return true;
@@ -141,9 +141,21 @@ bool mesh<Traits>::remove_vertex( vertex_ptr_t v )
 }
 
 template<typename Traits>
+void mesh<Traits>::swap_vertex( vertex_ptr_t v0, vertex_ptr_t v1 )
+{
+	uid_t id0 = v0->id();
+	uid_t id1 = v1->id();
+
+	std::swap( Vertices[id0], Vertices[id1] );
+
+	v0->set_id(id1);
+	v1->set_id(id0);
+}
+
+template<typename Traits>
 bool mesh<Traits>::remove_edge( edge_ptr_t e )
 {
-    if( e->get_id() == NO_ID )
+    if( e->id() == NO_ID )
     {
         return false;
     }
@@ -178,7 +190,7 @@ bool mesh<Traits>::remove_edge( edge_ptr_t e )
 template<typename Traits>
 bool mesh<Traits>::remove_face( face_ptr_t f )
 {
-    if( f->get_id() == NO_ID )
+    if( f->id() == NO_ID )
     {
         return false;
     }
@@ -212,7 +224,7 @@ bool mesh<Traits>::remove_face( face_ptr_t f )
 template<typename Traits>
 void mesh<Traits>::delete_vertex( vertex_ptr_t v )
 {
-    uid_t ID = v->get_id();
+    uid_t ID = v->id();
     v->set_id( NO_ID );
 
     //check if the ID is valid
@@ -229,7 +241,7 @@ void mesh<Traits>::delete_vertex( vertex_ptr_t v )
 template<typename Traits>
 void mesh<Traits>::delete_edge( edge_ptr_t e )
 {
-    uid_t ID = e->get_id();
+    uid_t ID = e->id();
     e->set_id( NO_ID );
     
     //check if the ID is valid
@@ -245,7 +257,7 @@ void mesh<Traits>::delete_edge( edge_ptr_t e )
 template<typename Traits>
 void mesh<Traits>::delete_face( face_ptr_t f )
 {
-    uid_t ID = f->get_id();
+    uid_t ID = f->id();
     f->set_id( NO_ID );
 
     //check if the ID is valid
@@ -262,15 +274,15 @@ template<typename Traits>
 uid_t mesh<Traits>::add_vertex( vertex_ptr_t v )
 {
     //Check if the vertex has allready been inserted in the mesh
-    if( v->get_id() != NO_ID  )
+    if( v->id() != NO_ID  )
     {
-        if( v->get_id() < Vertices.size() && Vertices[v->get_id()] == v )
-            return v->get_id();
+        if( v->id() < Vertices.size() && Vertices[v->id()] == v )
+            return v->id();
     }
 
     v->set_id( Vertices.size() );
     Vertices.push_back( v );
-    return v->get_id();
+    return v->id();
 }
 
 template<typename Traits>
@@ -280,8 +292,8 @@ uid_t mesh<Traits>::add_face( face_ptr_t f )
     typename vertex_t::edge_iterator_t ve;
 
     //dont add duplicate faces
-    if( f->get_id() != NO_ID )
-        return f->get_id();
+    if( f->id() != NO_ID )
+        return f->id();
 
     std::size_t e_id = 0;
 
@@ -324,14 +336,14 @@ uid_t mesh<Traits>::add_face( face_ptr_t f )
     f->set_id( Faces.size() );
     Faces.push_back( f );
 
-    return f->get_id();
+    return f->id();
 }
 
 template<typename Traits>
 typename mesh<Traits>::vertex_ptr_t 
 mesh<Traits>::split_edge( edge_ptr_t e, real_t t, bool triangulate )
 {
-    if( e->get_id() == NO_ID )      //check if this edge is part of the mesh
+    if( e->id() == NO_ID )      //check if this edge is part of the mesh
         return e->verts()[0];
 
     typename vertex_t::point_t v0 = e->verts()[0]->point();      //edge first point
@@ -399,14 +411,13 @@ mesh<Traits>::split_edge( edge_ptr_t e, real_t t, bool triangulate )
         remove_face( faces[i] );
     }
 
-    //return sv->get_id();
     return sv;
 }
 
 template<typename Traits>
 bool mesh<Traits>::join_edge( edge_ptr_t e, vertex_ptr_t v )
 {
-    if( e->get_id() == NO_ID )
+    if( e->id() == NO_ID )
         return false;
 
     //store the other vertex of the edge
@@ -443,7 +454,7 @@ template<typename Traits>
 typename mesh<Traits>::edge_ptr_t 
 mesh<Traits>::split_face( face_ptr_t f, vertex_ptr_t v0, vertex_ptr_t v1 )
 {
-    if( f->get_id() == NO_ID )
+    if( f->id() == NO_ID )
         //return a dummy edge
         return edge_ptr_t( new edge_t(v0,v1) );
 
@@ -576,9 +587,6 @@ mesh<Traits>::join_face( face_ptr_t f0, face_ptr_t f1 )
 template<typename Traits>
 bool mesh<Traits>::flip_face( face_ptr_t f )
 {
-    //if( f->get_id() == NO_ID )
-    //  return false;
-
     //just flip the orientation of edges
     f->EdgesOrientation.flip();
 

@@ -119,6 +119,13 @@ public:
     */
     bool remove_vertex( vertex_ptr_t v );
 
+	/*!
+    *\brief swaps the vertex position with another
+    *\param v0 first vertex
+	*\param v1 second vertex
+    */
+	void swap_vertex( vertex_ptr_t v0, vertex_ptr_t v1 );
+
     /*!
     *\brief add a face in the mesh
     *\param f a new face
@@ -242,6 +249,10 @@ public:
     face_iterator_t faces_begin()const;
     face_iterator_t faces_end()const;
 
+	bool is_triangle()const;
+	bool is_quad()const;
+	bool is_ngon()const;
+
     //!Returns true if the edge orientation is clock-wise 
     bool edge_ccw( edge_ptr_t e );
 
@@ -251,7 +262,7 @@ public:
     point_t normal()const;
 
     uid_t unique_id() const;
-    uid_t get_id() const;
+    uid_t id() const;
 
     face();
     ~face();
@@ -264,7 +275,7 @@ public:
         m_UniqueID = Traits::CounterID++;
 
 #ifndef NDEBUG
-        std::clog << "Face (" << m_UniqueID << std::endl;
+        //std::clog << "Face (" << m_UniqueID << std::endl;
 #endif
     }
 
@@ -352,7 +363,7 @@ public:
     std::size_t faces_size()const;
 
     uid_t unique_id() const;    
-    uid_t get_id() const;
+    uid_t id() const;
 
     // operators
     bool operator==(const edge<Traits> &other);
@@ -423,7 +434,7 @@ public:
     face_iterator_t faces_end()const;
     
     uid_t unique_id() const;    
-    uid_t get_id() const;
+    uid_t id() const;
 
     point_t point()const;
     

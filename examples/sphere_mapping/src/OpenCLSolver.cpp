@@ -107,16 +107,16 @@ spheremap::SolverCL::SolverCL(
         foreach( mesh_t::vertex_t::vertex_ptr_t vv, v->verts() )
         {
             last = counter;
-            nverts[ v->get_id() + counter ] = cl_int(vv->get_id());
-            nweights[ v->get_id() + counter ] = v->Weights[wi++];
+            nverts[ v->id() + counter ] = cl_int(vv->id());
+            nweights[ v->id() + counter ] = v->Weights[wi++];
             counter += n;
         }
 
         //pad the rest with 0 weights
         for( ; wi < m_StrideSize; ++wi )
         {
-            nverts[ v->get_id() + counter ] = nverts[ last ];
-            nweights[ v->get_id() + counter ] = 0.0;
+            nverts[ v->id() + counter ] = nverts[ last ];
+            nweights[ v->id() + counter ] = 0.0;
             counter += n;
         }	
     }
@@ -156,7 +156,7 @@ spheremap::SolverCL::SolverCL(
     }
 
     if( !valid_platform )
-        throw std::runtime_error("Failed to find platform\n");
+        throw std::runtime_error("Failed to find OpenCL platform\n");
 
     // get the list of GPU devices associated with context
     size_t nContextDescriptorSize;
@@ -328,7 +328,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
         for( std::size_t j = 1; j < m_Options.max_sp_iters; ++j )
         {
             // execute the normal kernel
-            if( j % 1000 != 0 )
+            if( (j % 1000) != 0 )
             {
                 // execute kernel 
                 err = clEnqueueNDRangeKernel(m_CmdQueue, m_Kernel, 1, NULL, &m_GlobalSize, &m_LocalSize, 0, NULL, NULL);
@@ -360,12 +360,13 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
                 clSetKernelArg(m_Kernel, 3, sizeof(cl_mem), (void *)&dst );
 
                 //Finally compute the residual (Lmax)
-                std::size_t s = m_ReductionBlocks * m_ReductionThreads;
-    
+				cl_int m = m_ReductionBlocks * m_ReductionThreads;
+                cl_int s = m;
+				
                 //run the max reduction kernels
                 while( s > 1 )
                 {
-                    clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), &n );
+					clSetKernelArg(m_KernelSRes, 0, sizeof(cl_int), (s == m) ? &n : &s );
                     clSetKernelArg(m_KernelSRes, 1, sizeof(cl_mem), &tmp_res );
                     clSetKernelArg(m_KernelSRes, 2, sizeof(cl_mem), &tmp_res);
                     clSetKernelArg(m_KernelSRes, 3, sizeof(cl_scalar_t)*m_ReductionThreads, NULL);
@@ -378,7 +379,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 
                     err |= clEnqueueNDRangeKernel(m_CmdQueue, m_KernelSRes, 1, NULL, &rglobal_work_size, &rlocal_work_size, 0, NULL, NULL);
 
-                    s = (s + threads - 1) / threads;
+                    s = blocks;
                 }
               
                 if( err != CL_SUCCESS )
@@ -434,7 +435,6 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
 
     solve_stats.elapsed_ms = timeGetTime() - solve_stats.elapsed_ms;
 
-
     for( std::size_t i = 0; i < n; ++i )
     {
         m_Output.add_vertex( vertex_ptr_t( new vertex_t(
@@ -447,7 +447,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
         std::vector< vertex_ptr_t > indices((*f)->verts_begin(),(*f)->verts_end());
 
         for( std::size_t i = 0 ; i < indices.size(); ++i )
-            verts.push_back( m_Output.verts()[ indices[i]->get_id() ] );
+            verts.push_back( m_Output.verts()[ indices[i]->id() ] );
 
         m_Output.add_face( face_ptr_t( new face_t(verts.begin(),verts.end()) ) );
     }

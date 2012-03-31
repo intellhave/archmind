@@ -27,7 +27,7 @@
 using namespace cl;
 
 // Round Up Division function
-std::size_t cl::round_up(int group_size, int global_size) 
+int cl::round_up(int group_size, int global_size) 
 {
     int r = global_size % group_size;
     if(r == 0) 
@@ -39,7 +39,7 @@ std::size_t cl::round_up(int group_size, int global_size)
     }
 }
 
-std::size_t cl::next_pow2(unsigned int x)
+unsigned int cl::next_pow2(unsigned int x)
 {
     --x;
     x |= x >> 1;

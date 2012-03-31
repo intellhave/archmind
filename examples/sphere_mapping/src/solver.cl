@@ -263,22 +263,22 @@ __kernel void lmax_residual(
         __local scalar_t *work)
 {
     //for the recuction the size of the workgroup must be a power of 2
-    unsigned int tid = get_local_id(0);
-    unsigned int i = get_global_id(0);
+    unsigned int tid = get_global_id(0);
+    unsigned int id = get_local_id(0);
  
-    work[tid] = (i < n) ? res[i] : 0;
+    work[id] = (tid < n) ? res[tid] : 0;
     barrier(CLK_LOCAL_MEM_FENCE);
 
     //do reduction in shared mem
     for( unsigned int s = get_local_size(0)/2; s > 0; s >>=1 ) 
     {
-        if( tid < s && work[tid + s] > work[tid] )
-            work[tid] = work[tid + s];
+        if( id < s && work[id + s] > work[id] )
+            work[id] = work[id + s];
         
         barrier(CLK_LOCAL_MEM_FENCE);
     }
 
-    if(tid == 0) res_norma[get_group_id(0)] = work[0];
+    if(id == 0) res_norma[get_group_id(0)] = work[0];
 }
 
 __kernel void l2_residual(const int n, const const __global scalar_t *res, __global scalar_t *res_norma )
