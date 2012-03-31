@@ -242,6 +242,18 @@ typename edge<Traits>::vertex_ptr_t edge<Traits>::v1()const
 }
 
 template<typename Traits>
+typename edge<Traits>::real_t edge<Traits>::length()const
+{
+  return arch::math::distance( Vertices[0]->point(), Vertices[1]->point() );
+}
+
+template<typename Traits>
+typename edge<Traits>::real_t edge<Traits>::length_sq()const
+{
+  return arch::math::distance_sq( Vertices[0]->point(), Vertices[1]->point() );
+}
+
+template<typename Traits>
 typename edge<Traits>::face_range_t edge<Traits>::faces()const
 {
 	return face_range_t( faces_begin(), faces_end() );

@@ -541,6 +541,13 @@ inline typename VectorType::real_t distance(const VectorType &a, const VectorTyp
     return magnitude( a - b );
 }
 
+template< typename VectorType >
+inline typename VectorType::real_t distance_sq(const VectorType &a, const VectorType &b)
+{
+    const VectorType c(a - b);
+    return dot( c, c );
+}
+
 template< typename VectorType>
 inline VectorType normalize(const VectorType &a)
 {

@@ -188,6 +188,10 @@ public:
 template< typename VectorType >
 typename VectorType::real_t distance(const VectorType &a, const VectorType &b);
 
+//!squared distance of two vectors
+template< typename VectorType >
+typename VectorType::real_t distance_sq(const VectorType &a, const VectorType &b);
+
 //!normalize vector
 template< typename VectorType >
 VectorType normalize(const VectorType &a);

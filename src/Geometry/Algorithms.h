@@ -48,7 +48,7 @@ bool is_tjoin( const EdgePtr &e )
 template<typename EntityPtr>
 bool is_valid( const EntityPtr &e )
 {
-    return e->get_id() != NO_ID;
+    return e->id() != NO_ID;
 }
 
 /*!

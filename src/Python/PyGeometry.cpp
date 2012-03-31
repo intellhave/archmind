@@ -241,7 +241,7 @@ void arch::python::export_geometry()
         .def(self != self)  //!= operator
 		.def(self < self)
         .def("__hash__", &vertex_t::unique_id)
-        .add_property("id", &vertex_t::get_id, "Index in the mesh")
+        .add_property("id", &vertex_t::id, "Index in the mesh")
         .add_property("uid", &vertex_t::unique_id, "Entity unique ID")
     ;
 
@@ -262,7 +262,7 @@ void arch::python::export_geometry()
         .def(self != self)
 		.def(self < self)
         .def("__hash__", &edge_t::unique_id)
-        .add_property("id", &edge_t::get_id, "Index in the mesh")
+        .add_property("id", &edge_t::id, "Index in the mesh")
         .add_property("uid", &edge_t::unique_id, "Entity unique ID")
     ;
 
@@ -281,7 +281,7 @@ void arch::python::export_geometry()
         .def(self != self)
 		.def(self < self)
         .def("__hash__", &face_t::unique_id)
-        .add_property("id", &face_t::get_id, "Index in the mesh")
+        .add_property("id", &face_t::id, "Index in the mesh")
         .add_property("uid", &face_t::unique_id, "Entity unique ID")
     ;
     
