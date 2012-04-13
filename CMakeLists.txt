@@ -65,23 +65,23 @@ find_package(PythonLibs)
 #add_definitions(-DBOOST_ALL_NO_LIB )
 
 #Boost options turn on/off according to the type of linking
-set(Boost_USE_STATIC_LIBS OFF) 
+set(Boost_USE_STATIC_LIBS ON) 
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
+set(Boost_USE_STATIC_RUNTIME ON)
 set(Boost_DEBUG OFF)
 
-find_package(Boost 1.40 COMPONENTS program_options python)
+find_package(Boost 1.40 COMPONENTS program_options python REQUIRED)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
-if(PYTHON_FOUND)
-  add_subdirectory(src/Python)
+if(PYTHONLIBS_FOUND) 
+  add_subdirectory(src/Python lib)
 else()
   set(PYTHON_INCLUDE_DIRS $ENV{PYTHON_ROOT}/include)
   set(PYTHON_LIBRARIES $ENV{PYTHON_ROOT}/libs)
   #add_subdirectory(src/Python)
 endif()
 
-add_subdirectory(examples/cpp)
-add_subdirectory(examples/sphere_mapping)
+add_subdirectory(examples/cpp cpp_examples)
+add_subdirectory(examples/sphere_mapping sphere_mapping)
 

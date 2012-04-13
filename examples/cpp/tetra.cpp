@@ -23,7 +23,6 @@
 
 #include "Geometry/Geometry.h"
 #include "Io/Io.h"
-
 #include <vector>
 
 using namespace std;

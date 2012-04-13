@@ -1,4 +1,4 @@
-include_directories(Boost_INCLUDE_DIRS)
+include_directories(${Boost_INCLUDE_DIRS})
 include_directories(../../src)
 
 add_executable(smooth smooth.cpp)
