@@ -9,6 +9,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PYTHON_INCLUDE_DIRS})
 include_directories(../)
 
+add_definitions(-DBOOST_PYTHON_STATIC_LIB)
+
 if(MSVC)
   link_directories(${Boost_LIBRARY_DIRS})
   add_library(archmind STATIC ${ARCH_PYTHON_SRC} )

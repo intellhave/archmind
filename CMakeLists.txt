@@ -67,12 +67,16 @@ find_package(PythonLibs)
 #Boost options turn on/off according to the type of linking
 set(Boost_USE_STATIC_LIBS ON) 
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_DEBUG OFF)
 
 find_package(Boost 1.40 COMPONENTS program_options python REQUIRED)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+
+if(MSVC)
+  add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_HAS_ITERATOR_DEBUGGING=0 -D_SECURE_SCL=0)
+endif()
 
 if(PYTHONLIBS_FOUND) 
   add_subdirectory(src/Python lib)
