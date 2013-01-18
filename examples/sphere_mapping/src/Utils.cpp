@@ -25,30 +25,14 @@
 
 bool loadTextFile(const std::string &strFile, std::string &strText)
 {
-	using namespace std;
-
-    // Open the file passed in
-    ifstream fin(strFile.c_str());
-
-    // Make sure we opened the file correctly
-    if(fin == NULL)
-	{
-		std::cerr << "Failed to open : " << strFile << std::endl;
+    std::ifstream fin(strFile.c_str());
+    
+    if( fin == NULL ) {
+        std::cerr << "Failed to open : " << strFile << std::endl;
         return false;
-	}
-
-	std::string strLine = "";
-    strText = "";
-
-    // Go through and store each line in the text file within a "string" object
-    while(getline(fin, strLine))
-    {
-        strText += "\n" + strLine;
     }
 
-    // Close our file
-    fin.close();
-
-    //Success
+    strText = std::string( (std::istreambuf_iterator<char>(fin)),
+                 std::istreambuf_iterator<char>());
     return true;
 }
