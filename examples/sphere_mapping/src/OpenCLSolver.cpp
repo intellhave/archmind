@@ -133,7 +133,7 @@ spheremap::SolverCL::SolverCL(
   {
     std::string name;
     cl::platform_info(platforms[i],CL_PLATFORM_NAME,name);
-    std::cout << name << "\n";
+    //std::cout << name << "\n";
 
     //if( (name.find("AMD") != string::npos) || (name.find("NVIDIA") != string::npos)  )
     {
@@ -212,7 +212,7 @@ spheremap::SolverCL::SolverCL(
 
   // build the program
   char cloptions[255];
-  sprintf(cloptions, "-cl-strict-aliasing -D STRIDE_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_StrideSize, USE_DOUBLE );
+  sprintf(cloptions, "-D STRIDE_SIZE=%d -D OMEGA=1.0f -D ONE_MINUS_OMEGA=0.0f -D USE_DOUBLE=%d", m_StrideSize, USE_DOUBLE );
   err = clBuildProgram(m_Program, 0, NULL, cloptions, NULL, NULL);
 
   if( err != CL_SUCCESS )
@@ -422,7 +422,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &tmp_res);
     clSetKernelArg(m_KernelRes, 3, sizeof(cl_scalar_t)*m_ReductionThreads, NULL );
 
-    err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &m_ReductionThreads, NULL, 0, NULL, NULL);
+    err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &m_ReductionThreads, &m_ReductionThreads, 0, NULL, NULL);
 
     //Read back the residual value
     err = clEnqueueReadBuffer(m_CmdQueue, tmp_res, CL_TRUE, 0, sizeof(cl_scalar_t), &res, 0, NULL, NULL);

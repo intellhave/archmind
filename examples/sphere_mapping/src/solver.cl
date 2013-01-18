@@ -269,7 +269,7 @@ kernel void lmax_residual(
     barrier(CLK_LOCAL_MEM_FENCE);
 
     //do reduction in shared mem
-    for( unsigned int s = get_local_size(0)/2; s > 0; s >>=1 ) 
+    for( uint s = get_local_size(0)/2; s > 0; s >>=1 ) 
     {
         if( id < s && work[id + s] > work[id] )
             work[id] = work[id + s];
@@ -282,7 +282,7 @@ kernel void lmax_residual(
 
 kernel void l2_residual(const int n, const const global scalar_t *res, global scalar_t *res_norma, local scalar_t *work )
 {
-    uint id = get_local_id(0);
+    int id = get_local_id(0);
 
     scalar_t residue = 0.0;
 
