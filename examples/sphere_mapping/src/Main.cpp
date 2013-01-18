@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     Options options;
 
     options.workgroup = cmd_args["workgroup"].as<int>();
-    options.cpu = cmd_args["cpu"].as<int>();
+    options.device_type = cmd_args["cpu"].as<int>() == 1 ? CL_DEVICE_TYPE_CPU : CL_DEVICE_TYPE_GPU;
     options.max_iters = cmd_args["max_iters"].as<int>();
     options.spdelta = cmd_args["spdelta"].as<float>();
     options.target_residual = cmd_args["res"].as<float>();

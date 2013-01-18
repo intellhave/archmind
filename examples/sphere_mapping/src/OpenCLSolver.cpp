@@ -133,15 +133,19 @@ spheremap::SolverCL::SolverCL(
   {
     std::string name;
     cl::platform_info(platforms[i],CL_PLATFORM_NAME,name);
+    std::cout << name << "\n";
 
-    if( (name.find("AMD") != string::npos) || (name.find("NVIDIA") != string::npos)  )
+    //if( (name.find("AMD") != string::npos) || (name.find("NVIDIA") != string::npos)  )
     {
       platform = platforms[i];
-
       cl_device_id device;
-      err = clGetDeviceIDs(platform, m_Options.cpu ? CL_DEVICE_TYPE_CPU : CL_DEVICE_TYPE_GPU, 1, &device, 0);
-
+      //err = clGetDeviceIDs(platform, m_Options.cpu ? CL_DEVICE_TYPE_CPU : CL_DEVICE_TYPE_GPU, 1, &device, 0);
+      err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &device, 0);
       if( err != CL_SUCCESS ) continue;
+     
+      cl_device_type device_type;
+      err = clGetDeviceInfo(device, CL_DEVICE_TYPE, sizeof(cl_device_type), &device_type, NULL );
+      if( err != CL_SUCCESS || (m_Options.device_type != device_type ) ) continue;
 
       // create the OpenCL context on a GPU device
       m_hContext = clCreateContext( 0, 1, &device, 0, 0, &err );
@@ -194,7 +198,7 @@ spheremap::SolverCL::SolverCL(
   m_Memobjs.push_back(clCreateBuffer(m_hContext, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(cl_int)*m_Bounds.size(), &m_Bounds[0], NULL)); 
 
   std::string program_source;
-  if( loadTextFile("solver.cl",program_source) )
+  if( loadTextFile("CL/solver.cl",program_source) )
     std::cout << "OpenCL file" << " loaded" << std::endl;
 
   const char *source = program_source.c_str();

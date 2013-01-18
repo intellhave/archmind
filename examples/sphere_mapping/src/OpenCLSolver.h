@@ -62,7 +62,7 @@ struct Options
 		max_iters(100), 
 		max_sp_iters(100000),
 		weights(0),
-		cpu(false),
+		device_type(4),
 		centroid_proj(false)
 		{}
 
@@ -72,7 +72,7 @@ struct Options
 	std::size_t max_iters;
 	std::size_t max_sp_iters;
 	unsigned weights;	//0 - tutte, 1 - conformal
-	bool cpu;
+	int device_type;
 	bool centroid_proj;
 };
 
