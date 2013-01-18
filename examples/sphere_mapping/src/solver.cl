@@ -39,11 +39,11 @@ typedef float scalar_t;
 typedef float4 scalar4_t;
 #endif
 
-__kernel void solve_conformal( 
-        const __global scalar4_t *v,
-        const __global scalar4_t *vf,
-        const __global int *verts,
-        __global scalar4_t *v_s,      //output
+kernel void solve_conformal( 
+        const global scalar4_t *v,
+        const global scalar4_t *vf,
+        const global int *verts,
+        global scalar4_t *v_s,      //output
         const int n,
         const __global scalar_t *w
         )
@@ -61,12 +61,11 @@ __kernel void solve_conformal(
     for( int i = 0; i < STRIDE_SIZE; ++i )
     {
         //neighbor vertex
-	int nid = verts[start];
-	scalar_t weight = w[start];
+	      int nid = verts[start];
+	      scalar_t weight = w[start];
         c += v[ nid ] * weight;
         start += n;
     }
-    
 
     c = ONE_MINUS_OMEGA * v[id] + OMEGA * c;
 
@@ -75,14 +74,14 @@ __kernel void solve_conformal(
     v_s[id] = c - p*l;
 }
 
-__kernel void solve_conformal_res( 
-        const __global scalar4_t *v,
-        const __global scalar4_t *vf,
-        const __global int *verts,
-        __global scalar4_t *v_s,      //output
+kernel void solve_conformal_res( 
+        const global scalar4_t *v,
+        const global scalar4_t *vf,
+        const global int *verts,
+        global scalar4_t *v_s,      //output
         const int n,
-        __global scalar_t *res,
-        const __global scalar_t *w
+        global scalar_t *res,
+        const global scalar_t *w
         )
 {
     //Vertex ID
@@ -99,8 +98,8 @@ __kernel void solve_conformal_res(
     for( int i = 0; i < STRIDE_SIZE; ++i )
     {
         //neighbor vertex
-	int nid = verts[start];
-	scalar_t weight = w[start];
+	      int nid = verts[start];
+	      scalar_t weight = w[start];
         c += v[ nid ] * weight;
         start += n;
     }
@@ -116,12 +115,12 @@ __kernel void solve_conformal_res(
 }
 
 __kernel void solve_equal( 
-        const __global scalar4_t *v,
-        const __global scalar4_t *vf,
-        const __global int *verts,
-        __global scalar4_t *v_s,      //output
+        const global scalar4_t *v,
+        const global scalar4_t *vf,
+        const global int *verts,
+        global scalar4_t *v_s,      //output
         const int n,
-        const __global int *bounds)
+        const global int *bounds)
 {
     //Vertex ID
     int id = get_global_id(0);
@@ -148,14 +147,14 @@ __kernel void solve_equal(
 }
 
 
-__kernel void solve_equal_res( 
-        const __global scalar4_t *v,
-        const __global scalar4_t *vf,
-        const __global int *verts,
-        __global scalar4_t *v_s,      //output
+kernel void solve_equal_res( 
+        const global scalar4_t *v,
+        const global scalar4_t *vf,
+        const global int *verts,
+        global scalar4_t *v_s,      //output
         const int n,
-        __global scalar_t *res,
-        const __global int *bounds)
+        global scalar_t *res,
+        const global int *bounds)
 {
     //Vertex ID
     int id = get_global_id(0);
@@ -184,7 +183,7 @@ __kernel void solve_equal_res(
     res[id] = distance(v[id],pos);
 }
 
-__kernel void normalize_solution(const __global scalar4_t *v,  const int n, __global scalar4_t *vf, __global scalar4_t *v_s)
+kernel void normalize_solution(const global scalar4_t *v,  const int n, global scalar4_t *vf, global scalar4_t *v_s)
 {
     int id = get_global_id(0);
 
@@ -194,12 +193,12 @@ __kernel void normalize_solution(const __global scalar4_t *v,  const int n, __gl
     vf[id] = v_s[id] = normalize(v[id]);
 }
 
-__kernel void convergence_conformal_res( 
-        const __global scalar4_t *v,
-        const __global int *verts,
+kernel void convergence_conformal_res( 
+        const global scalar4_t *v,
+        const global int *verts,
         const int n,
-        __global scalar_t *res,
-        const __global scalar_t *w
+        global scalar_t *res,
+        const global scalar_t *w
         )
 {
     //Vertex ID
@@ -216,8 +215,8 @@ __kernel void convergence_conformal_res(
     {
         //neighbor vertex
         //neighbor vertex
-	int nid = verts[start];
-	scalar_t weight = w[start];
+	      int nid = verts[start];
+	      scalar_t weight = w[start];
         c += v[ nid ] * weight;
         start += n;
     }
@@ -227,12 +226,12 @@ __kernel void convergence_conformal_res(
     res[id] = dot(c - v[id],c - v[id]);
 }
 
-__kernel void convergence_equal_res( 
-            const __global scalar4_t *v,
-            const __global int *verts,
+kernel void convergence_equal_res( 
+            const global scalar4_t *v,
+            const global int *verts,
             const int n,
-            __global scalar_t *res,        //residual output
-            const __global int *bounds)
+            global scalar_t *res,        //residual output
+            const global int *bounds)
 {
     //Vertex ID
     int id = get_global_id(0);
@@ -256,15 +255,15 @@ __kernel void convergence_equal_res(
     res[id] = dot(c - v[id],c - v[id]);
 }
 
-__kernel void lmax_residual(
+kernel void lmax_residual(
         const int n, 
-        const __global scalar_t *res, 
-        __global scalar_t *res_norma, 
-        __local scalar_t *work)
+        const global scalar_t *res, 
+        global scalar_t *res_norma, 
+        local scalar_t *work)
 {
     //for the recuction the size of the workgroup must be a power of 2
-    unsigned int tid = get_global_id(0);
-    unsigned int id = get_local_id(0);
+    uint tid = get_global_id(0);
+    uint id = get_local_id(0);
  
     work[id] = (tid < n) ? res[tid] : 0;
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -281,14 +280,29 @@ __kernel void lmax_residual(
     if(id == 0) res_norma[get_group_id(0)] = work[0];
 }
 
-__kernel void l2_residual(const int n, const const __global scalar_t *res, __global scalar_t *res_norma )
+kernel void l2_residual(const int n, const const global scalar_t *res, global scalar_t *res_norma, local scalar_t *work )
 {
+    uint id = get_local_id(0);
+
     scalar_t residue = 0.0;
 
-    for( int i = 0; i < n; ++i )
+    for( int i = id; i < n; i += get_local_size(0) )
         residue += res[i];
-   
-    res_norma[0] = sqrt( residue ) / n;
+
+    work[ id ] = residue;
+    barrier(CLK_LOCAL_MEM_FENCE);
+    
+    //do reduction in shared mem
+    for( unsigned int s = get_local_size(0)/2; s > 0; s >>=1 ) 
+    {
+        if( id < s )
+            work[id] += work[id + s];
+        
+        barrier(CLK_LOCAL_MEM_FENCE);
+    }
+
+    if( id == 0 ) 
+      res_norma[0] = sqrt( work[0] ) / n;
 }
 
 #if 0

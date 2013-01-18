@@ -420,12 +420,13 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     clSetKernelArg(m_KernelRes, 0, sizeof(cl_int), &n );
     clSetKernelArg(m_KernelRes, 1, sizeof(cl_mem), &tmp_res );
     clSetKernelArg(m_KernelRes, 2, sizeof(cl_mem), &tmp_res);
+    clSetKernelArg(m_KernelRes, 3, sizeof(cl_scalar_t)*m_ReductionThreads, NULL );
 
-    err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &one, &one, 0, NULL, NULL);
+    err = clEnqueueNDRangeKernel(m_CmdQueue, m_KernelRes, 1, NULL, &m_ReductionThreads, NULL, 0, NULL, NULL);
 
     //Read back the residual value
     err = clEnqueueReadBuffer(m_CmdQueue, tmp_res, CL_TRUE, 0, sizeof(cl_scalar_t), &res, 0, NULL, NULL);
-
+   
     std::cout << i << " - res : " << res << '\n';
 
     if( last_res < res || res < m_Options.target_residual )
