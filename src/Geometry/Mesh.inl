@@ -33,7 +33,7 @@ mesh<Traits>::~mesh()
 #ifndef NDEBUG
     //std::clog << "~Mesh()" << std::endl;
 #endif
-
+    clear();
 #if 0
     //Erase edge cyclic references
     for( face_iterator_t f = faces_begin(); f != faces_end(); ++f )
@@ -127,7 +127,7 @@ template<typename Traits>
 bool mesh<Traits>::remove_vertex( vertex_ptr_t v )
 {
     
-    if( v->id() == NO_ID )      //check if this is a valid mesh vertex
+    if( v->id() >= Vertices.size() )      //check if this is a valid mesh vertex
     {
         //print a message ?
         return true;
@@ -145,6 +145,8 @@ void mesh<Traits>::swap_vertex( vertex_ptr_t v0, vertex_ptr_t v1 )
 {
 	uid_t id0 = v0->id();
 	uid_t id1 = v1->id();
+
+  if( id0 == id1 ) return;
 
 	std::swap( Vertices[id0], Vertices[id1] );
 
@@ -190,7 +192,7 @@ bool mesh<Traits>::remove_edge( edge_ptr_t e )
 template<typename Traits>
 bool mesh<Traits>::remove_face( face_ptr_t f )
 {
-    if( f->id() == NO_ID )
+    if( f->id() >= Faces.size() )
     {
         return false;
     }
@@ -597,4 +599,21 @@ template<typename Traits>
 void mesh<Traits>::set_point( vertex_ptr_t v, const point_t &point )
 {
     v->Point = point;
+}
+
+template<typename Traits>
+void mesh<Traits>::clear() 
+{
+    for( std::size_t i = 0; i < Faces.size(); ++i ) 
+        Faces[i]->set_id( NO_ID );
+
+    for( std::size_t i = 0; i < Edges.size(); ++i ) 
+        Edges[i]->set_id( NO_ID );
+
+    for( std::size_t i = 0; i < Vertices.size(); ++i ) 
+        Vertices[i]->set_id( NO_ID );
+
+    Faces.clear();
+    Edges.clear();
+    Vertices.clear();
 }

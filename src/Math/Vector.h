@@ -34,25 +34,25 @@ namespace math
 {
 
 template< typename Real >
-class vector2
+class vec2
 {
 public:
     //typedef Real value_type;
     typedef Real real_t;
 
     // constructors
-    vector2<Real>( const vector2<Real> &v );
-    vector2<Real>( const Real &x_, const Real &y_ );
-    vector2<Real>( const Real &v );
-    vector2<Real>( void );
+    vec2<Real>( const vec2<Real> &v );
+    vec2<Real>( const Real &x_, const Real &y_ );
+    vec2<Real>( const Real &v );
+    vec2<Real>( void );
 
     // operators
-    void operator+=( const vector2<Real> &v );
-    void operator-=( const vector2<Real> &v);
+    void operator+=( const vec2<Real> &v );
+    void operator-=( const vec2<Real> &v);
     void operator/=(const Real &v);
     void operator*=(const Real &v);
 
-    vector2<Real> operator-();
+    vec2<Real> operator-();
 
     Real &operator()(unsigned int index); 
     Real operator()(unsigned int index)const;
@@ -68,53 +68,53 @@ public:
 
 //!dot Product of two vectors
 template< typename Real>
-Real dot(const vector2<Real> &a, const vector2<Real> &b);
+Real dot(const vec2<Real> &a, const vec2<Real> &b);
 
 //!Absolute dot Product of two vectors
 template< typename Real>
-Real adot(const vector2<Real> &a, const vector2<Real> &b);
+Real adot(const vec2<Real> &a, const vec2<Real> &b);
 
 template< typename Real>
-Real magnitude(const vector2<Real> &a);
+Real magnitude(const vec2<Real> &a);
 
 template<typename Real>
-std::ostream &operator<<(std::ostream &output, const vector2<Real> &v);
+std::ostream &operator<<(std::ostream &output, const vec2<Real> &v);
 
 template< typename Real >
-class vector3
+class vec3
 {
 public:
     typedef Real real_t;
 
     template< typename T >
-    vector3<Real>( const vector3<T> &v ) : 
+    vec3<Real>( const vec3<T> &v ) : 
         x(v.x), y(v.y), z(v.z)
     { 
         x = Real(v.x); y = Real(v.y); z = Real(v.z);
     }
 
     template< typename T >
-    vector3<Real>( const T &x_, const Real &y_, const Real &z_) :
+    vec3<Real>( const T &x_, const Real &y_, const Real &z_) :
         x(x_), y(y_), z(z_)
     {
     }
    
-    vector3<Real>( void );
-    vector3<Real>( const Real *ptr ); 
-    vector3<Real>( const Real &x_, const Real &y_, const Real &z_);
-    vector3<Real>( const Real &v );
+    vec3<Real>( void );
+    vec3<Real>( const Real *ptr ); 
+    vec3<Real>( const Real &x_, const Real &y_, const Real &z_);
+    vec3<Real>( const Real &v );
 
     // operators
-    bool operator==(const vector3<Real> &v);
+    bool operator==(const vec3<Real> &v);
 
-    vector3<Real> &operator=( const Real *ptr ); 
+    vec3<Real> &operator=( const Real *ptr ); 
 
-    void operator+=( const vector3<Real> &v );
-    void operator-=( const vector3<Real> &v);
+    void operator+=( const vec3<Real> &v );
+    void operator-=( const vec3<Real> &v);
     void operator/=(const Real &v);
     void operator*=(const Real &v);
     
-    vector3<Real> operator-()const;
+    vec3<Real> operator-()const;
 
     Real &operator()(unsigned int index);
     Real operator()(unsigned int index)const;
@@ -130,47 +130,47 @@ public:
 
 //!dot Product of two vectors
 template< typename Real>
-Real dot(const vector3<Real> &a, const vector3<Real> &b);
+Real dot(const vec3<Real> &a, const vec3<Real> &b);
 
 //!Absolute dot Product of two vectors
 template< typename Real>
-Real adot(const vector3<Real> &a, const vector3<Real> &b);
+Real adot(const vec3<Real> &a, const vec3<Real> &b);
 
 //!magnitude of vector
 template< typename Real>
-Real magnitude(const vector3<Real> &a);
+Real magnitude(const vec3<Real> &a);
 
 //!cross Product of two vectors
 template< typename Real>
-vector3<Real> cross(const vector3<Real> &a, const vector3<Real> &b);
+vec3<Real> cross(const vec3<Real> &a, const vec3<Real> &b);
 
 //!normal Vector of three co-planar vectors (e.g. a triangle)
 template< typename Real>
-vector3<Real> normal(const vector3<Real> &v1, const vector3<Real> &v2, const vector3<Real> &v3);
+vec3<Real> normal(const vec3<Real> &v1, const vec3<Real> &v2, const vec3<Real> &v3);
 
 template<typename Real>
-std::ostream &operator<<(std::ostream &output, const vector3<Real> &v);
+std::ostream &operator<<(std::ostream &output, const vec3<Real> &v);
 
 template< typename Real >
-class vector4
+class vec4
 {
 public:
     //typedef Real value_type;
     typedef Real real_t;
     
     // constructors
-    vector4<Real>( const vector4<Real> &v );
-    vector4<Real>( const Real &x_, const Real &y_, const Real &z_, const Real &w_);
-    vector4<Real>( const Real &v);
-    vector4<Real>( void );
+    vec4<Real>( const vec4<Real> &v );
+    vec4<Real>( const Real &x_, const Real &y_, const Real &z_, const Real &w_);
+    vec4<Real>( const Real &v);
+    vec4<Real>( void );
 
     // operators
-    void operator+=( const vector4<Real> &v );
-    void operator-=( const vector4<Real> &v );
+    void operator+=( const vec4<Real> &v );
+    void operator-=( const vec4<Real> &v );
     void operator/=(const Real &v );
     void operator*=(const Real &v );
 
-    vector4<Real> operator-();
+    vec4<Real> operator-();
     
     Real &operator()(unsigned int index);
     Real operator()(unsigned int index)const;
@@ -198,7 +198,7 @@ VectorType normalize(const VectorType &a);
 
 template< typename Real >
 Real clip_line_to_plane
-(const vector3<Real> &lp, const vector3<Real> &ld, const vector3<Real> &pn, const Real &pd)
+(const vec3<Real> &lp, const vec3<Real> &ld, const vec3<Real> &pn, const Real &pd)
 {
     using std::abs;
 
@@ -213,9 +213,9 @@ Real clip_line_to_plane
 
 template< typename Real >
 bool point_in_triangle
-(const vector3<Real> &point, const vector3<Real> &v1, const vector3<Real> &v2, const vector3<Real> &v3)
+(const vec3<Real> &point, const vec3<Real> &v1, const vec3<Real> &v2, const vec3<Real> &v3)
 {
-    vector3<Real> E0, E1, Q;
+    vec3<Real> E0, E1, Q;
     Real e00, e01, e11, Delta, q0, q1, s0, s1;
 
     E0 = v2 - v1;
@@ -240,28 +240,28 @@ bool point_in_triangle
         return false;
 }
 
-typedef vector2<double> vector2d;
-typedef vector2<float> vector2f;
-typedef vector2<int> vector2i;
-typedef vector2<unsigned int> vector2u;
-typedef vector2<short> vector2s;
-typedef vector2<unsigned short> vector2us;
+typedef vec2<double> vec2d;
+typedef vec2<float> vec2f;
+typedef vec2<int> vec2i;
+typedef vec2<unsigned int> vec2u;
+typedef vec2<short> vec2s;
+typedef vec2<unsigned short> vec2us;
 
-typedef vector3<double> vector3d;
-typedef vector3<float> vector3f;
-typedef vector3<int> vector3i;
-typedef vector3<unsigned int> vector3u;
-typedef vector3<short> vector3s;
-typedef vector3<unsigned short> vector3us;
-typedef vector3<unsigned char> vector3ub;
+typedef vec3<double> vec3d;
+typedef vec3<float> vec3f;
+typedef vec3<int> vec3i;
+typedef vec3<unsigned int> vec3u;
+typedef vec3<short> vec3s;
+typedef vec3<unsigned short> vec3us;
+typedef vec3<unsigned char> vec3ub;
 
-typedef vector4<double> vector4d;
-typedef vector4<float> vector4f;
-typedef vector4<int> vector4i;
-typedef vector4<unsigned int> vector4u;
-typedef vector4<short> vector4s;
-typedef vector4<unsigned short> vector4us;
-typedef vector4<unsigned char> vector4ub;
+typedef vec4<double> vec4d;
+typedef vec4<float> vec4f;
+typedef vec4<int> vec4i;
+typedef vec4<unsigned int> vec4u;
+typedef vec4<short> vec4s;
+typedef vec4<unsigned short> vec4us;
+typedef vec4<unsigned char> vec4ub;
 
 #include "Vector.inl"
 

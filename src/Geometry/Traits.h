@@ -32,26 +32,25 @@ namespace arch
 namespace geometry
 {
 
-template<typename Traits> class mesh;
-template<typename Traits> class face;
-template<typename Traits> class edge;
-template<typename Traits> class vertex;
+  template<typename Traits> class mesh;
+  template<typename Traits> class face;
+  template<typename Traits> class edge;
+  template<typename Traits> class vertex;
 
-typedef std::size_t uid_t;
-const uid_t NO_ID = ~uid_t(0);
+  typedef std::size_t uid_t;
+  const uid_t NO_ID = ~uid_t(0);
 
-template< 
+  template< 
     typename Real, 
     typename Vertex, 
     typename Edge, 
     typename Face, 
     typename Mesh 
-        >
-struct traits
-{
+  >
+  struct traits
+  {
     typedef Real real_t;
-
-    typedef math::vector3<real_t> point_t;
+    typedef arch::math::vec3<real_t> point_t;
 
     typedef Mesh mesh_t;
     typedef Face face_t;
@@ -59,14 +58,14 @@ struct traits
     typedef Vertex vertex_t;
 
     typedef boost::shared_ptr< mesh_t > mesh_ptr_t;
- 
+
     typedef boost::shared_ptr< face_t > face_ptr_t;
     typedef boost::shared_ptr< edge_t > edge_ptr_t;
     typedef boost::shared_ptr< vertex_t > vertex_ptr_t;
 
-	typedef boost::weak_ptr< face_t > face_wptr_t;
-	typedef boost::weak_ptr< edge_t > edge_wptr_t;
-	typedef boost::weak_ptr< vertex_t > vertex_wptr_t;
+    typedef boost::weak_ptr< face_t > face_wptr_t;
+    typedef boost::weak_ptr< edge_t > edge_wptr_t;
+    typedef boost::weak_ptr< vertex_t > vertex_wptr_t;
 
     static uid_t CounterID;
 };

@@ -102,6 +102,13 @@ typename vertex<Traits>::vertex_range_t vertex<Traits>::verts()const
 }
 
 template<typename Traits>
+typename vertex<Traits>::edge_range_t vertex<Traits>::edges()const
+{
+    return edge_range_t( edges_begin(), edges_end() );
+}
+
+
+template<typename Traits>
 typename vertex<Traits>::face_iterator_t vertex<Traits>::faces_begin()const
 {
     return face_iterator_t( Edges.begin(), Edges.end() );
@@ -111,6 +118,12 @@ template<typename Traits>
 typename vertex<Traits>::face_iterator_t vertex<Traits>::faces_end()const
 {
     return face_iterator_t( Edges.end(), Edges.end() );
+}
+
+template<typename Traits>
+typename vertex<Traits>::face_range_t vertex<Traits>::faces()const
+{
+	return face_range_t( faces_begin(), faces_end() );
 }
 
 template<typename Traits>
@@ -350,6 +363,12 @@ typename face<Traits>::vertex_iterator_t face<Traits>::verts_end()const
 }
 
 template<typename Traits>
+typename face<Traits>::edge_range_t face<Traits>::edges()const
+{
+    return edge_range_t( edges_begin(), edges_end() );
+}
+
+template<typename Traits>
 std::size_t face<Traits>::verts_size()const
 {
     return Edges.size();
@@ -389,6 +408,12 @@ template<typename Traits>
 typename face<Traits>::face_iterator_t face<Traits>::faces_end()const
 {
     return face_iterator_t( Edges.end(), Edges.end(), m_UniqueID );
+}
+
+template<typename Traits>
+typename face<Traits>::face_range_t face<Traits>::faces()const
+{
+    return face_range_t( faces_begin(), faces_end() );
 }
 
 //Face operators

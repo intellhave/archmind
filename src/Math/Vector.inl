@@ -20,167 +20,167 @@
 */
 
 /*
- * vector2<Real> Class Constructors 
+ * vec2<Real> Class Constructors 
  */
 template< typename Real >    
-inline vector2<Real>::vector2( const vector2<Real> &v )
+inline vec2<Real>::vec2( const vec2<Real> &v )
 {
     x = v.x; y = v.y;
 }
 
 template< typename Real >    
-inline vector2<Real>::vector2( const Real &x_, const Real &y_ )
+inline vec2<Real>::vec2( const Real &x_, const Real &y_ )
 {
     x = x_; y = y_;
 }
 
 template< typename Real >    
-inline vector2<Real>::vector2( const Real &v ) 
+inline vec2<Real>::vec2( const Real &v ) 
 {
     x = v; y = v;
 }
 
 template< typename Real >    
-inline vector2<Real>::vector2( void )
+inline vec2<Real>::vec2( void )
 {}
       
 /*
- * vector2<Real> Member Operators
+ * vec2<Real> Member Operators
  */
 
 template< typename Real >    
-inline void vector2<Real>::operator+=( const vector2<Real> &v )
+inline void vec2<Real>::operator+=( const vec2<Real> &v )
 {
     x += v.x;
     y += v.y;
 }
 
 template< typename Real >    
-inline void vector2<Real>::operator-=( const vector2<Real> &v )
+inline void vec2<Real>::operator-=( const vec2<Real> &v )
 {
     x -= v.x;
     y -= v.y;
 }
 
 template< typename Real >    
-inline void vector2<Real>::operator/=(const Real &v)
+inline void vec2<Real>::operator/=(const Real &v)
 {
     x /= v;
     y /= v;
 }
 
 template< typename Real >    
-inline void vector2<Real>::operator*=(const Real &v)
+inline void vec2<Real>::operator*=(const Real &v)
 {
     x *= v;
     y *= v;
 }
 
 template< typename Real >    
-inline vector2<Real> vector2<Real>::operator-()
+inline vec2<Real> vec2<Real>::operator-()
 {
-    const vector2<Real> v(-x,-y);
+    const vec2<Real> v(-x,-y);
     return v;
 }
 
 template< typename Real >    
-inline Real &vector2<Real>::operator()(unsigned int index)
+inline Real &vec2<Real>::operator()(unsigned int index)
 {
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >    
-inline Real vector2<Real>::operator()(unsigned int index)const
+inline Real vec2<Real>::operator()(unsigned int index)const
 { 
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >    
-inline Real &vector2<Real>::operator[](unsigned int index)
+inline Real &vec2<Real>::operator[](unsigned int index)
 {
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >    
-inline Real vector2<Real>::operator[](unsigned int index)const
+inline Real vec2<Real>::operator[](unsigned int index)const
 { 
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-std::size_t vector2<Real>::size()const
+std::size_t vec2<Real>::size()const
 {
     return 2;
 }
 
 /*
- * vector2<Real> Non Member Operators
+ * vec2<Real> Non Member Operators
  */
 template< typename Real >
-inline vector2<Real> operator+( const vector2<Real> &a, const vector2<Real> &b )
+inline vec2<Real> operator+( const vec2<Real> &a, const vec2<Real> &b )
 {
-    const vector2<Real> v( a.x+b.x,a.y+b.y );
+    const vec2<Real> v( a.x+b.x,a.y+b.y );
     return v;
 }
 
 template< typename Real >
-inline vector2<Real> operator-( const vector2<Real> &a, const vector2<Real> &b )
+inline vec2<Real> operator-( const vec2<Real> &a, const vec2<Real> &b )
 {
-    const vector2<Real> v(a.x-b.x,a.y-b.y);
+    const vec2<Real> v(a.x-b.x,a.y-b.y);
     return v;
 }
 
 template< typename Real >
-inline vector2<Real> operator/( const vector2<Real> &a, const Real b)
+inline vec2<Real> operator/( const vec2<Real> &a, const Real b)
 {
-    const vector2<Real> v(a.x/b,a.y/b);
+    const vec2<Real> v(a.x/b,a.y/b);
     return v;
 }
 
 template< typename Real >
-inline vector2<Real> operator*( const vector2<Real> &a, const Real b)
+inline vec2<Real> operator*( const vec2<Real> &a, const Real b)
 {
-    const vector2<Real> v(a.x*b,a.y*b);
+    const vec2<Real> v(a.x*b,a.y*b);
     return v;
 }
 
 template< typename Real >
-inline vector2<Real> operator*( const Real &b, const vector2<Real> &a)
+inline vec2<Real> operator*( const Real &b, const vec2<Real> &a)
 {
-    const vector2<Real> v(a.x*b,a.y*b);
+    const vec2<Real> v(a.x*b,a.y*b);
     return v;
 }
 
 template< typename Real >
-inline bool operator==(const vector2<Real> &a, const vector2<Real> &b )
+inline bool operator==(const vec2<Real> &a, const vec2<Real> &b )
 {
     return (a.x == b.y) && (a.y == b.y);
 }
 
 /* 
- * vector2<Real> Functions
+ * vec2<Real> Functions
  */
 template< typename Real>
-inline Real magnitude(const vector2<Real> &a)
+inline Real magnitude(const vec2<Real> &a)
 {
     return sqrt(a.x*a.x + a.y*a.y);
 }
 
 template< typename Real>
-inline Real dot(const vector2<Real> &a, const vector2<Real> &b)
+inline Real dot(const vec2<Real> &a, const vec2<Real> &b)
 {
     return (a.x * b.x + a.y * b.y);
 }
 
 template< typename Real>
-inline Real adot(const vector2<Real> &a, const vector2<Real> &b)
+inline Real adot(const vec2<Real> &a, const vec2<Real> &b)
 {
     using std::abs;
     return abs(dot(a,b));
 }
 
 template<typename Real>
-inline std::ostream &operator << (std::ostream &output, const vector2<Real> &v)
+inline std::ostream &operator << (std::ostream &output, const vec2<Real> &v)
 {
     output << v.x << ',' << v.y;
     
@@ -189,38 +189,38 @@ inline std::ostream &operator << (std::ostream &output, const vector2<Real> &v)
 
 
 /*
- * vector3<Real> Class Constructors
+ * vec3<Real> Class Constructors
  */
 
 
 template< typename Real >
-inline vector3<Real>::vector3( const Real *ptr )
+inline vec3<Real>::vec3( const Real *ptr )
 {
     x = ptr[0]; y = ptr[1]; z = ptr[2];
 }
 
 template< typename Real >
-inline vector3<Real>::vector3( const Real &x_, const Real &y_, const Real &z_)
+inline vec3<Real>::vec3( const Real &x_, const Real &y_, const Real &z_)
 {
     x = x_; y = y_; z = z_;
 }
 
 template< typename Real >
-inline vector3<Real>::vector3( const Real &v ) 
+inline vec3<Real>::vec3( const Real &v ) 
 {
     x = v; y = v; z = v;
 }
 
 template< typename Real >
-inline vector3<Real>::vector3( void )
+inline vec3<Real>::vec3( void )
 {}
 
 /*
- * vector3<Real> Member Operators
+ * vec3<Real> Member Operators
  */
 
 template< typename Real >
-inline bool vector3<Real>::operator==(const vector3<Real> &v )
+inline bool vec3<Real>::operator==(const vec3<Real> &v )
 {
     using std::abs;
 
@@ -235,7 +235,7 @@ inline bool vector3<Real>::operator==(const vector3<Real> &v )
 }
 
 template< typename Real >
-inline void vector3<Real>::operator+=( const vector3<Real> &v )
+inline void vec3<Real>::operator+=( const vec3<Real> &v )
 {
     x += v.x;
     y += v.y;
@@ -243,7 +243,7 @@ inline void vector3<Real>::operator+=( const vector3<Real> &v )
 }
 
 template< typename Real >
-inline void vector3<Real>::operator-=( const vector3<Real> &v)
+inline void vec3<Real>::operator-=( const vec3<Real> &v)
 {
     x -= v.x;
     y -= v.y;
@@ -251,7 +251,7 @@ inline void vector3<Real>::operator-=( const vector3<Real> &v)
 }
 
 template< typename Real >
-inline void vector3<Real>::operator/=(const Real &v)
+inline void vec3<Real>::operator/=(const Real &v)
 {
     x /= v;
     y /= v;
@@ -259,7 +259,7 @@ inline void vector3<Real>::operator/=(const Real &v)
 }
 
 template< typename Real >
-inline void vector3<Real>::operator*=(const Real &v)
+inline void vec3<Real>::operator*=(const Real &v)
 {
     x *= v;
     y *= v;
@@ -267,89 +267,89 @@ inline void vector3<Real>::operator*=(const Real &v)
 }
 
 template< typename Real >
-inline vector3<Real> vector3<Real>::operator-()const
+inline vec3<Real> vec3<Real>::operator-()const
 {
-    const vector3<Real> v(-x,-y,-z);
+    const vec3<Real> v(-x,-y,-z);
     return v;
 }
 
 template< typename Real >
-inline Real &vector3<Real>::operator()(unsigned int index)
+inline Real &vec3<Real>::operator()(unsigned int index)
 { 
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-inline Real vector3<Real>::operator()(unsigned int index)const
+inline Real vec3<Real>::operator()(unsigned int index)const
 {
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-inline Real &vector3<Real>::operator[](unsigned int index)
+inline Real &vec3<Real>::operator[](unsigned int index)
 {
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-inline Real vector3<Real>::operator[](unsigned int index)const
+inline Real vec3<Real>::operator[](unsigned int index)const
 { 
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-std::size_t vector3<Real>::size()const
+std::size_t vec3<Real>::size()const
 {
     return 3;
 }
 
 /*
- * vector3<Real> Non Member Operators
+ * vec3<Real> Non Member Operators
  */
 template< typename Real >
-inline vector3<Real> operator+( const vector3<Real> &a, const vector3<Real> &b )
+inline vec3<Real> operator+( const vec3<Real> &a, const vec3<Real> &b )
 {
-       const vector3<Real> v( a.x+b.x,a.y+b.y, a.z+b.z );
+       const vec3<Real> v( a.x+b.x,a.y+b.y, a.z+b.z );
        return v;
 }
 
 template< typename Real >
-inline vector3<Real> operator-( const vector3<Real> &a, const vector3<Real> &b )
+inline vec3<Real> operator-( const vec3<Real> &a, const vec3<Real> &b )
 {
-       const vector3<Real> v(a.x-b.x,a.y-b.y,a.z-b.z);
+       const vec3<Real> v(a.x-b.x,a.y-b.y,a.z-b.z);
        return v;
 }
 
 
 template< typename Real >
-inline vector3<Real> operator/( const vector3<Real> &a, const Real &f )
+inline vec3<Real> operator/( const vec3<Real> &a, const Real &f )
 {
-       const vector3<Real> v(a.x/f,a.y/f,a.z/f);
+       const vec3<Real> v(a.x/f,a.y/f,a.z/f);
        return v;
 }
 
 template< typename Real >
-inline vector3<Real> operator*( const vector3<Real> &a, const Real &f )
+inline vec3<Real> operator*( const vec3<Real> &a, const Real &f )
 {
-       const vector3<Real> v(a.x*f,a.y*f,a.z*f);
+       const vec3<Real> v(a.x*f,a.y*f,a.z*f);
        return v;
 }
 
 template< typename Real >
-inline vector3<Real> operator*( const Real &f, const vector3<Real> &a )
+inline vec3<Real> operator*( const Real &f, const vec3<Real> &a )
 {
-       const vector3<Real> v(a.x*f,a.y*f,a.z*f);
+       const vec3<Real> v(a.x*f,a.y*f,a.z*f);
        return v;
 }
 
 template< typename Real >
-inline bool operator==(const vector3<Real> &a, const vector3<Real> &b )
+inline bool operator==(const vec3<Real> &a, const vec3<Real> &b )
 {
        return (a.x == b.y) && (a.y == b.y) && (a.z == b.z);
 }
 
 template<typename Real>
-inline std::ostream &operator << (std::ostream &output, const vector3<Real> &v)
+inline std::ostream &operator << (std::ostream &output, const vec3<Real> &v)
 {
     //output << v.x << ',' << v.y << ',' << v.z;
     output << v.x << ' ' << v.y << ' ' << v.z;
@@ -358,16 +358,16 @@ inline std::ostream &operator << (std::ostream &output, const vector3<Real> &v)
 }
 
 /*
- * vector3<Real> Functions
+ * vec3<Real> Functions
  */
 template< typename Real>
-inline Real dot(const vector3<Real> &a, const vector3<Real> &b)
+inline Real dot(const vec3<Real> &a, const vec3<Real> &b)
 {
     return (a.x * b.x + a.y * b.y + a.z * b.z);
 }
 
 template< typename Real>
-inline Real adot(const vector3<Real> &a, const vector3<Real> &b)
+inline Real adot(const vec3<Real> &a, const vec3<Real> &b)
 {
     using std::abs;
     return abs(dot(a,b));
@@ -375,7 +375,7 @@ inline Real adot(const vector3<Real> &a, const vector3<Real> &b)
 
 
 template< typename Real>
-inline Real magnitude(const vector3<Real> &a)
+inline Real magnitude(const vec3<Real> &a)
 {
     using std::sqrt;
 
@@ -383,9 +383,9 @@ inline Real magnitude(const vector3<Real> &a)
 }
 
 template< typename Real>
-inline vector3<Real> cross(const vector3<Real> &a, const vector3<Real> &b)
+inline vec3<Real> cross(const vec3<Real> &a, const vec3<Real> &b)
 {
-    const vector3<Real> vcross(
+    const vec3<Real> vcross(
             ((a.y * b.z) - (a.z * b.y)),
             ((a.z * b.x) - (a.x * b.z)),
             ((a.x * b.y) - (a.y * b.x)));
@@ -394,142 +394,142 @@ inline vector3<Real> cross(const vector3<Real> &a, const vector3<Real> &b)
 }
 
 template< typename Real>
-inline vector3<Real> normal(const vector3<Real> &v1, const vector3<Real> &v2, const vector3<Real> &v3)
+inline vec3<Real> normal(const vec3<Real> &v1, const vec3<Real> &v2, const vec3<Real> &v3)
 {
     return normalize(cross(v3-v1,v2-v1));   
 }
 
 /*
- * vector4<Real> Class Constructors 
+ * vec4<Real> Class Constructors 
  */
 template< typename Real >
-inline vector4<Real>::vector4( const vector4<Real> &v )
+inline vec4<Real>::vec4( const vec4<Real> &v )
 {
     x = v.x; y = v.y; z = v.z; w = v.w;
 }
           
 template< typename Real >
-inline vector4<Real>::vector4( const Real &x_, const Real &y_, const Real &z_, const Real &w_)
+inline vec4<Real>::vec4( const Real &x_, const Real &y_, const Real &z_, const Real &w_)
 {
     x = x_; y = y_; z = z_; w = w_;
 }
           
 template< typename Real >
-inline vector4<Real>::vector4( const Real &v ) 
+inline vec4<Real>::vec4( const Real &v ) 
 {
     x = v; y = v; z = v; w = v;
 }
           
 template< typename Real >
-inline vector4<Real>::vector4( void )
+inline vec4<Real>::vec4( void )
 {}
 
 /*
- * vector4<Real> Member Operators
+ * vec4<Real> Member Operators
  */
 
 template< typename Real >
-inline void vector4<Real>::operator+=( const vector4<Real> &v )
+inline void vec4<Real>::operator+=( const vec4<Real> &v )
 {
     x += v.x; y += v.y; z += v.z; w += v.w;
 }
 
 template< typename Real >
-inline void vector4<Real>::operator-=( const vector4<Real> &v)
+inline void vec4<Real>::operator-=( const vec4<Real> &v)
 {
     x -= v.x; y -= v.y; z -= v.z; w -= v.w;
 }
 
 template< typename Real >
-inline void vector4<Real>::operator/=(const Real &v)
+inline void vec4<Real>::operator/=(const Real &v)
 {
     x /= v; y /= v; z /= v; w /= v;
 }
 
 template< typename Real >
-inline void vector4<Real>::operator*=(const Real &v)
+inline void vec4<Real>::operator*=(const Real &v)
 {
     x *= v; y *= v; z *= v; z *= v;
 }
 
 template< typename Real >
-inline vector4<Real> vector4<Real>::operator-()
+inline vec4<Real> vec4<Real>::operator-()
 {
-    const vector4<Real> v(-x,-y,-z,-w);
+    const vec4<Real> v(-x,-y,-z,-w);
     return v;
 }
 
 
 template< typename Real >
-inline Real &vector4<Real>::operator()(unsigned int index)
+inline Real &vec4<Real>::operator()(unsigned int index)
 { 
     return *(((Real *) &x) + index); 
 }
           
 template< typename Real >
-inline Real vector4<Real>::operator()(unsigned int index)const
+inline Real vec4<Real>::operator()(unsigned int index)const
 { 
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-inline Real &vector4<Real>::operator[](unsigned int index)
+inline Real &vec4<Real>::operator[](unsigned int index)
 { 
     return *(((Real *) &x) + index); 
 }
           
 template< typename Real >
-inline Real vector4<Real>::operator[](unsigned int index)const
+inline Real vec4<Real>::operator[](unsigned int index)const
 { 
     return *(((Real *) &x) + index); 
 }
 
 template< typename Real >
-std::size_t vector4<Real>::size()const
+std::size_t vec4<Real>::size()const
 {
     return 4;
 }
 
 /*
- * vector4<Real> Non Member Operators
+ * vec4<Real> Non Member Operators
  */
 template< typename Real >
-inline vector4<Real> operator+( const vector4<Real> &a, const vector4<Real> &b )
+inline vec4<Real> operator+( const vec4<Real> &a, const vec4<Real> &b )
 {
-       const vector4<Real> v( a.x+b.x,a.y+b.y, a.z+b.z, a.w+b.w );
+       const vec4<Real> v( a.x+b.x,a.y+b.y, a.z+b.z, a.w+b.w );
        return v;
 }
 
 template< typename Real >
-inline vector4<Real> operator-( const vector4<Real> &a, const vector4<Real> &b )
+inline vec4<Real> operator-( const vec4<Real> &a, const vec4<Real> &b )
 {
-       const vector4<Real> v(a.x-b.x,a.y-b.y,a.z-b.z,a.w-b.w);
+       const vec4<Real> v(a.x-b.x,a.y-b.y,a.z-b.z,a.w-b.w);
        return v;
 }
 
 template< typename Real >
-inline vector4<Real> operator/( const vector4<Real> &a, const Real &f )
+inline vec4<Real> operator/( const vec4<Real> &a, const Real &f )
 {
-       const vector4<Real> v(a.x/f,a.y/f,a.z/f,a.w/f);
+       const vec4<Real> v(a.x/f,a.y/f,a.z/f,a.w/f);
        return v;
 }
 
 template< typename Real >
-inline vector4<Real> operator*( const vector4<Real> &a, const Real &f )
+inline vec4<Real> operator*( const vec4<Real> &a, const Real &f )
 {
-       const vector4<Real> v(a.x*f,a.y*f,a.z*f,a.w*f);
+       const vec4<Real> v(a.x*f,a.y*f,a.z*f,a.w*f);
        return v;
 }
 
 template< typename Real >
-inline vector4<Real> operator*( const Real f, const vector4<Real> &a )
+inline vec4<Real> operator*( const Real f, const vec4<Real> &a )
 {
-       const vector4<Real> v(a.x*f,a.y*f,a.z*f,a.w*f);
+       const vec4<Real> v(a.x*f,a.y*f,a.z*f,a.w*f);
        return v;
 }
 
 template< typename Real >
-inline bool operator==(const vector4<Real> &a, const vector4<Real> &b )
+inline bool operator==(const vec4<Real> &a, const vec4<Real> &b )
 {
        return (a.x == b.y) && (a.y == b.y) && (a.z == b.z) && (a.w == b.w);
 }

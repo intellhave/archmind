@@ -185,6 +185,8 @@ namespace arch
       */
       bool flip_face( face_ptr_t f );
 
+      void clear();
+
     private:
       //uid_t add_edge( edge_ptr_t e );
       bool remove_edge( edge_ptr_t e );
@@ -241,10 +243,14 @@ namespace arch
 
       std::size_t verts_size()const;
 
+      edge_range_t edges()const;
+
       edge_iterator_t edges_begin()const;
       edge_iterator_t edges_end()const;
 
       std::size_t edges_size()const;
+
+      face_range_t faces()const;
 
       face_iterator_t faces_begin()const;
       face_iterator_t faces_end()const;
@@ -415,6 +421,8 @@ namespace arch
       typedef vertex_vertex_iterator<vertex_ptr_t const,edge_iterator_t> vertex_iterator_t;
 
       typedef boost::iterator_range< vertex_iterator_t > vertex_range_t;
+      typedef boost::iterator_range< edge_iterator_t > edge_range_t;
+      typedef boost::iterator_range< face_iterator_t > face_range_t;
 
       vertex();
       ~vertex();
@@ -431,10 +439,14 @@ namespace arch
       edge_iterator_t edges_begin()const;
       edge_iterator_t edges_end()const;
 
+      edge_range_t edges()const;
+
       std::size_t edges_size()const;
 
       face_iterator_t faces_begin()const;
       face_iterator_t faces_end()const;
+
+      face_range_t faces()const;
 
       uid_t unique_id() const;    
       uid_t id() const;
