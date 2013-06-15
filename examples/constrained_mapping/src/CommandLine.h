@@ -42,7 +42,7 @@ namespace parameterization
       ("map", value<string>()->default_value(""), "source pinned vertices file")
       ("target", value<string>(), "target model file")
       ("opt_iters", value<std::size_t>()->default_value(1000), "non linear optimizer max iterations")
-      ("un_iters", value<std::size_t>()->default_value(1000), "Untangling process max iterations")
+      ("un_iters", value<std::size_t>()->default_value(0), "Untangling process max iterations")
       ("scale_iters", value<std::size_t>()->default_value(300), "scale iterations")
       ("device", value<int>()->default_value(0xFFFFFFFF), "set to 2 to run the solver on the cpu or 4 to run on the gpu")
       ("res", value<float>()->default_value(1e-07f), "target residual")

@@ -1817,7 +1817,7 @@ bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
             m_Df,
             m_Options.theta);
      
-        if( 1 )
+        if( m_Options.un_iters > 0 )
         {
 #if 0
             std::vector< float > HostPntsFloat( m_HostPnts.size() );
@@ -1858,8 +1858,6 @@ bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
             }
 #endif
 #if 1
-
-            std::cout << "Untangling\n";
             float un_factor = 0.5f;
             f_old = f = kf.eval_untangle_f(un_factor, true );
             for( int i = 1; i < m_Options.un_iters+1; ++i ) 
