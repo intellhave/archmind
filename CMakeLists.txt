@@ -31,6 +31,7 @@ set(
     $ENV{INTELOCLSDKROOT}/include
     /usr/local/include
     /usr/include
+    ./include
     #append additional search directories for OpenCL include here
     )
 
@@ -50,15 +51,11 @@ set(
     /usr/local/lib
     /usr/lib64
     /usr/lib
+    ./lib
     #append additional search directories for OpenCL libraries here.
 )
 
-set(
-    OPENCL_LIB_SEARCH_PATH  
-    ${OPENCL_LIB_SEARCH_PATH}
-)
-
-#find_path(OPENCL_INCLUDE_DIR NAMES CL/cl.h PATHS ${OPENCL_INC_SEARCH_PATH})
+find_path(OPENCL_INCLUDE_DIR NAMES CL/cl.h PATHS ${OPENCL_INC_SEARCH_PATH})
 find_library(OPENCL_LIBRARIES NAMES OpenCL PATHS ${OPENCL_LIB_SEARCH_PATH})
 
 find_package(PythonLibs)
@@ -70,7 +67,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_DEBUG OFF)
 
-find_package(Boost 1.40 COMPONENTS program_options python REQUIRED)
+find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
@@ -88,4 +85,5 @@ endif()
 
 add_subdirectory(examples/cpp cpp_examples)
 add_subdirectory(examples/sphere_mapping sphere_mapping)
+add_subdirectory(examples/constrained_mapping constrained_mapping)
 

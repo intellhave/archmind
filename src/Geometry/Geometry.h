@@ -139,7 +139,7 @@ namespace arch
       *\brief f the face to remove
       *\return true if the removal was successful
       */
-      bool remove_face( face_ptr_t f );
+      bool remove_face( face_ptr_t f, bool remove_vertices = true );
 
       /*!
       *\brief splits a given edge into two and creates a new vertex a the point
@@ -188,8 +188,7 @@ namespace arch
       void clear();
 
     private:
-      //uid_t add_edge( edge_ptr_t e );
-      bool remove_edge( edge_ptr_t e );
+      bool remove_edge( edge_ptr_t e, bool remove_vertices = true );
 
       void delete_vertex( vertex_ptr_t v );
       void delete_face( face_ptr_t f );

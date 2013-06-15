@@ -8,6 +8,7 @@ set(SPHERE_MAPPING_SRC
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(src)
 include_directories(../../src)
+include_directories(../../include)
 
 if(MSVC)
     link_directories(${Boost_LIBRARY_DIRS})

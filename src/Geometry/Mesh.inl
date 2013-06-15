@@ -155,7 +155,7 @@ void mesh<Traits>::swap_vertex( vertex_ptr_t v0, vertex_ptr_t v1 )
 }
 
 template<typename Traits>
-bool mesh<Traits>::remove_edge( edge_ptr_t e )
+bool mesh<Traits>::remove_edge( edge_ptr_t e, bool remove_vertices )
 {
     if( e->id() == NO_ID )
     {
@@ -178,7 +178,7 @@ bool mesh<Traits>::remove_edge( edge_ptr_t e )
                     ++i;
 
             //check if we also have to delete the vertex
-            if( (*v)->Edges.empty() )
+            if( (*v)->Edges.empty() && remove_vertices )
                 delete_vertex( *v );
         }
 
@@ -190,7 +190,7 @@ bool mesh<Traits>::remove_edge( edge_ptr_t e )
 }
 
 template<typename Traits>
-bool mesh<Traits>::remove_face( face_ptr_t f )
+bool mesh<Traits>::remove_face( face_ptr_t f, bool remove_vertices )
 {
     if( f->id() >= Faces.size() )
     {
@@ -214,7 +214,7 @@ bool mesh<Traits>::remove_face( face_ptr_t f )
 
             //check if we also have to delete the edge
             if( (*e)->Faces.empty() )
-                remove_edge( *e );
+                remove_edge( *e, remove_vertices );
         }
 
         delete_face( f );
