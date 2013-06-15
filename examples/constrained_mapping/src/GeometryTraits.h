@@ -25,7 +25,7 @@
 #include "Geometry/Geometry.h"
 #include "Geometry/Algorithms.h"
 
-namespace spheremap
+namespace parameterization
 {
 template<typename Traits>
 struct param_face : arch::geometry::face<Traits>

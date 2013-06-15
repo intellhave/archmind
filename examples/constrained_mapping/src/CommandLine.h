@@ -24,7 +24,7 @@
 
 #include <boost/program_options.hpp>
 
-namespace spheremap
+namespace parameterization
 {
 
   typedef boost::program_options::variables_map cmdline_map_t;
@@ -43,17 +43,14 @@ namespace spheremap
       ("target", value<string>(), "target model file")
       ("opt_iters", value<std::size_t>()->default_value(1000), "non linear optimizer max iterations")
       ("un_iters", value<std::size_t>()->default_value(1000), "Untangling process max iterations")
-      ("scale_iters", value<std::size_t>()->default_value(((unsigned)~0)>>1), "scale iterations")
-      ("weights", value<string>()->default_value("tutte"), "type of weights (tutte,conformal)")
+      ("scale_iters", value<std::size_t>()->default_value(300), "scale iterations")
       ("device", value<int>()->default_value(0xFFFFFFFF), "set to 2 to run the solver on the cpu or 4 to run on the gpu")
       ("res", value<float>()->default_value(1e-07f), "target residual")
-      ("spdelta", value<float>()->default_value(1e-06f), "saddle point convergence delta")
       ("workgroup", value<int>()->default_value(512), "OpenCL workgroup size")
       ("proj", value<int>()->default_value(2), "Initial projection (0 = planar, 1 = circular, 2 = use uv)")
       ("free", value<int>()->default_value(1), "Free boundaries")
-      ("energy", value<string>()->default_value("combined"), "type of energy (combined,knupp)")
+      ("type", value<string>()->default_value("isometric"), "type of parameterization (mips,isometric,smooth)")
       ("ps", value<int>()->default_value(0), "Export post script (1 = gnuplot data, 2 = plain mesh, 3 = mesh with area deformation)")
-      ("theta", value<double>()->default_value(1.0), "combined energy theta")
       ;
 
     try

@@ -24,7 +24,7 @@
 
 #include <boost/program_options.hpp>
 
-namespace spheremap
+namespace parameterization
 {
 
 typedef boost::program_options::variables_map cmdline_map_t;

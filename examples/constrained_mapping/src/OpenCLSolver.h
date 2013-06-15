@@ -46,7 +46,7 @@ typedef cl_float4 cl_scalar4_t;
 typedef cl_float8 cl_scalar8_t;
 #endif
 
-namespace spheremap
+namespace parameterization
 {
 
 struct Stats
@@ -61,7 +61,6 @@ struct Options
 {
 	Options() : 
 		target_residual(1e-07f),
-		spdelta(1e-06f),
 		workgroup(512),
         scale_iters(100),
 		opt_iters(1000), 
@@ -74,13 +73,12 @@ struct Options
 		{}
 
 	scalar_t target_residual;
-	scalar_t spdelta;
 	std::size_t workgroup;
 	std::size_t opt_iters;
     std::size_t scale_iters;
     std::size_t un_iters;
 	unsigned weights;	//0 - tutte, 1 - conformal
-    unsigned energy;    //0 - mips, 1 - knupp
+    unsigned energy;    //0 - mips or isometric, 1 - knupp smooth
 	int device_type;
 	int projection_type;
     bool free_boundaries;

@@ -160,7 +160,7 @@ namespace arch
       //f.check_derivatives();
       
       Real alpha, b, beta;
-      Real fmin;
+      Real fmin = 0.0;
       Real pfmin;
 
       //a0 = a1 = a2 = alpha = -1.0;

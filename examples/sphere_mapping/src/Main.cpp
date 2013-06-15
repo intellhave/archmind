@@ -23,7 +23,7 @@
 #include "CommandLine.h"
 #include "OpenCLSolver.h"
 
-using namespace spheremap;
+using namespace parameterization;
 
 int main(int argc, char *argv[])
 {

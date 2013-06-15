@@ -42,7 +42,7 @@ typedef cl_float cl_scalar_t;
 typedef cl_float4 cl_scalar4_t;
 #endif
 
-namespace spheremap
+namespace parameterization
 {
 
 struct Stats

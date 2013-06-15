@@ -49,9 +49,9 @@ unsigned int get_ticks()
 using namespace std;
 using namespace arch::math;
 using namespace arch::geometry;
-using namespace spheremap;
+using namespace parameterization;
 
-spheremap::SolverCL::SolverCL( 
+parameterization::SolverCL::SolverCL( 
                               mesh_t &input_mesh,
                               mesh_t &ouput_mesh,
                               Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
@@ -239,7 +239,7 @@ spheremap::SolverCL::SolverCL(
   m_KernelRes = clCreateKernel(m_Program, "l2_residual", NULL);
 }
 
-spheremap::SolverCL::~SolverCL()
+parameterization::SolverCL::~SolverCL()
 {
   //clean up
   clReleaseKernel( m_Kernel );
@@ -262,7 +262,7 @@ spheremap::SolverCL::~SolverCL()
   delete [] m_Weights;
 }
 
-bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
+bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
 {
   using std::max;
 
@@ -462,7 +462,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
   return true;
 }
 
-void spheremap::SolverCL::compute_weights()
+void parameterization::SolverCL::compute_weights()
 {
   //Compute Conformal or Barycentric weights for all the edges
   foreach( mesh_t::edge_ptr_t e, m_Input.edges() )

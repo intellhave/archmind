@@ -68,7 +68,7 @@ unsigned int get_ticks()
 using namespace std;
 using namespace arch::math;
 using namespace arch::geometry;
-using namespace spheremap;
+using namespace parameterization;
 
 // Round Up Division function
 std::size_t round_up(int group_size, int global_size) 
@@ -382,6 +382,11 @@ public:
         using std::min;
         using std::max;
 
+        //Read the source file
+        ifstream source_file("constrained_solver.cl");
+        if( !source_file ) 
+            throw cl::Error(0, "Failed to open : \"constrained_solver.cl\"");
+
         try
         {
             m_Context = q.getInfo<CL_QUEUE_CONTEXT>();
@@ -389,8 +394,6 @@ public:
 
             m_num_of_threads = min( int(m_Device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>()), 128 );
            
-            //Read the source file
-            ifstream source_file("constrained_solver.cl");
             std::string source_code(
                 std::istreambuf_iterator<char>(source_file),
                 (std::istreambuf_iterator<char>()));
@@ -583,8 +586,8 @@ public:
 
                 if( PROFILE_OPENCL ) {
                     event.wait();
-                    unsigned start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
-                    unsigned end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
+                    cl_long start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+                    cl_long end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
                     std::cout << "prepare time = " << ((end_time - start_time) / 1000.0) << "  microsecond\n";
                 }
             } else if( alpha == -1.0 ) {
@@ -613,8 +616,8 @@ public:
 
                 if( PROFILE_OPENCL ) {
                     event.wait();
-                    unsigned start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
-                    unsigned end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
+                    cl_long start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+                    cl_long end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
                     std::cout << "eval_f time = " << ((end_time - start_time) / 1000.0) << "  microsecond\n";
                 }
                   
@@ -776,11 +779,13 @@ public:
                     //if( zero_area ) std::cout << "Zero area detected\n";
                     return rev_val;
                     //return arch::blas::stable_sum(m_num_of_triangles, &temp[0]) / 2.0;
-                } else return 0.0;
+                } 
             }
         } catch ( cl::Error &err ) {
             std::cerr << "eval_laplace_f :: error in " << err.what() << " code = " << err.err() << " error = " << arch::clutils::error(err.err() ) << "\n";
         }
+
+        return 0.0;
     }
 
 #if 0
@@ -836,8 +841,8 @@ public:
 
                 if( PROFILE_OPENCL ) {
                     event.wait();
-                    unsigned start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
-                    unsigned end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
+                    cl_long start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+                    cl_long end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
                     std::cout << "grad_f time = " << ((end_time - start_time) / 1000.0) << "  microsecond\n";
                 }
 
@@ -859,8 +864,8 @@ public:
 
                 if( PROFILE_OPENCL ) {
                     event.wait();
-                    unsigned start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
-                    unsigned end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
+                    cl_long start_time = event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+                    cl_long end_time = event.getProfilingInfo<CL_PROFILING_COMMAND_END>();
                     std::cout << "grad_gather time = " << ((end_time - start_time) / 1000.0) << "  microsecond\n";
                 }
             }
@@ -1073,6 +1078,11 @@ public:
         using std::min;
         using std::max;
 
+         //Read the source file
+         ifstream source_file("constrained_solver.cl");
+         if( !source_file ) 
+             throw cl::Error(0, "Failed to open : \"constrained_solver.cl\"");
+
         try
         {
             m_Context = q.getInfo<CL_QUEUE_CONTEXT>();
@@ -1080,8 +1090,6 @@ public:
 
             m_num_of_threads = min( int(m_Device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>()), 64 );
 
-            //Read the source file
-            ifstream source_file("constrained_solver.cl");
             std::string source_code(
                 std::istreambuf_iterator<char>(source_file),
                 (std::istreambuf_iterator<char>()));
@@ -1417,13 +1425,13 @@ void build_csr( const cl::Context &context, const std::vector< int > &faces, int
     for( std::size_t i = 0; i < faces.size(); ++i ) {
         if( faces[i] >= 0 && faces[i] < inner_nodes ) {
             //std::cout << "j = " << (ia[faces[i]] * inner_nodes + faces[i]) << "\n";
-            ja[ ia[faces[i]] * inner_nodes + faces[i] ] = (i / offset) * type + i%offset;
+            ja[ ia[faces[i]] * inner_nodes + faces[i] ] = int( (i / offset) * type + i%offset);
             ++ia[ faces[i] ];
         }
     }
 
     for( std::size_t i = 0; i < ia.size(); ++i ) 
-        ia[i] = i + ia[i] * inner_nodes;
+        ia[i] = (int)(i + ia[i] * inner_nodes);
 #else
     std::vector< int > ia(inner_nodes+1);
     std::fill(ia.begin(),ia.end(),0);
@@ -1488,7 +1496,7 @@ void build_csr( const cl::Context &context, const std::vector< int > &faces, int
 #endif
 }
 
-spheremap::SolverCL::SolverCL( 
+parameterization::SolverCL::SolverCL( 
     mesh_t &input_mesh,
     mesh_t &ouput_mesh,
     Options options) : m_Input(input_mesh), m_Output(ouput_mesh), m_Options(options)
@@ -1741,7 +1749,7 @@ spheremap::SolverCL::SolverCL(
         }
         int max_valence = 0;
         foreach( mesh_t::vertex_ptr_t v, input_mesh.verts() ) 
-            max_valence = max( v->verts_size(), max_valence );
+            max_valence = int(max( v->verts_size(), max_valence ));
 
         m_tris_size  = tris.size()  / 4;
         m_quads_size = quads.size() / 4;
@@ -1775,12 +1783,12 @@ spheremap::SolverCL::SolverCL(
     }
 }
 
-spheremap::SolverCL::~SolverCL()
+parameterization::SolverCL::~SolverCL()
 {
 
 }
 
-bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
+bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
 {
     using std::min;
 
@@ -1984,7 +1992,7 @@ bool spheremap::SolverCL::solve(spheremap::Stats &solve_stats)
     return true;
 }
 
-void spheremap::SolverCL::compute_mips_weights(std::vector< cl_scalar_t > &angles, std::vector< cl_scalar_t > &factors)
+void parameterization::SolverCL::compute_mips_weights(std::vector< cl_scalar_t > &angles, std::vector< cl_scalar_t > &factors)
 {
     //double mean_value = 0.0;
     //std::cout << "compute_mips_weights()\n";
@@ -2093,7 +2101,7 @@ bool find_boundary( mesh_t::edge_ptr_t e, std::vector< mesh_t::vertex_ptr_t > &b
     }
 }
 
-void spheremap::SolverCL::untangle_laplace(int max_iters)
+void parameterization::SolverCL::untangle_laplace(int max_iters)
 {
 #if 0
     using std::min;
@@ -2204,7 +2212,7 @@ void spheremap::SolverCL::untangle_laplace(int max_iters)
 }
 
 
-void spheremap::SolverCL::circular_projection(int max_iters)
+void parameterization::SolverCL::circular_projection(int max_iters)
 {
     using std::min;
     using std::max;
@@ -2360,7 +2368,7 @@ void spheremap::SolverCL::circular_projection(int max_iters)
     }
 }
 
-void spheremap::SolverCL::compute_weights()
+void parameterization::SolverCL::compute_weights()
 {
     //Compute Conformal or Barycentric weights for all the edges
     foreach( mesh_t::edge_ptr_t e, m_Input.edges() )

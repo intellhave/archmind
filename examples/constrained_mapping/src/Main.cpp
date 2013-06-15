@@ -35,7 +35,7 @@
 
 #define foreach BOOST_FOREACH
 
-using namespace spheremap;
+using namespace parameterization;
 
 bool export_plot_script(const std::string &filename, mesh_t &mesh)
 {
@@ -581,14 +581,24 @@ int main(int argc, char *argv[])
     options.device_type = cmd_args["device"].as<int>();
     options.opt_iters = cmd_args["opt_iters"].as<std::size_t>();
     options.un_iters = cmd_args["un_iters"].as<std::size_t>();
-    options.spdelta = cmd_args["spdelta"].as<float>();
     options.target_residual = cmd_args["res"].as<float>();
-    options.weights = cmd_args["weights"].as<std::string>() == "conformal" ? 1 : 0;
+    options.weights = 1;
     options.projection_type = cmd_args["proj"].as<int>();
     options.free_boundaries = cmd_args["free"].as<int>();
-    options.energy = cmd_args["energy"].as<std::string>() == "combined" ? 0 : 1;
-    options.theta = cmd_args["theta"].as<double>();
+    std::string param_type = cmd_args["type"].as<std::string>();
     options.scale_iters = cmd_args["scale_iters"].as<std::size_t>();
+
+    if( param_type == "isometric" ) {
+        options.energy = 0;
+        options.theta = 1.0;
+    } else if( param_type == "mips" ) {
+        options.energy = 0;
+        options.theta = 0.0;
+    } else {
+        options.energy = 1;
+        options.theta = 1.0;    
+    }
+
     if( !options.scale_iters ) options.scale_iters = ((unsigned)~0)>>1;
 
     int export_ps = cmd_args["ps"].as<int>();
@@ -607,11 +617,16 @@ int main(int argc, char *argv[])
         if( export_ps == 1 ) export_plot_script(cmd_args["target"].as<std::string>()+".txt", output_mesh); 
         else if( export_ps > 1 ) export_post_script(cmd_args["target"].as<std::string>()+".eps", output_mesh, export_ps > 2, 2000.0);
     }
+    catch(const cl::Error &err)
+    {
+        std::cerr << err.what() << "\n";
+        return 0;
+    }
     catch(const std::runtime_error &err)
     {
-        std::cerr << err.what();
+        std::cerr << err.what() << "\n";
+        return 0;
     }
-
 
     std::cout << "Stats\n";
     std::cout << "Time : " << stats.elapsed_ms << " ms\n";
