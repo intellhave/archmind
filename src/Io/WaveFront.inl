@@ -52,7 +52,6 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
   string Line;
 
-  vector< vertex_ptr_t > mesh_vertices;
   size_t line_count = 0;
 
   while( !Stream.eof() ) 
@@ -90,8 +89,7 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
         y = real_t(lexical_cast<float>(tokens[2]));
         z = real_t(lexical_cast<float>(tokens[3]));
 
-        mesh_vertices.push_back( 
-          vertex_ptr_t( new vertex_t(x,y,z) ) );
+        mesh.add_vertex( vertex_ptr_t( new vertex_t(x,y,z) ) );
       }
       catch(bad_lexical_cast &err)
       {
@@ -128,8 +126,8 @@ bool WaveFront<mesh_t>::read(const std::string &filename, mesh_t &mesh)
 
           std::size_t idx = lexical_cast<std::size_t>(indextokens[0])-1;
 
-          if( idx < mesh_vertices.size() )
-            vertices.push_back( mesh_vertices[idx] );
+          if( idx < mesh.verts_size() )
+            vertices.push_back( mesh.verts()[idx] );
 
           //uv
           if( indextokens.size() > 1 )

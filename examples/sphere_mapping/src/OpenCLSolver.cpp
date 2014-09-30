@@ -23,6 +23,7 @@ misrepresented as being the original software.
 #include <iostream>
 #include <vector>
 #include <boost/foreach.hpp>
+#include <boost/math/distributions/detail/common_error_handling.hpp>
 
 #if defined (_WIN32)	
 #include <windows.h>
@@ -464,6 +465,8 @@ bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
 
 void parameterization::SolverCL::compute_weights()
 {
+  using boost::math::isfinite;
+
   //Compute Conformal or Barycentric weights for all the edges
   foreach( mesh_t::edge_ptr_t e, m_Input.edges() )
   {
@@ -492,10 +495,10 @@ void parameterization::SolverCL::compute_weights()
         normalize( verts[3]->point() - verts[1]->point() ) ) );
 
       //Clamp the weights between 5 and 85 degrees
-      if( a0 < 0.087266462599716474f ) a0 = 0.087266462599716474f;
+      if( !isfinite( a0 ) || a0 < 0.087266462599716474f ) a0 = 0.087266462599716474f;
       else if( a0 > 1.4835298641951802f ) a0 = 1.4835298641951802f;
 
-      if( a1 < 0.087266462599716474f ) a1 = 0.087266462599716474f;
+      if( !isfinite( a1 ) || a1 < 0.087266462599716474f ) a1 = 0.087266462599716474f;
       else if( a1 > 1.4835298641951802f ) a1 = 1.4835298641951802f;
 
       w = (1.0f / tanf(a0) + 1.0f / tanf(a1));
