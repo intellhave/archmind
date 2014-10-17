@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     options.target_residual = cmd_args["res"].as<float>();
     options.weights = cmd_args["weights"].as<std::string>() == "conformal" ? 1 : 0;
     options.centroid_proj = cmd_args["centroid"].as<int>();
+    options.radius = cmd_args["radius"].as<float>();
 
     Stats stats;
 

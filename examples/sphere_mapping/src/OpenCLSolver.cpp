@@ -430,7 +430,7 @@ bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
    
     std::cout << i << " - res : " << res << '\n';
 
-    if( last_res < res || res < m_Options.target_residual )
+    if( last_res <= res || res < m_Options.target_residual )
       break;
 
     last_res = res;
@@ -443,8 +443,9 @@ bool parameterization::SolverCL::solve(parameterization::Stats &solve_stats)
 
   for( std::size_t i = 0; i < n; ++i )
   {
-    m_Output.add_vertex( vertex_ptr_t( new vertex_t(
-      m_SVertices[i].s[0],m_SVertices[i].s[1],m_SVertices[i].s[2] ) ) );
+      arch::math::vec3d v( m_SVertices[i].s[0],m_SVertices[i].s[1],m_SVertices[i].s[2] );
+      v *= m_Options.radius;
+      m_Output.add_vertex( vertex_ptr_t( new vertex_t( v ) ) );
   }
 
   for( mesh_t::face_iterator_t f = m_Input.faces_begin(); f != m_Input.faces_end(); ++f )

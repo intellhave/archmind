@@ -47,6 +47,7 @@ bool parseCommandLine(int argc, char **argv, cmdline_map_t &vm)
 			("spdelta", value<float>()->default_value(1e-06f), "saddle point convergence delta")
 			("workgroup", value<int>()->default_value(512), "OpenCL workgroup size")
 			("centroid", value<int>()->default_value(0), "set to 1 to use a centroidal projection for the initial solution")
+            ("radius", value<float>()->default_value(1.0f), "set the radius of the final sphere")
 			;
 
 	try

@@ -63,7 +63,8 @@ struct Options
 		max_sp_iters(100000),
 		weights(0),
 		device_type(4),
-		centroid_proj(false)
+		centroid_proj(false),
+        radius(1.0f)
 		{}
 
 	scalar_t target_residual;
@@ -74,6 +75,7 @@ struct Options
 	unsigned weights;	//0 - tutte, 1 - conformal
 	int device_type;
 	bool centroid_proj;
+    float radius;
 };
 
 class SolverCL 
